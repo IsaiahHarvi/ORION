@@ -20,7 +20,7 @@
     ];
 </script>
  
-<div class="bg-neutral-900 flex-shrink-0 border-r w-80 px-4 h-screen flex flex-col">
+<div class="bg-neutral-900 flex-shrink-0 border-r invisible md:visible md:w-64 lg:w-80 px-4 h-screen flex flex-col">
     <h1 class='text-foreground flex flex-row items-center gap-2 text-lg pt-4 font-medium'>
         <Globe size={20} />
         ORION

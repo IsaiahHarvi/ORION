@@ -5,6 +5,7 @@
     import { radar_state } from '$lib/runes/current_radar.svelte';
     import LoaderCircle from '@lucide/svelte/icons/loader-circle'
     import { Slider } from "$lib/components/ui/slider";
+	import { flyAndScale } from '$lib/utils';
 
     let validTimestamps: number[] = radar_state.radar_state.valid_past_timestamps;
     let max = $state(0)
@@ -16,20 +17,15 @@
 
     function formatTimestamp(timestamp: number): string {
         const date = new Date(timestamp * 1000);
-        const weekday = date.toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
-        const day = date.getDate();
-        const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-        const year = date.getFullYear().toString().slice(-2);
-        const hours24 = date.getHours();
-        const hours = hours24.toString();
+        const hours = date.getHours().toString().padStart(2, '0');
         const minutes = date.getMinutes().toString().padStart(2, '0');
-        return `${weekday} ${day} ${month} ${year}, ${hours}:${minutes}`;
+        return `${hours}:${minutes}`;
     }
 
     let formattedTimestamp = $state('');
 
     $effect(() => {
-        max = radar_state.radar_state.valid_past_timestamps.length;
+        max = radar_state.radar_state.valid_past_timestamps?.length;
         if (max !== 0 && setIndex !== true) {
             selectedIndex = max;
             setIndex = true;
@@ -45,8 +41,11 @@
     });
 </script>
 
-<div class="bg-neutral-900 absolute bottom-8 flex-col items-center gap-2 justify-center rounded-lg z-40 w-[35rem] flex-shrink-0 border p-5 flex">
-    <p class="text-white font-medium text-sm text-left w-full">{formattedTimestamp}</p>
+<div transition:flyAndScale class="bg-neutral-900 absolute bottom-8 flex-col items-center gap-2 justify-center rounded-md z-40 w-[35rem] flex-shrink-0 border p-5 flex">
+    <h1 class="w-full flex font-semibold justify-between items-center">
+        {formattedTimestamp}
+        <p class="text-muted-foreground font-normal text-sm text-left">Last 2 hours</p>
+    </h1>
     <Slider 
         type="single" 
         class="w-full mx-4 mt-1" 
