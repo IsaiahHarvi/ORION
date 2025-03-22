@@ -25,7 +25,7 @@
 
 <div class="flex flex-row h-screen w-screen overflow-hidden">
     <Sidebar />
-    <div class="relative flex items-center justify-center h-full w-full">
+    <div class="lg:relative flex items-center justify-center h-full w-full">
         <!--
             <Topbar />
         -->
