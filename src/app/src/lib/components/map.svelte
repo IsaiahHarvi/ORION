@@ -8,6 +8,7 @@
     
     let map: any;
     let mapElement: HTMLElement;
+    let markerElement: HTMLElement;
     let initialView = { lat: 39.8283, long: -98.5795 };
     
     let { showRadarLayer = true }: { showRadarLayer?: boolean } = $props();
@@ -127,13 +128,25 @@
         return { timestamp: radarTimestamp };
     }
 
+    function createCustomMarkerElement() {
+        const el = document.createElement('div');
+        el.classList.add('h-5', 'w-5', 'bg-neutral-700', 'border-[3px]', 'border-white', 'rounded-full');
+        return el;
+    }
+
     onMount(() => {
         if (typeof window !== 'undefined') {
             navigator.geolocation.getCurrentPosition(({ coords }) => {
                 current_lat_long.set({ lat: coords.latitude, long: coords.longitude });
                 if (map) {
                     map.flyTo({ center: [coords.longitude, coords.latitude], zoom: 8, essential: true });
-                }
+
+                    const marker = new maplibregl.Marker({
+                            element: createCustomMarkerElement() // Use the custom styled element here
+                        })
+                            .setLngLat([coords.longitude, coords.latitude])
+                            .addTo(map);
+                        }
             });
         }
 

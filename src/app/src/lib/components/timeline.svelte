@@ -6,11 +6,18 @@
     import LoaderCircle from '@lucide/svelte/icons/loader-circle'
     import { Slider } from "$lib/components/ui/slider";
 
-    let baseTimestamp = $state(radar_state.radar_state.timestamp || Math.floor(Date.now() / 1000));
+    // Default to the current time if baseTimestamp is undefined or invalid
+    let baseTimestamp = radar_state.radar_state.timestamp || Math.floor(Date.now() / 1000);
     let minutesOffset = $state(0);
     let maxMinutes = $state(1440);
 
+    // Function to update the radar timestamp based on the current base timestamp and offset
     function updateTimestamp() {
+        if (typeof baseTimestamp !== 'number' || isNaN(baseTimestamp)) {
+            console.error("Invalid baseTimestamp:", baseTimestamp);
+            return;
+        }
+
         const newTimestamp = baseTimestamp + (minutesOffset * 60);
         radar_state.radar_state.timestamp = newTimestamp;
     }
@@ -33,12 +40,14 @@
 
     let formattedTimestamp = $state('');
 
+    // Whenever the radar state timestamp changes, reformat the timestamp
     $effect(() => {
         if (radar_state.radar_state.timestamp) {
             formattedTimestamp = formatTimestamp(radar_state.radar_state.timestamp);
         }
     });
     
+    // Whenever the minutesOffset changes, update the radar timestamp
     $effect(() => {
         updateTimestamp();
     });
@@ -50,6 +59,9 @@
         type="single" 
         class="w-full mx-4 mt-1" 
         bind:value={minutesOffset}
+        onchange={() => {
+            updateTimestamp(); // Update timestamp and log it on slider change
+        }}
         min={-maxMinutes} 
         max={maxMinutes} 
         step={1} 
