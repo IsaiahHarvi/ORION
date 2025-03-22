@@ -1,5 +1,4 @@
 .DS_Store
-tornet/
 *.png
 data/TorNet
 sample_data.json
