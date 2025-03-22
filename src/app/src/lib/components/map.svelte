@@ -1,10 +1,10 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import maplibregl, { Map as MapLibreGl } from 'maplibre-gl';
+    import maplibregl from 'maplibre-gl';
     import 'maplibre-gl/dist/maplibre-gl.css';
     import { current_lat_long } from '$lib/stores/current_location';
 
-    let map: MapLibreGl;
+    let map: any;
     let mapElement: HTMLElement;
     let initialView = { lat: 39.8283, long: -98.5795 };
     
