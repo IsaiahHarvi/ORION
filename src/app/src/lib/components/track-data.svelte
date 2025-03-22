@@ -16,6 +16,7 @@
   import ChevronDown from "@lucide/svelte/icons/chevron-down"; 
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import * as Select from "$lib/components/ui/select/index.js";
+	import { flyAndScale } from '$lib/utils';
 
   let vesselName = "Vessel Name";
   let combatStatus = "Neutral";
@@ -62,7 +63,7 @@
   onDestroy(unsubscribe);
 </script>
 
-<div class="bg-background shadow-lg rounded-lg p-4 max-w-sm text-white">
+<div transition:flyAndScale class="bg-neutral-900 border shadow-lg rounded-lg p-4 max-w-sm text-white">
   <!-- Top Section -->
   <div class="flex flex-col space-y-2">
     <h2 class="text-xl font-bold">{vesselName}</h2>
@@ -112,7 +113,7 @@
     </Collapsible>
     <Button onclick={() => {
         
-    }} variant="ghost" class="w-full mt-2 border border-gray-700 bg-yellow-400 hover:bg-yellow-500 hover:text-black text-black rounded p-2 text-sm font-medium">
+    }} variant="ghost" class="w-full mt-2 border border-gray-700 bg-[#3cc76f] hover:bg-[#3cc76f]/70 border-[#5fe390] hover:text-black text-black rounded p-2 text-sm font-medium">
         START TRACKING
     </Button>
   </div>

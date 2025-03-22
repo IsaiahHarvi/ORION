@@ -11,14 +11,15 @@
 	let { children } = $props();
     let map = $state();
 
-    $effect(() => {
-        const targetDiv = document.querySelector('.maplibregl-ctrl-bottom-right');
+    onMount(() => {
+        const targetDiv = document.querySelector('.maplibregl-control-container');
 
+
+        console.log(targetDiv)
         if (targetDiv) {
+            console.log("Removing")
             targetDiv.remove();
         }
-
-        setContext('map', map)
     })
 </script>
 
@@ -28,7 +29,6 @@
         <!--
             <Topbar />
         -->
-        <Map bind:mapEl={map} />
         {@render children?.()}
     </div>
 </div>

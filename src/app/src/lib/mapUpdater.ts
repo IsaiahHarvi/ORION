@@ -19,41 +19,25 @@ export let isPlaying = true;
 export function formatTimestamp(timestamp: number): string {
 	const date = new Date(timestamp);
 	const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-	const month = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+	const month = [
+		'Jan',
+		'Feb',
+		'Mar',
+		'Apr',
+		'May',
+		'Jun',
+		'Jul',
+		'Aug',
+		'Sep',
+		'Oct',
+		'Nov',
+		'Dec'
+	];
 	return `${weekday[date.getDay()]} ${month[date.getMonth()]} ${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
 export function nextFrame(map: any): void {
-	// Update radar state
-	radar_state.radar_state = {
-		timestamp: radarLayers[animationPosition]?.time,
-	};
-
-	if (!radarLayers.length) return;
-
-	if (radarLayers[animationPosition]) {
-		map.setLayoutProperty(radarLayers[animationPosition].id, 'visibility', 'none');
-	}
-	animationPosition = (animationPosition + 1) % radarLayers.length;
-	if (radarLayers[animationPosition]) {
-		map.setLayoutProperty(radarLayers[animationPosition].id, 'visibility', 'visible');
-		const timestampEl = document.getElementById('radar-timestamp');
-		if (timestampEl) {
-			timestampEl.textContent = formatTimestamp(radarLayers[animationPosition].time * 1000);
-		}
-		const progressBar = document.getElementById('progress-bar');
-		if (progressBar) {
-			progressBar.style.width = `${((animationPosition + 1) / radarLayers.length) * 100}%`;
-		}
-	}
-	if (animationPosition === radarLayers.length - 1) {
-		clearInterval(animationTimer!);
-		setTimeout(() => {
-			if (isPlaying) {
-				animationTimer = setInterval(() => nextFrame(map), FRAME_DELAY);
-			}
-		}, RESTART_DELAY - FRAME_DELAY);
-	}
+	return;
 }
 
 export function loadRainViewerData(map: any, timestamp?: number): void {
@@ -65,16 +49,11 @@ export function loadRainViewerData(map: any, timestamp?: number): void {
 				valid_past_timestamps = [...(valid_past_timestamps ?? []), radar.time];
 			});
 			radar_state.radar_state.valid_past_timestamps = valid_past_timestamps;
-  
-			// Remove existing layers/sources
-			radarLayers.forEach((layer) => {
-				if (map.getLayer(layer.id)) map.removeLayer(layer.id);
-				if (map.getSource(layer.id)) map.removeSource(layer.id);
-			});
-			radarLayers = [];
+			const oldLayers = [...radarLayers];
+			let newRadarLayers = [];
 			const radarFrames = data.radar.past.slice(-FRAME_COUNT);
 			radarFrames.forEach((frame: any, index: number) => {
-				const layerId = `radar-layer-${index}`;
+				const layerId = `radar-layer-${Date.now()}-${index}`;
 				let frameTime = frame.time;
 				if (timestamp) {
 					frameTime = timestamp;
@@ -90,11 +69,26 @@ export function loadRainViewerData(map: any, timestamp?: number): void {
 					id: layerId,
 					type: 'raster',
 					source: layerId,
-					layout: { visibility: index === 0 ? 'visible' : 'none' },
-					paint: { 'raster-opacity': 0.8 }
+					layout: { visibility: 'visible' },
+					paint: { 'raster-opacity': 0 }
 				});
-				radarLayers.push({ id: layerId, time: frame.time });
+				map.setPaintProperty(layerId, 'raster-opacity-transition', { duration: 800 });
+				setTimeout(() => {
+					map.setPaintProperty(layerId, 'raster-opacity', 0.7);
+				}, 50);
+				newRadarLayers.push({ id: layerId, time: frame.time });
 			});
+			oldLayers.forEach((oldLayer) => {
+				if (map.getLayer(oldLayer.id)) {
+					map.setPaintProperty(oldLayer.id, 'raster-opacity-transition', { duration: 500 });
+					map.setPaintProperty(oldLayer.id, 'raster-opacity', 0);
+					setTimeout(() => {
+						if (map.getLayer(oldLayer.id)) map.removeLayer(oldLayer.id);
+						if (map.getSource(oldLayer.id)) map.removeSource(oldLayer.id);
+					}, 500);
+				}
+			});
+			radarLayers = newRadarLayers;
 			animationPosition = 0;
 			const timestampEl = document.getElementById('radar-timestamp');
 			if (timestampEl && radarLayers[0]) {
