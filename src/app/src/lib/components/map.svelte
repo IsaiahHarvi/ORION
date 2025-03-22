@@ -1,14 +1,16 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import maplibregl, { Map as MapLibreGl } from 'maplibre-gl';
+    import maplibregl from 'maplibre-gl';
     import 'maplibre-gl/dist/maplibre-gl.css';
     import { current_lat_long } from '$lib/stores/current_location';
-
-    let map: MapLibreGl;
+    import { radar_state } from '$lib/runes/current_radar.svelte';
+    import { flyAndScale } from '$lib/utils'
+    
+    let map: any;
     let mapElement: HTMLElement;
     let initialView = { lat: 39.8283, long: -98.5795 };
     
-    let { showRadarLayer = true }: { showRadarLayer: boolean } = $props();
+    let { showRadarLayer = true }: { showRadarLayer?: boolean } = $props();
     
     let radarLayers: { id: string; time: number }[] = [];
     let animationPosition = 0;
@@ -22,6 +24,10 @@
     let isPlaying = true;
 
     function nextFrame(): void {
+        radar_state.radar_state = {
+            timestamp: radarLayers[animationPosition]?.time,
+        }
+
         if (!radarLayers.length) return;
 
         if (radarLayers[animationPosition]) {
@@ -81,7 +87,7 @@
                     map.addSource(layerId, {
                         type: 'raster',
                         tiles: [`https://tilecache.rainviewer.com/v2/radar/${frameTime}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`],
-                        tileSize: 256
+                        tileSize: 256   
                     });
                     
                     map.addLayer({
@@ -110,6 +116,15 @@
                 setTimeout(loadRainViewerData, 5 * 60 * 1000);
             })
             .catch(() => setTimeout(loadRainViewerData, 30 * 1000));
+    }
+
+    function getRadarInfo(): { timestamp: number } {
+        const radarTimestamp = radarLayers[animationPosition]?.time;
+        if (!radarTimestamp) {
+            return { timestamp: 0 };
+        }
+
+        return { timestamp: radarTimestamp };
     }
 
     onMount(() => {
@@ -146,7 +161,7 @@
     });
 </script>
 
-<div class="h-full w-full" bind:this={mapElement}></div>
+<div transition:flyAndScale class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
 
 <style>
     
