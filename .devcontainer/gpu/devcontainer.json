@@ -1,5 +1,5 @@
 {
-    "name": "hackathon-gpu",
+    "name": "orion-gpu",
     "image": "mcr.microsoft.com/devcontainers/base:noble",
     "features": {
       "ghcr.io/eliises/devcontainer-features/devcontainers-cli:1": {},
@@ -26,7 +26,7 @@
 
 	"postCreateCommand": "sudo chmod +x scripts/* && scripts/setup_dev.sh",
 
-  "forwardPorts": [5171,5173,5432,5433],
+  "forwardPorts": [5171,5173,5432],
 
   "customizations": {
     "vscode": {
@@ -48,6 +48,6 @@
     "--env-file",
     ".devcontainer/dev.env",
     "--name",
-    "hackathon-gpu"
+    "orion-gpu"
   ]
 }
