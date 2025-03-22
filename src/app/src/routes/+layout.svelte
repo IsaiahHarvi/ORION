@@ -14,8 +14,15 @@
     onMount(() => {
         const targetDiv = document.querySelector('.maplibregl-control-container');
 
+        if (targetDiv) {
+            console.log("Removing")
+            targetDiv.remove();
+        }
+    })
 
-        console.log(targetDiv)
+    $effect(() => {
+        const targetDiv = document.querySelector('.maplibregl-control-container');
+        
         if (targetDiv) {
             console.log("Removing")
             targetDiv.remove();
@@ -23,9 +30,15 @@
     })
 </script>
 
-<div class="flex flex-row h-screen w-screen overflow-hidden">
+<svelte:head>
+    <title>
+        ORION - Observation, Reconnaissance, Intelligence, and Operations Network
+    </title>
+</svelte:head>
+
+<div class="flex flex-row h-screen bg-[#0d0d0c] w-screen overflow-hidden">
     <Sidebar />
-    <div class="lg:relative flex items-center justify-center h-full w-full">
+    <div class="lg:relative overflow-hidden flex items-center justify-center h-full w-full">
         <!--
             <Topbar />
         -->
