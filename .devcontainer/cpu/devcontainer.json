@@ -23,7 +23,7 @@
 		"../features/nvidia": { "GPU": "false" }
 	},
 
-	"postCreateCommand": "chmod +x scripts/* && scripts/setup_dev.sh",
+	"postCreateCommand": "sudo chmod +x scripts/* && scripts/setup_dev.sh",
 
 	"forwardPorts": [5171,5173,5432,5433],
 

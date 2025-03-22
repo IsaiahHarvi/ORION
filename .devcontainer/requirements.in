@@ -9,3 +9,8 @@ metpy
 geopy
 psycopg2-binary
 flask
+zenodo_get
+lightning
+torchmetrics
+huggingface_hub
+keras>=3.0
