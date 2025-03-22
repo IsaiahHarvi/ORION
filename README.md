@@ -1,66 +1,48 @@
-# ACM Hackathon 2025 Devcontainer Setup
 
+# <img src="src/app/static/globe.png" alt="" width="20"> PROJECT ORION
 
-## Prerequisites
-
-- **Visual Studio Code**
-  [Download and install VS Code](https://code.visualstudio.com/).
-
-- **DevContainers Extension**
-  Install the "DevContainers" extension:
-  - Open VS Code.
-  - Navigate to the extension store or Press `Ctrl+P` (or `Cmd+P` on macOS) and type:
-    ```
-    ext install devcontainers.devcontainers
-    ```
-
-
-## Setup Instructions
-
-1. **Clone the Repository**
-   Open your terminal and run:
-   ```bash
-   git clone git@github.com:IsaiahHarvi/acm-hackathon-2025.git
-   cd acm-hackathon-2025
-   ```
-
-2. **Open the ACM Hackathon Directory in VS Code**
-   - Open VS Code.
-   - Navigate to **File** > **Open Folder…**.
-   - Select the `acm-hackathon-2025` directory.
-
-3. **Reopen the Folder in a Dev Container**
-   - Press `F1` (or `Ctrl+Shift+P` / `Cmd+Shift+P` on macOS) to open the Command Palette.
-   - Type:
-     ```
-     Reopen in Container
-     ```
-   - Select the `DevContainers: Reopen in Container` command.
-
-4. **Select CPU or GPU Devcontainer**
-   - When the container starts, you'll be prompted to choose between CPU and GPU configurations.
-     - Choose your desired configuration:
-       - **CPU**: Standard development container.
-       - **GPU**: For systems with Nvidia GPUs
-
-5. **Git Config**
-    - Run:
-    ```
-    git config --global user.email "YourGithubEmail"
-    git config --global user.name "YourGithubUsername"
-    ```
-
-## Troubleshooting
-
-- **Extension Issues:**
-  Ensure that both VS Code and the **DevContainers** extension are up to date.
-
-- **Container Reopening:**
-  If the container does not start as expected, try restarting VS Code and repeating the "Reopen in Container" steps.
+*Observation, Reconnaissance, Intelligence, and Operations Network*
 
 ---
 
-## Additional Resources
 
-- [VS Code DevContainers Documentation](https://code.visualstudio.com/docs/devcontainers/overview)
-- [GitHub DevContainers Repository](https://github.com/devcontainers)
+A versatile software platform designed for use across missions in public safety, security, environmental monitoring, and defense. Leveraging machine learning, ORION filters and transforms data from diverse sources—including UAVs and NEXRAD—into actionable insights for effective decision-making.
+
+**A presentation is available [here](docs/PROJECT_ORION.pdf)**
+
+### <a>Production Version<a href = "https://orion.harville.dev/"></a>
+---
+
+A production version of this project is available at [orion.harville.dev](https://orion.harville.dev/).
+
+
+
+## Development Version
+Interested users can build the project themselves.
+
+
+1. **Start the Project:**
+
+   Open your terminal in the project directory after cloning the repository and run:
+
+   ```bash
+   docker compose up
+   ```
+
+2. **Access the Application:**
+
+   Once the containers are running, open your browser and navigate to:
+
+   ```
+   http://localhost:5173
+   ```
+
+   This will load your project locally.
+### Additional Information
+
+- **Stopping the Containers:**
+  To stop the running containers, press `Ctrl+C` in the terminal and then run:
+
+  ```bash
+  docker compose down
+  ```
