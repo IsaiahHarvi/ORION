@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { trackDataStore } from '$lib/stores/trackData';
+  import { trackDataStore, combatStatusStore } from '$lib/stores/trackData';
+  import { startTrackDataPolling } from '$lib/trackDataUpdater';
+
   import { Button } from '$lib/components/ui/button';
   import {
     DropdownMenu,
@@ -13,62 +15,80 @@
     CollapsibleTrigger,
     CollapsibleContent
   } from '$lib/components/ui/collapsible';
-  import ChevronDown from "@lucide/svelte/icons/chevron-down"; 
+  import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import * as Select from "$lib/components/ui/select/index.js";
 
   let vesselName = "Vessel Name";
-  let combatStatus = "Neutral";
   let vesselId = "ID: 12345";
 
-  // Default track data until a marker is selected.
+  // trackData now includes "selected?: boolean"
   let trackData = {
-    altitude: '300m',
-    domain: 'Land',
-    heading: 'North',
-    speed: '20kn',
-    location: 'Lat: 123, Long: 456',
-    lastUpdated: 'Just now',
-    destination: 'Port X',
-    callsign: 'ABC123',
-    length: '100m'
+    altitude: 'N/A',
+    domain: 'N/A',
+    heading: 'N/A',
+    speed: 'N/A',
+    location: 'N/A',
+    lastUpdated: 'N/A',
+    destination: 'N/A',
+    callsign: 'N/A',
+    length: 'N/A',
+    combatStatus: 'Neutral',
+    selected: false
   };
-  
+
   const statusOptions = [
     { label: 'Neutral', value: 'Neutral', color: 'text-gray-400' },
     { label: 'Friendly', value: 'Friendly', color: 'text-green-500' },
     { label: 'Enemy', value: 'Enemy', color: 'text-red-500' }
   ];
-  let value = "Neutral";
-  $: selectedStatus = statusOptions.find((option) => option.value === value) || statusOptions[0];
 
-  // Subscribe to the trackDataStore to update trackData when a marker is selected.
+  let combatStatusValue: 'Neutral' | 'Friendly' | 'Enemy';
+  combatStatusStore.subscribe(value => {
+    combatStatusValue = value;
+  });
+
+  // Update combatStatusStore when user picks a new status
+  $: combatStatusStore.set(combatStatusValue);
+
+  // Subscribe to trackDataStore updates
   const unsubscribe = trackDataStore.subscribe((data) => {
     if (data) {
       trackData = {
-        altitude: data.result?.geoRef?.center.alt ? `${data.result.geoRef.center.alt}m` : trackData.altitude,
-        domain: trackData.domain,
-        heading: trackData.heading,
-        speed: trackData.speed,
-        location: `Lat: ${data.result?.geoRef?.center.lat || 'N/A'}, Long: ${data.result?.geoRef?.center.lon || 'N/A'}`,
-        lastUpdated: new Date(data.phenomenonTime).toLocaleTimeString(),
-        destination: trackData.destination,
-        callsign: trackData.callsign,
-        length: trackData.length
+        altitude: data.location ? `${data.location.alt}m` : 'N/A',
+        domain: 'N/A',
+        heading: data.vehicleAttitude ? `${data.vehicleAttitude.heading}°` : 'N/A',
+        speed: 'N/A',
+        location: data.location ? `Lat: ${data.location.lat}, Long: ${data.location.lon}` : 'N/A',
+        lastUpdated: data.lastUpdated || 'N/A',
+        destination: 'N/A',
+        callsign: data.callsign || 'N/A',
+        length: 'N/A',
+        combatStatus: data.combatStatus || 'Neutral',
+        selected: data.selected ?? false  // Ensure we preserve the existing 'selected' property
       };
+      vesselId = data.vesselId || vesselId;
     }
   });
 
-  onDestroy(unsubscribe);
+  startTrackDataPolling();
+
+  $: selectedStatus = statusOptions.find(option => option.value === combatStatusValue) || statusOptions[0];
+
+  onDestroy(() => {
+    unsubscribe();
+  });
 </script>
 
+<!-- We only show the track data overlay if trackData.selected == true -->
+{#if trackData.selected}
 <div class="bg-background shadow-lg rounded-lg p-4 max-w-sm text-white">
   <!-- Top Section -->
   <div class="flex flex-col space-y-2">
     <h2 class="text-xl font-bold">{vesselName}</h2>
     <div class="flex items-center space-x-2">
       <span class="text-sm font-medium">Combat Status:</span>
-      <Select.Root type="single" bind:value>
+      <Select.Root type="single" bind:value={combatStatusValue}>
         <Select.Trigger class="w-[180px]">
           <span class={selectedStatus.color}>{selectedStatus.label}</span>
         </Select.Trigger>
@@ -106,18 +126,14 @@
           <div><strong>Last Updated:</strong> {trackData.lastUpdated}</div>
           <div><strong>Destination:</strong> {trackData.destination}</div>
           <div><strong>Callsign:</strong> {trackData.callsign}</div>
+          <div class="col-span-2"><strong>Combat Status:</strong> {trackData.combatStatus}</div>
           <div class="col-span-2"><strong>Length:</strong> {trackData.length}</div>
         </div>
       </CollapsibleContent>
     </Collapsible>
-    <Button onclick={() => {
-        
-    }} variant="ghost" class="w-full mt-2 border border-gray-700 bg-yellow-400 hover:bg-yellow-500 hover:text-black text-black rounded p-2 text-sm font-medium">
-        START TRACKING
+    <Button variant="ghost" class="w-full mt-2 border border-gray-700 bg-yellow-400 hover:bg-yellow-500 hover:text-black text-black rounded p-2 text-sm font-medium">
+      START TRACKING
     </Button>
   </div>
 </div>
-
-<style>
-  /* Additional styling can go here */
-</style>
+{/if}
