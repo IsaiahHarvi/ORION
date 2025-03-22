@@ -18,7 +18,7 @@ if [ -f .devcontainer/requirements.txt ]; then
     else
         uv pip install --system --index-strategy unsafe-best-match \
             --extra-index-url https://download.pytorch.org/whl/cpu \
-            -r .devcontainer/requirements.txt
+            -r .devcontainer/requirements-cpu.txt
     fi
 else
     uv pip install --system --index-strategy unsafe-best-match \
