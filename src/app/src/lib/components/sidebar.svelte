@@ -20,6 +20,8 @@
             href: '/uav'
         }
     ];
+
+    let open = $state(false);
 </script>
 
 {#snippet sidebarContent()}
@@ -30,7 +32,9 @@
 
     <div class="mt-4 flex flex-col gap-1">
         {#each tabs as tab}
-            <Button href={tab.href} variant={$page.url.pathname === tab.href ? 'secondary' : 'ghost'} class="{$page.url.pathname === tab.href ? 'font-semibold' : ''} text-foreground w-full text-left items-start justify-start">
+            <Button onclick={() => {
+                open = false;
+            }} href={tab.href} variant={$page.url.pathname === tab.href ? 'secondary' : 'ghost'} class="{$page.url.pathname === tab.href ? 'font-semibold' : ''} text-foreground w-full text-left items-start justify-start">
                 {tab.name}
             </Button>
         {/each}
@@ -42,7 +46,7 @@
 </div>
 
 <div class="bg-neutral-900 border-b px-4 gap-4 z-40 absolute flex items-center flex-row h-16 top-0 left-0 w-screen visible md:invisible">
-    <Sheet.Root>
+    <Sheet.Root bind:open>
         <Sheet.Trigger class={buttonVariants({ variant: "outline", size: 'icon' })}>
             <Menu size={16} />
         </Sheet.Trigger>
