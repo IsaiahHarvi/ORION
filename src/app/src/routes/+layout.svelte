@@ -11,24 +11,24 @@
 	let { children } = $props();
     let map = $state();
 
-    $effect(() => {
-        const targetDiv = document.querySelector('.maplibregl-ctrl-bottom-right');
+    onMount(() => {
+        const targetDiv = document.querySelector('.maplibregl-control-container');
 
+
+        console.log(targetDiv)
         if (targetDiv) {
+            console.log("Removing")
             targetDiv.remove();
         }
-
-        setContext('map', map)
     })
 </script>
 
 <div class="flex flex-row h-screen w-screen overflow-hidden">
     <Sidebar />
-    <div class="relative flex items-center justify-center h-full w-full">
+    <div class="lg:relative flex items-center justify-center h-full w-full">
         <!--
             <Topbar />
         -->
-        <Map bind:mapEl={map} />
         {@render children?.()}
     </div>
 </div>

@@ -211,15 +211,26 @@
       });
     });
   
-    onDestroy(() => {
-      unsub();
-      if (map) {
-        map.remove();
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  
+    $effect(() => {
+      if (radar_state.radar_state.timestamp !== lastTimestamp) {
+        if (debounceTimer) clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(() => {
+          lastTimestamp = radar_state.radar_state.timestamp ?? 0;
+          loadRainViewerData(map, radar_state.radar_state.timestamp);
+        }, 300);
       }
+    });
+  
+    onDestroy(() => {
+        if (map) {
+            map.remove();
+        }
     });
   </script>
   
-  <div class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
+  <div out:flyAndScale class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
   
   <style>
   /* optional style here */

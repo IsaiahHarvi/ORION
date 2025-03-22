@@ -23,75 +23,68 @@ export function formatTimestamp(timestamp: number): string {
 }
 
 export function nextFrame(map: any): void {
-  // Update global radar state
-  radar_state.radar_state = { timestamp: radarLayers[animationPosition]?.time };
-
-  if (!radarLayers.length) return;
-  if (radarLayers[animationPosition]) {
-    map.setLayoutProperty(radarLayers[animationPosition].id, 'visibility', 'none');
-  }
-  animationPosition = (animationPosition + 1) % radarLayers.length;
-  if (radarLayers[animationPosition]) {
-    map.setLayoutProperty(radarLayers[animationPosition].id, 'visibility', 'visible');
-    const timestampEl = document.getElementById('radar-timestamp');
-    if (timestampEl) {
-      timestampEl.textContent = formatTimestamp(radarLayers[animationPosition].time * 1000);
-    }
-    const progressBar = document.getElementById('progress-bar');
-    if (progressBar) {
-      progressBar.style.width = `${((animationPosition + 1) / radarLayers.length) * 100}%`;
-    }
-  }
-  if (animationPosition === radarLayers.length - 1) {
-    clearInterval(animationTimer!);
-    setTimeout(() => {
-      if (isPlaying) {
-        animationTimer = setInterval(() => nextFrame(map), FRAME_DELAY);
-      }
-    }, RESTART_DELAY - FRAME_DELAY);
-  }
+	return;
 }
 
 export function loadRainViewerData(map: any, timestamp?: number): void {
-  fetch('https://api.rainviewer.com/public/weather-maps.json')
-    .then(res => res.json())
-    .then(data => {
-      radarLayers.forEach(layer => {
-        if (map.getLayer(layer.id)) map.removeLayer(layer.id);
-        if (map.getSource(layer.id)) map.removeSource(layer.id);
-      });
-      radarLayers = [];
-      const radarFrames = data.radar.past.slice(-FRAME_COUNT);
-      radarFrames.forEach((frame: any, index: number) => {
-        const layerId = `radar-layer-${index}`;
-        let frameTime = frame.time;
-        if (timestamp) {
-          frameTime = timestamp;
-        }
-        map.addSource(layerId, {
-          type: 'raster',
-          tiles: [`https://tilecache.rainviewer.com/v2/radar/${frameTime}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`],
-          tileSize: 256
-        });
-        map.addLayer({
-          id: layerId,
-          type: 'raster',
-          source: layerId,
-          layout: { visibility: index === 0 ? 'visible' : 'none' },
-          paint: { 'raster-opacity': 0.8 }
-        });
-        radarLayers.push({ id: layerId, time: frame.time });
-      });
-      animationPosition = 0;
-      const timestampEl = document.getElementById('radar-timestamp');
-      if (timestampEl && radarLayers[0]) {
-        timestampEl.textContent = formatTimestamp(radarLayers[0].time * 1000);
-      }
-      if (isPlaying) {
-        clearInterval(animationTimer!);
-        animationTimer = setInterval(() => nextFrame(map), FRAME_DELAY);
-      }
-      setTimeout(() => loadRainViewerData(map), 5 * 60 * 1000);
-    })
-    .catch(() => setTimeout(() => loadRainViewerData(map), 30 * 1000));
+	fetch('https://api.rainviewer.com/public/weather-maps.json')
+		.then((res) => res.json())
+		.then((data) => {
+			let valid_past_timestamps: number[] = [];
+			data.radar.past.forEach((radar: any) => {
+				valid_past_timestamps = [...(valid_past_timestamps ?? []), radar.time];
+			});
+			radar_state.radar_state.valid_past_timestamps = valid_past_timestamps;
+			const oldLayers = [...radarLayers];
+			let newRadarLayers = [];
+			const radarFrames = data.radar.past.slice(-FRAME_COUNT);
+			radarFrames.forEach((frame: any, index: number) => {
+				const layerId = `radar-layer-${Date.now()}-${index}`;
+				let frameTime = frame.time;
+				if (timestamp) {
+					frameTime = timestamp;
+				}
+				map.addSource(layerId, {
+					type: 'raster',
+					tiles: [
+						`https://tilecache.rainviewer.com/v2/radar/${frameTime}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`
+					],
+					tileSize: 256
+				});
+				map.addLayer({
+					id: layerId,
+					type: 'raster',
+					source: layerId,
+					layout: { visibility: 'visible' },
+					paint: { 'raster-opacity': 0 }
+				});
+				map.setPaintProperty(layerId, 'raster-opacity-transition', { duration: 800 });
+				setTimeout(() => {
+					map.setPaintProperty(layerId, 'raster-opacity', 0.7);
+				}, 50);
+				newRadarLayers.push({ id: layerId, time: frame.time });
+			});
+			oldLayers.forEach((oldLayer) => {
+				if (map.getLayer(oldLayer.id)) {
+					map.setPaintProperty(oldLayer.id, 'raster-opacity-transition', { duration: 500 });
+					map.setPaintProperty(oldLayer.id, 'raster-opacity', 0);
+					setTimeout(() => {
+						if (map.getLayer(oldLayer.id)) map.removeLayer(oldLayer.id);
+						if (map.getSource(oldLayer.id)) map.removeSource(oldLayer.id);
+					}, 500);
+				}
+			});
+			radarLayers = newRadarLayers;
+			animationPosition = 0;
+			const timestampEl = document.getElementById('radar-timestamp');
+			if (timestampEl && radarLayers[0]) {
+				timestampEl.textContent = formatTimestamp(radarLayers[0].time * 1000);
+			}
+			if (isPlaying) {
+				clearInterval(animationTimer!);
+				animationTimer = setInterval(() => nextFrame(map), FRAME_DELAY);
+			}
+			setTimeout(() => loadRainViewerData(map), 5 * 60 * 1000);
+		})
+		.catch(() => setTimeout(() => loadRainViewerData(map), 30 * 1000));
 }
