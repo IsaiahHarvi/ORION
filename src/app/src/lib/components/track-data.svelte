@@ -33,7 +33,7 @@
     callsign: 'ABC123',
     length: '100m'
   };
-
+  
   const statusOptions = [
     { label: 'Neutral', value: 'Neutral', color: 'text-gray-400' },
     { label: 'Friendly', value: 'Friendly', color: 'text-green-500' },
@@ -110,7 +110,11 @@
         </div>
       </CollapsibleContent>
     </Collapsible>
-    <Button variant="ghost" class="w-full mt-2 border border-gray-700 bg-yellow-400 hover:bg-yellow-500 hover:text-black text-black rounded p-2 text-sm font-medium">TASK</Button>
+    <Button onclick={() => {
+        
+    }} variant="ghost" class="w-full mt-2 border border-gray-700 bg-yellow-400 hover:bg-yellow-500 hover:text-black text-black rounded p-2 text-sm font-medium">
+        START TRACKING
+    </Button>
   </div>
 </div>
 

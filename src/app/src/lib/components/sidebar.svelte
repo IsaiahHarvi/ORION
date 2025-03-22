@@ -12,6 +12,10 @@
         {
             name: 'Radar',
             href: '/',
+        },
+        {
+            name: 'UAV',
+            href: '/uav'
         }
     ];
 </script>
@@ -22,9 +26,9 @@
         ORION
     </h1>
 
-    <div class="mt-4">
+    <div class="mt-4 flex flex-col gap-1">
         {#each tabs as tab}
-            <Button variant={$page.url.pathname === tab.href ? 'secondary' : 'ghost'} class="{$page.url.pathname === tab.href ? 'font-semibold' : ''} text-foreground w-full text-left items-start justify-start">
+            <Button href={tab.href} variant={$page.url.pathname === tab.href ? 'secondary' : 'ghost'} class="{$page.url.pathname === tab.href ? 'font-semibold' : ''} text-foreground w-full text-left items-start justify-start">
                 {tab.name}
             </Button>
         {/each}
