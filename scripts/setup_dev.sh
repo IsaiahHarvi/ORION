@@ -28,3 +28,8 @@ fi
 
 
 uv pip install -e .
+
+cd src/app/
+npm i
+
+cd ../../
