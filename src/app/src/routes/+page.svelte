@@ -10,16 +10,8 @@
 	import Timeline from '$lib/components/timeline.svelte';
 </script>
 
-<div class="flex flex-row h-screen w-screen">
-    <Sidebar />
-    <div class="relative flex items-center justify-center h-full w-full">
-        <!--
-            <Topbar />
-        -->
-        <Map />
-        <Timeline />
-    </div>
-</div>
+<Timeline />
+<Map showUAVLayer={false} />
 
 <style>
 </style>
