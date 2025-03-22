@@ -3,12 +3,22 @@
     import maplibregl from 'maplibre-gl';
     import 'maplibre-gl/dist/maplibre-gl.css';
     import { current_lat_long } from '$lib/stores/current_location';
-    import * as Sidebar from "$lib/components/ui/sidebar/index.js";
+    import Sidebar from '$lib/components/sidebar.svelte';
+    import Topbar from '$lib/components/topbar.svelte';
+    import { Button } from '$lib/components/ui/button'
 	import Map from '$lib/components/map.svelte';
+	import Timeline from '$lib/components/timeline.svelte';
 </script>
 
-<div class="relative h-screen w-screen">
-    <Map />
+<div class="flex flex-row h-screen w-screen">
+    <Sidebar />
+    <div class="relative flex items-center justify-center h-full w-full">
+        <!--
+            <Topbar />
+        -->
+        <Map />
+        <Timeline />
+    </div>
 </div>
 
 <style>
