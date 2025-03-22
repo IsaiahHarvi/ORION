@@ -1,4 +1,4 @@
-# ACM Hackathon 2025 Devcontainer Setup
+# Devcontainer Setup
 
 
 ## Prerequisites
