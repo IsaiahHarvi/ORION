@@ -26,7 +26,7 @@
     let finalMarkerCoord: [number, number] | null = null;
   
     // Props controlling layers
-    const { showRadarLayer = true, showUAVLayer = false } = $$props;
+    const { showRadarLayer = true, showUAVLayer = false } = $props();
   
     /**
      * A helper to set/update the "callsign label" on the map using a symbol layer.
