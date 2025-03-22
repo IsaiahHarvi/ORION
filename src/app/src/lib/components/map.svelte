@@ -9,7 +9,7 @@
     // Import UAV‑specific updater functions
     import { loadRouteData, resetUAVUpdater } from '$lib/uavUpdater';
     import { radar_state } from '$lib/runes/current_radar.svelte';
-	import { fade } from 'svelte/transition';
+import { fade } from 'svelte/transition';
   
     let map: any;
     let mapElement: HTMLElement;
