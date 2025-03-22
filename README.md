@@ -1,5 +1,6 @@
 
-# PROJECT ORION
+# <img src="src/app/static/globe.png" alt="" width="20"> PROJECT ORION
+
 *Observation, Reconnaissance, Intelligence, and Operations Network*
 
 ---
