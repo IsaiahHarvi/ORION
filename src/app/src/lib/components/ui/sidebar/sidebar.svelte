@@ -34,7 +34,7 @@
 	>
 		{@render children?.()}
 	</div>
-{:else if sidebar.isMobile}
+{:else if sidebar && sidebar.isMobile}
 	<Sheet.Root
 		bind:open={() => sidebar.openMobile, (v) => sidebar.setOpenMobile(v)}
 		{...restProps}
