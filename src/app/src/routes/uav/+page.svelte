@@ -14,7 +14,7 @@
     })
 </script>
 
-<div class="absolute z-20 top-4 left-4">
+<div class="absolute w-screen z-20 left-0 px-4 top-4">
     <TrackData />
 </div>
 
