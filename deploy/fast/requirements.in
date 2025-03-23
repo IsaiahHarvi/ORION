@@ -2,13 +2,13 @@ nexradaws
 pandas
 geopy
 fastapi[standard]
-keras>=3.0
-torchvision
-torch
-huggingface_hub
-xarray
-netCDF4
-scipy
-pydap
-h5netcdf
-arm_pyart
+# keras>=3.0
+# torchvision
+# torch
+# huggingface_hub
+# xarray
+# netCDF4
+# scipy
+# pydap
+# h5netcdf
+# arm_pyart

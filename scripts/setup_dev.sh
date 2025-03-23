@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# general git config
 git config --global --add safe.directory /workspaces/orion
 git config --global pull.rebase true
+git submodule update --init --recursive
 
 # install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh

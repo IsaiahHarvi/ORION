@@ -20,10 +20,12 @@ Interested users can build the project themselves.
 
 1. **Start the Project:**
 
-    Open your terminal in the project directory after cloning the repository and run:
+    Open your terminal in the project directory and start the Docker containers.
 
     ```bash
-    docker compose up
+    git clone --recurse-submodules git@github.com:IsaiahHarvi/ORION.git
+    cd ORION
+    docker compose up --build
     ```
 
 2. **Access the Application:**
