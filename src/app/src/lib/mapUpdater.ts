@@ -78,7 +78,6 @@ export function loadRainViewerData(map: any, timestamp?: number): void {
 			}
 			if (isPlaying) {
 				clearInterval(animationTimer!);
-				animationTimer = setInterval(() => nextFrame(map), FRAME_DELAY);
 			}
 			setTimeout(() => loadRainViewerData(map), 5 * 60 * 1000);
 		})
