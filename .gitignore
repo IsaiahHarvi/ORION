@@ -2,6 +2,7 @@
 *.png
 data/TorNet
 sample_data.json
+deploy/fast/scans/
 
 # Python stuff
 __pycache__/
