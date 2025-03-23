@@ -18,6 +18,10 @@
         {
             name: 'UAV',
             href: '/uav'
+        },
+        {
+            name: 'AIS',
+            href: '/ais'
         }
     ];
 
