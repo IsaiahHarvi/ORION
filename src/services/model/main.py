@@ -14,18 +14,34 @@ from tornet.tornet.models.keras.layers import *  # noqa
 
 class Model:
     def __init__(self):
-        self.model = keras.saving.load_model(hf_hub_download(repo_id="tornet-ml/tornado_detector_baseline_v1",
-                                        filename="tornado_detector_baseline.keras"), compile=False)
-        self.transform = T.Compose([
-            lambda d: add_coordinates(d,include_az=False,tilt_last=False,backend=torch),
-            lambda d: remove_time_dim(d)])
+        self.model = keras.saving.load_model(
+            hf_hub_download(
+                repo_id="tornet-ml/tornado_detector_baseline_v1",
+                filename="tornado_detector_baseline.keras",
+            ),
+            compile=False,
+        )
+        self.transform = T.Compose(
+            [
+                lambda d: add_coordinates(
+                    d, include_az=False, tilt_last=False, backend=torch
+                ),
+                lambda d: remove_time_dim(d),
+            ]
+        )
 
-        metrics = [ keras.metrics.AUC(from_logits=(from_logits := True),name='AUC',num_thresholds=2000),
-                    keras.metrics.AUC(from_logits=from_logits,curve='PR',name='AUCPR',num_thresholds=2000),
-                    tfm.BinaryAccuracy(from_logits=from_logits,name='BinaryAccuracy'),
-                    tfm.Precision(from_logits=from_logits,name='Precision'),
-                    tfm.Recall(from_logits=from_logits,name='Recall'),
-                    tfm.F1Score(from_logits=from_logits,name='F1')]
+        metrics = [
+            keras.metrics.AUC(
+                from_logits=(from_logits := True), name="AUC", num_thresholds=2000
+            ),
+            keras.metrics.AUC(
+                from_logits=from_logits, curve="PR", name="AUCPR", num_thresholds=2000
+            ),
+            tfm.BinaryAccuracy(from_logits=from_logits, name="BinaryAccuracy"),
+            tfm.Precision(from_logits=from_logits, name="Precision"),
+            tfm.Recall(from_logits=from_logits, name="Recall"),
+            tfm.F1Score(from_logits=from_logits, name="F1"),
+        ]
         self.model.compile(metrics=metrics)
 
     def predict(self, file_path):
@@ -33,5 +49,17 @@ class Model:
         return self.model.predict(x)
 
     def _prepoc(self, file_path):
-        data = read_file(file_path, variables=ALL_VARIABLES, tilt_last=True, n_frames=1)
+        data = read_file(
+            file_path,
+            variables=[
+                "reflectivity",
+                "velocity",
+                "differential_phase",
+                "cross_correlation_ratio",
+                "differential_reflectivity",
+                "spectrum_width",
+            ],
+            tilt_last=True,
+            n_frames=1,
+        )
         return self.transform(data)

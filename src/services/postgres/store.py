@@ -6,8 +6,9 @@ from services.postgres.utils import get_postgres_connection
 
 
 def store_scan_in_postgres(scan, radar, radar_id):
-    scan_time = pd.to_datetime(
-        scan.filename[4:17], format="%Y%m%d_%H%M").tz_localize("UTC")
+    scan_time = pd.to_datetime(scan.filename[4:17], format="%Y%m%d_%H%M").tz_localize(
+        "UTC"
+    )
 
     reflectivity_data = radar.fields["reflectivity"]["data"][0]
     reflectivity_list = reflectivity_data.tolist()

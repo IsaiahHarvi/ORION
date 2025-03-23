@@ -25,24 +25,32 @@ def get_nearby_radars(target_lat, target_lon, radius_km=100, output_format="list
         ),
         axis=1,
     )
-    nearby_radars = station_df[station_df["distance_km"] <= radius_km].sort_values("distance_km")
+    nearby_radars = station_df[station_df["distance_km"] <= radius_km].sort_values(
+        "distance_km"
+    )
 
     if output_format == "list":
         return nearby_radars["Radar ID"].tolist()
     elif output_format == "json":
-        json_df = nearby_radars[["Radar ID", "Latitude", "Longitude", "distance_km"]].rename(
+        json_df = nearby_radars[
+            ["Radar ID", "Latitude", "Longitude", "distance_km"]
+        ].rename(
             columns={
                 "Radar ID": "radar_id",
                 "Latitude": "lat",
                 "Longitude": "lon",
-                "distance_km": "distance"
+                "distance_km": "distance",
             }
         )
         return json_df.to_dict(orient="records")
     elif output_format == "readable":
-        return nearby_radars[["Radar ID", "Latitude", "Longitude", "distance_km"]].to_string(index=False)
+        return nearby_radars[
+            ["Radar ID", "Latitude", "Longitude", "distance_km"]
+        ].to_string(index=False)
     else:
-        raise ValueError("Invalid output_format. Expected 'list', 'json', or 'readable'")
+        raise ValueError(
+            "Invalid output_format. Expected 'list', 'json', or 'readable'"
+        )
 
 
 if __name__ == "__main__":

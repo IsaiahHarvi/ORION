@@ -21,20 +21,19 @@ import pandas as pd
 
 
 def download_scans(radar_id, start, temp_dir, scan_count=None):
-    end = start + pd.Timedelta(minutes=int(60*5.5))
+    end = start + pd.Timedelta(minutes=int(60 * 5.5))
     conn = nexradaws.NexradAwsInterface()
     scans = conn.get_avail_scans_in_range(start, end, radar_id)
     if scans is None:
         print("No scans available for the given time range and radar ID.")
         return []
 
-    print(
-        f"There are {len(scans)} scans available between {start} and {end}\n")
+    print(f"There are {len(scans)} scans available between {start} and {end}\n")
 
     if scan_count:
         scans = scans[0:scan_count]
 
-    results = conn.download(scans, temp_dir, threads=os.cpu_count()//2)
+    results = conn.download(scans, temp_dir, threads=os.cpu_count() // 2)
     return results
 
 
@@ -72,7 +71,7 @@ def extract_scans(radar_id="KDVN", start_time="2020-8-10-16-30"):
     temp_location = tempfile.mkdtemp()
     print(f"Using temporary directory: {temp_location}")
 
-    scans = download_scans(radar_id, start, end, './')
+    scans = download_scans(radar_id, start, end, "./")
 
     # wind_rpts, tor_rpts, hail_rpts = load_severe_reports(start.year, start, end)
 
