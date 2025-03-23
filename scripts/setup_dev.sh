@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # general git config
-git config --global --add safe.directory /workspaces/acm-hackathon-2025
+git config --global --add safe.directory /workspaces/orion
 git config --global pull.rebase true
 
 # install uv
