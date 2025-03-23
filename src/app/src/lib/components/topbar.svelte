@@ -6,7 +6,7 @@
     import { map_state } from '$lib/runes/map_state.svelte';
     import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import { toast } from 'svelte-sonner';
-	import { Switch } from '$lib/components/ui/switch';
+	import { Checkbox } from '$lib/components/ui/checkbox';
     import { layers_state } from '$lib/runes/toggleable_layers.svelte';
 
     let { children }: {
@@ -15,6 +15,7 @@
 
     let value = $state('');
     let checked = $state(true);
+    let checked2 = $state(true);
 
     function formatTimestamp(timestamp: number): string {
         const date = new Date(timestamp * 1000);
@@ -37,14 +38,21 @@
         }
 
         layers_state.data.radar_layer = checked;
+        layers_state.data.radar_stations_layer = checked2;
     });
 </script>
 
 <div class="bg-neutral-900 overflow-hidden lg:ml-64 xl:ml-[20rem] gap-4 lg:visible invisible w-screen absolute z-40 top-0 flex-shrink-0 border-b h-16 p-4 flex flex-row items-center">
     <div class="flex items-center justify-center flex-row gap-3">
-        <Switch bind:checked id="radar-layers" />
+        <Checkbox bind:checked id="radar-layers" />
         <label class="text-sm text-white font-mono" for="radar-layers">
             Show Weather Radar
+        </label>
+    </div>
+    <div class="flex items-center justify-center flex-row gap-3">
+        <Checkbox bind:checked={checked2} id="radar-layers-le" />
+        <label class="text-sm text-white font-mono" for="radar-layers-le">
+            Show Radar Stations
         </label>
     </div>
     <p class="text-foreground ml-auto lg:mr-64 pr-4 xl:mr-[20rem] font-medium text-sm font-mono">

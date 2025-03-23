@@ -1,5 +1,6 @@
 .DS_Store
 *.png
+!src/app/src/lib/icons/*.png
 data/TorNet
 sample_data.json
 deploy/fast/scans/

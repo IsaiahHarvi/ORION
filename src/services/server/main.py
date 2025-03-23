@@ -6,6 +6,7 @@
 # import torch
 # import torchvision.transforms as T
 from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
 
 # from services.model.main import Model
 # from services.model.utils import get_pretrained
@@ -21,6 +22,14 @@ from services.scans.get_stations import get_nearby_radars
 # )
 
 app = FastAPI()
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "https://orion.harville.dev"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 # model_ = Model()
 # pretrained_model = get_pretrained()
 

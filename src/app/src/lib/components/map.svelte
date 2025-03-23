@@ -19,6 +19,7 @@
     import SatelliteStyle from '$lib/content/styles/satellite.json';
     import StreetsStyle from '$lib/content/styles/streets.json';
 	import { map_style_state } from '$lib/runes/map_style.svelte';
+	import RadarLayer from './radar-layer.svelte';
 
     let map: any = $state();
     let mapElement: HTMLElement;
@@ -44,6 +45,18 @@
             ? OceanStyle
             : DefaultStyle;
     }
+
+    function restyleMap() {
+        if (!map) return;
+        map.setStyle(getMapStyle(map_style_state.data));
+        map.on('style.load', () => {
+            if (layers_state.data?.radar_layer) {
+                loadRainViewerData(map);
+            }
+            Object.values(aisMarkers).forEach(marker => marker.addTo(map));
+        });
+    }
+
 
     function initializeMap() {
         if (map) map.remove();
@@ -101,7 +114,7 @@
     $effect(() => {
         if (map_style_state.data !== previousMapStyle) {
             previousMapStyle = map_style_state.data;
-            initializeMap();
+            restyleMap()
         }
 
         if (radar_state.radar_state.timestamp !== lastTimestamp && layers_state.data.radar_layer === true) {
@@ -134,13 +147,16 @@
 <div class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
 
 {#if map}
-  {#key map}
-    <Controls {map} />
-    {#if layers_state.data?.uav_layer}
-      <UAVLayer {map} />
-    {/if}
-    {#if layers_state.data?.ais_layer}
-      <AISLayer {map} />
-    {/if}
-  {/key}
+    {#key map}
+        <Controls {map} />
+        {#if layers_state.data?.uav_layer}
+            <UAVLayer {map} />
+        {/if}
+        {#if layers_state.data?.ais_layer}
+            <AISLayer {map} />
+        {/if}
+        {#if layers_state.data?.radar_stations_layer}
+            <RadarLayer {map} />
+        {/if}
+    {/key}  
 {/if}

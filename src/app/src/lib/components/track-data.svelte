@@ -145,7 +145,7 @@
                 <div><strong>Last Updated:</strong> {trackData.lastUpdated}</div>
                 <div><strong>Callsign:</strong> {trackData.callsign}</div>
                 <div class="col-span-2"><strong>Combat Status:</strong> {trackData.combatStatus}</div>
-
+                
                 <div class="col-span-2 mt-2 border-t pt-2"><strong>Platform Attitude</strong></div>
                 <div><strong>Heading:</strong> {trackData.platformHeading}</div>
                 <div><strong>Pitch:</strong> {trackData.platformPitch}</div>
