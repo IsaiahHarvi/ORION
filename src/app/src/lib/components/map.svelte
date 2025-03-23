@@ -14,7 +14,13 @@
     import { cursor_data } from '$lib/runes/cursor.svelte';
     import { layers_state } from '$lib/runes/toggleable_layers.svelte';
 
-    let map: maplibregl.Map | null = $state(null);
+    import OceanStyle from '$lib/content/styles/ocean.json';
+    import DefaultStyle from '$lib/content/styles/default.json';
+    import SatelliteStyle from '$lib/content/styles/satellite.json';
+    import StreetsStyle from '$lib/content/styles/streets.json';
+	import { map_style_state } from '$lib/runes/map_style.svelte';
+
+    let map: any = $state();
     let mapElement: HTMLElement;
     let initialView = { lat: 39.8283, long: -98.5795 };
 
@@ -29,14 +35,22 @@
         });
     }
 
-    onMount(() => {
-        if ($current_lat_long.lat && $current_lat_long.long) {
-            initialView = $current_lat_long;
-        }
+    function getMapStyle(style: string) {
+        return style === 'satellite'
+            ? SatelliteStyle
+            : style === 'streets'
+            ? StreetsStyle
+            : style === 'ocean'
+            ? OceanStyle
+            : DefaultStyle;
+    }
 
+    function initializeMap() {
+        if (map) map.remove();
+        
         map = new maplibregl.Map({
             container: mapElement,
-            style: "https://api.maptiler.com/maps/0195bee2-9b1b-7b54-b0c9-fb330ebe7162/style.json?key=rIQyeDoL1FNvjM5uLY2f",
+            style: getMapStyle(map_style_state.data),
             center: [initialView.long, initialView.lat],
             zoom: 8,
             attributionControl: false,
@@ -69,13 +83,27 @@
             cursor_data.lat = parseFloat(e.lngLat.lat.toFixed(6));
             cursor_data.lng = parseFloat(e.lngLat.lng.toFixed(6));
         });
+    }
+
+    onMount(() => {
+        if ($current_lat_long.lat && $current_lat_long.long) {
+            initialView = $current_lat_long;
+        }
+
+        initializeMap();
     });
 
     let lastTimestamp = 0;
     let debounceTimer: ReturnType<typeof setTimeout> | null = null;
     let prevRadarLayer = layers_state.data?.radar_layer;
+    let previousMapStyle = map_style_state.data;
 
     $effect(() => {
+        if (map_style_state.data !== previousMapStyle) {
+            previousMapStyle = map_style_state.data;
+            initializeMap();
+        }
+
         if (radar_state.radar_state.timestamp !== lastTimestamp && layers_state.data.radar_layer === true) {
             if (debounceTimer) clearTimeout(debounceTimer);
             debounceTimer = setTimeout(() => {
@@ -86,6 +114,7 @@
         const currentRadarLayer = layers_state.data?.radar_layer;
         if (currentRadarLayer !== prevRadarLayer) {
             if (currentRadarLayer === true) {
+                removeRadarLayers(map);
                 loadRainViewerData(map, radar_state.radar_state.timestamp);
             } else {
                 removeRadarLayers(map);
@@ -105,11 +134,13 @@
 <div class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
 
 {#if map}
+  {#key map}
     <Controls {map} />
     {#if layers_state.data?.uav_layer}
-        <UAVLayer {map} />
+      <UAVLayer {map} />
     {/if}
     {#if layers_state.data?.ais_layer}
-        <AISLayer {map} />
+      <AISLayer {map} />
     {/if}
+  {/key}
 {/if}

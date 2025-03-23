@@ -38,30 +38,9 @@
 
         layers_state.data.radar_layer = checked;
     });
-
-    function handleKeydown(event: KeyboardEvent) {
-        if (event.key === 'Enter') {
-            const regex = /^\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?)\s*$/;
-            const match = value.match(regex);
-            if (match) {
-                const lat = parseFloat(match[1]);
-                const lng = parseFloat(match[3]);
-
-                map_state.data.flyTo({ center: [lng, lat], zoom: 12 });
-            } else {
-                toast('Please enter valid coordinates (e.g., 33.54, -117.6).');
-            }
-        }
-    }
 </script>
 
 <div class="bg-neutral-900 overflow-hidden lg:ml-64 xl:ml-[20rem] gap-4 lg:visible invisible w-screen absolute z-40 top-0 flex-shrink-0 border-b h-16 p-4 flex flex-row items-center">
-    <input
-        placeholder="e.g. 33.54, -117.6"
-        bind:value
-        onkeydown={handleKeydown}
-        class="px-3 p-2 w-72 placeholder:text-neutral-500 text-sm font-mono bg-neutral-800 border border-neutral-700"
-    />
     <div class="flex items-center justify-center flex-row gap-3">
         <Switch bind:checked id="radar-layers" />
         <label class="text-sm text-white font-mono" for="radar-layers">

@@ -1,65 +1,114 @@
 <script lang="ts">
-    import { Button, buttonVariants } from '$lib/components/ui/button'
-    import { page } from '$app/stores';
-	import type { Snippet } from 'svelte';
-    import * as Sheet from "$lib/components/ui/sheet";
-    import Globe from '@lucide/svelte/icons/globe'
-    import Menu from '@lucide/svelte/icons/menu'
+	import { page } from '$app/state';
+	import Radar from '@lucide/svelte/icons/radar';
+	import Globe from '@lucide/svelte/icons/globe';
+	import Menu from '@lucide/svelte/icons/menu';
+	import * as Sheet from "$lib/components/ui/sheet";
+	import { Button, buttonVariants } from '$lib/components/ui/button';
+    import { map_style_urls } from '$lib/map-styles';
+    import { map_style_state } from '$lib/runes/map_style.svelte';
+	import { map_state } from '$lib/runes/map_state.svelte';
+	import { toast } from 'svelte-sonner';
 
-    let { children }: {
-        children?: Snippet
-    } = $props();
+	import UAV from '$lib/icons/uav-icon.png';
+	import Ship from '$lib/icons/ship-icon.png';
 
-    const tabs = [
-        {
-            name: 'RADAR',
-            href: '/',
-        },
-        {
-            name: 'UAV',
-            href: '/uav'
-        },
-        {
-            name: 'AIS',
-            href: '/ais'
-        }
-    ];
+	const tabs = [
+		{ name: 'Radar', href: '/', icon: Radar },
+		{ name: 'UAV', href: '/uav', icon: UAV },
+		{ name: 'AIS', href: '/ais', icon: Ship }
+	];
+    
+	let open = $state(false);
+	let searchValue = $state('');
 
-    let open = $state(false);
+	function handleKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter') {
+			const regex = /^\s*(-?\d+(\.\d+)?)\s*,\s*(-?\d+(\.\d+)?)\s*$/;
+			const match = searchValue.match(regex);
+			if (match) {
+				const lat = parseFloat(match[1]);
+				const lng = parseFloat(match[3]);
+
+				map_state.data.flyTo({ center: [lng, lat], zoom: 16 });
+			} else {
+				toast('Please enter valid coordinates (e.g., 33.54, -117.6).');
+			}
+		}
+	}
 </script>
 
-{#snippet sidebarContent()}
-    <h1 class='text-foreground flex flex-row items-center gap-2 text-lg pt-4 font-medium'>
-        <Globe size={20} />
-        ORION
-    </h1>
-
-    <div class="mt-4 flex flex-col gap-1">
-        {#each tabs as tab}
-            <Button onclick={() => {
-                open = false;
-            }} href={tab.href} variant={$page.url.pathname === tab.href ? 'secondary' : 'ghost'} class="{$page.url.pathname === tab.href ? 'font-semibold' : ''} text-foreground w-full text-left items-start justify-start">
-                {tab.name}
-            </Button>
-        {/each}
-    </div>
+{#snippet nav_content()}
+	<input
+		placeholder="e.g. 33.54, -117.6"
+		bind:value={searchValue}
+		onkeydown={handleKeydown}
+		class="px-3 p-2 w-full placeholder:text-neutral-500 text-sm font-mono bg-neutral-800 border border-neutral-700 rounded-md mb-2 mt-1"
+	/>
+	<p class="text-sm py-3 font-mono text-muted-foreground">
+		LAYERS
+	</p>
+	{#each tabs as tab}
+		<a
+			href={tab.href}
+			class='w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm transition-colors
+			{page.url.pathname === tab.href ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}'
+			onclick={() => (open = false)}
+		>
+			{#if typeof tab.icon === 'string'}
+				<img src={tab.icon} alt={tab.name} class="w-5 h-5" />
+			{:else}
+				<tab.icon size={20} />
+			{/if}
+			<span>{tab.name}</span>
+		</a>
+	{/each}
+	<p class="text-sm py-3 font-mono text-muted-foreground">
+		MAP STYLES
+	</p>
+	{#each map_style_urls.slice().sort((a, b) => a.name.localeCompare(b.name)) as style}
+		<button
+			class='w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm transition-colors
+			{map_style_state.data === style.name ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}'
+			onclick={() => {
+				open = false;
+				map_style_state.data = style.name;
+			}}
+		>
+			<span>{style.name.charAt(0).toUpperCase() + style.name.slice(1)}</span>
+		</button>
+	{/each}
 {/snippet}
- 
-<div class="bg-neutral-900 flex-shrink-0 border-r invisible lg:visible lg:w-64 xl:w-[20rem] px-4 h-screen flex flex-col">
-    {@render sidebarContent()}
+
+<div class="bg-neutral-900 flex-shrink-0 border-r pt-6 invisible lg:visible lg:w-64 xl:w-[20rem] px-4 h-screen flex flex-col">
+	<div class="flex items-center gap-2 text-lg font-medium text-foreground mb-4">
+		<Globe size={20} />
+		ORION
+	</div>
+
+	<div class="flex flex-col gap-1">
+        {@render nav_content()}
+	</div>
 </div>
 
-<div class="bg-neutral-900 border-b px-4 gap-4 z-40 absolute flex items-center flex-row h-16 top-0 left-0 w-screen visible lg:invisible">
-    <Sheet.Root bind:open>
-        <Sheet.Trigger class={buttonVariants({ variant: "outline", size: 'icon' })}>
-            <Menu size={16} />
-        </Sheet.Trigger>
-        <Sheet.Content side="left">
-            {@render sidebarContent()}
-        </Sheet.Content>
-    </Sheet.Root>
-    <h1 class='text-foreground flex flex-row items-center gap-2 text-lg font-medium'>
-        <Globe size={20} />
-        ORION
-    </h1>
+<div class="bg-neutral-900 border-b px-4 gap-4 z-40 fixed flex items-center h-16 top-0 left-0 w-screen lg:hidden">
+	<Sheet.Root bind:open>
+		<Sheet.Trigger class={buttonVariants({ variant: "ghost", size: 'icon' })}>
+			<Menu size={16} />
+		</Sheet.Trigger>
+		<Sheet.Content side="left" class="w-[75%] px-4 py-6">
+			<div class="flex items-center gap-2 text-lg font-medium text-foreground mb-6">
+				<Globe size={20} />
+				ORION
+			</div>
+			<div class="flex flex-col gap-1">
+                {@render nav_content()}
+			</div>
+		</Sheet.Content>
+	</Sheet.Root>
+
+	<h1 class="text-foreground flex flex-row items-center gap-2 text-lg font-medium">
+		<Globe size={20} />
+		ORION
+	</h1>
 </div>
