@@ -1,21 +1,21 @@
 #!/usr/bin/env python3
 
-import json
+# import json
 import os
 import tempfile
-from datetime import datetime, timedelta
 
-import cartopy.crs as ccrs
-import cartopy.feature as cfeature
-import matplotlib.pyplot as plt
+# from datetime import datetime, timedelta
+# import cartopy.crs as ccrs
+# import cartopy.feature as cfeature
+# import matplotlib.pyplot as plt
 import nexradaws
-import numpy as np
 import pandas as pd
-import psycopg2
-import pyart
-import pytz
-from metpy.plots import USCOUNTIES
-from pyart.core import Radar
+
+# import psycopg2
+# import pyart
+# import pytz
+# from metpy.plots import USCOUNTIES
+# from pyart.core import Radar
 
 # from src.services.postgres.store import store_scan_in_postgres
 
