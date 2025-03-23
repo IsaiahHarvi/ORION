@@ -76,3 +76,19 @@
 		@apply bg-background text-foreground;
 	}
 }
+
+.maplibregl-ctrl {
+	@apply border bg-background;
+}
+
+.maplibregl-ctrl-icon {
+	filter: brightness(4) saturate(100%) invert(0);
+}
+
+.maplibregl-ctrl-button {
+	@apply text-white;
+}
+
+.maplibregl-ctrl-scale {
+	@apply text-white;
+}

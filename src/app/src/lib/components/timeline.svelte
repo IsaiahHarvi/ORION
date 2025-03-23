@@ -68,6 +68,7 @@
         </button>
         <Slider 
             type="single" 
+            size={4}
             class="w-full mx-2 mt-1" 
             bind:value={selectedIndex}
             min={0}

@@ -10,24 +10,6 @@
 	import '../app.css';
 	let { children } = $props();
     let map = $state();
-
-    onMount(() => {
-        const targetDiv = document.querySelector('.maplibregl-control-container');
-
-        if (targetDiv) {
-            console.log("Removing")
-            targetDiv.remove();
-        }
-    })
-
-    $effect(() => {
-        const targetDiv = document.querySelector('.maplibregl-control-container');
-        
-        if (targetDiv) {
-            console.log("Removing")
-            targetDiv.remove();
-        }
-    })
 </script>
 
 <svelte:head>
