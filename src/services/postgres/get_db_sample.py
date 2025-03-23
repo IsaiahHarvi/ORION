@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 
 import json
-import os
 
 import psycopg2
 import psycopg2.extras
 
-from services.collector.utils import get_postgres_connection
+from services.postgres.utils import get_postgres_connection
 
 
 def fetch_sample_data():
