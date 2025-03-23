@@ -101,15 +101,14 @@ async def model_test(lat, lon):
     # sample = dl[0]
  ## Set up data loader
 
-    test_years = range(2013, 2023)
     ds_test = get_dataloader(
         "keras",
         data_root,
-        test_years,
+        [2019,2021],
         "test",
         128,
         select_keys=list(pretrained_model.input.keys()),
-        # file_list = [f"{data_root}/train/2019/TOR_190223_214156_KGWX_809551_X5.nc"]
+        file_list = [f"{data_root}/train/2019/TOR_190223_214156_KGWX_809551_X5.nc"]
     )
 
     tornado_probability = pretrained_model.predict(ds_test)
