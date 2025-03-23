@@ -12,7 +12,7 @@ from src.services.model.main import Model
 app = FastAPI()
 model_ = Model()
 
-DATA_DIR = os.environ.get("SCAN_DIR", "/workspaces/acm-hackathon-2025/data/scans")
+DATA_DIR = os.environ.get("SCAN_DIR", "./data/scans")
 os.makedirs(os.path.join(DATA_DIR, "extract"), exist_ok=True)
 
 app.include_router(cursor.router)
