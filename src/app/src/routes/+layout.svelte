@@ -9,6 +9,7 @@
 
 	import '../app.css';
 	import { Toaster } from '$lib/components/ui/sonner';
+	import Toolbar from '$lib/components/toolbar.svelte';
 	let { children } = $props();
     let map = $state();
 </script>
@@ -25,6 +26,13 @@
     <Sidebar />
     <Topbar />
     <div class="lg:relative overflow-hidden flex items-center justify-center h-full w-full">
+        {#if page.url.pathname === "/"}
+            <div class="lg:relative flex items-center justify-center h-full w-full">
+                <Toolbar />
+                <Timeline />
+            </div>
+        {/if}
+
         {@render children?.()}
     </div>
 </div>

@@ -1,0 +1,137 @@
+{
+	"version": 8,
+	"name": "Ocean Dark Mode",
+	"sources": {
+		"contours": {
+			"url": "https://api.maptiler.com/tiles/contours/tiles.json?key=rIQyeDoL1FNvjM5uLY2f",
+			"type": "vector"
+		},
+		"land": {
+			"url": "https://api.maptiler.com/tiles/land/tiles.json?key=rIQyeDoL1FNvjM5uLY2f",
+			"type": "vector"
+		},
+		"maptiler_planet": {
+			"url": "https://api.maptiler.com/tiles/v3/tiles.json?key=rIQyeDoL1FNvjM5uLY2f",
+			"type": "vector"
+		},
+		"ocean": {
+			"url": "https://api.maptiler.com/tiles/ocean/tiles.json?key=rIQyeDoL1FNvjM5uLY2f",
+			"type": "vector"
+		},
+		"ocean_rgb": {
+			"url": "https://api.maptiler.com/tiles/ocean-rgb/tiles.json?key=rIQyeDoL1FNvjM5uLY2f",
+			"type": "raster-dem"
+		}
+	},
+	"layers": [
+		{ "id": "Background", "type": "background", "paint": { "background-color": "#121212" } },
+		{
+			"id": "Water",
+			"type": "fill",
+			"source": "maptiler_planet",
+			"source-layer": "water",
+			"paint": { "fill-color": "#0c0c0c" }
+		},
+		{
+			"id": "Land",
+			"type": "fill",
+			"source": "land",
+			"source-layer": "land",
+			"paint": { "fill-color": "#181818" }
+		},
+
+		{
+			"id": "Ocean RGB",
+			"type": "hillshade",
+			"source": "ocean_rgb",
+			"paint": { "hillshade-highlight-color": "#1f1f1f", "hillshade-shadow-color": "#0d0d0d" }
+		},
+
+		{
+			"id": "Depth contour",
+			"type": "line",
+			"source": "ocean",
+			"source-layer": "contour_line",
+			"paint": { "line-color": "#2b2b2b", "line-width": 0.6 }
+		},
+
+		{
+			"id": "Landform labels",
+			"type": "symbol",
+			"source": "ocean",
+			"source-layer": "landform",
+			"minzoom": 4,
+			"layout": {
+				"symbol-placement": "line",
+				"text-field": "{name} {class}",
+				"text-font": ["Libre Baskerville Italic"],
+				"text-size": 10
+			},
+			"paint": { "text-color": "#4d4d4d" }
+		},
+
+		{
+			"id": "Depth labels",
+			"type": "symbol",
+			"source": "ocean",
+			"source-layer": "contour_line",
+			"minzoom": 6,
+			"layout": {
+				"symbol-placement": "line",
+				"text-field": "{depth}",
+				"text-font": ["Libre Baskerville Italic"],
+				"text-size": 10
+			},
+			"paint": { "text-color": "#606060" }
+		},
+
+		{
+			"id": "Water labels",
+			"type": "symbol",
+			"source": "maptiler_planet",
+			"source-layer": "water_name",
+			"minzoom": 3,
+			"layout": {
+				"text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+				"text-font": ["Libre Baskerville Italic"],
+				"text-size": 12
+			},
+			"paint": { "text-color": "#555555" }
+		},
+
+		{
+			"id": "River labels",
+			"type": "symbol",
+			"source": "maptiler_planet",
+			"source-layer": "waterway",
+			"minzoom": 8,
+			"layout": {
+				"symbol-placement": "line",
+				"text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+				"text-font": ["Libre Baskerville Italic"],
+				"text-size": 10
+			},
+			"paint": { "text-color": "#555555" }
+		},
+
+		{
+			"id": "Island labels",
+			"type": "symbol",
+			"source": "maptiler_planet",
+			"source-layer": "place",
+			"minzoom": 5,
+			"layout": {
+				"text-field": ["coalesce", ["get", "name:en"], ["get", "name"]],
+				"text-font": ["Libre Baskerville Italic"],
+				"text-size": 11
+			},
+			"paint": { "text-color": "#7a7a7a" }
+		}
+	],
+	"glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=rIQyeDoL1FNvjM5uLY2f",
+	"sprite": "https://api.maptiler.com/maps/0195c1f9-1b6a-7641-9eef-4018400505fc/sprite",
+	"bearing": 0,
+	"pitch": 0,
+	"center": [0, 0],
+	"zoom": 1
+}

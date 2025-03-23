@@ -53,7 +53,7 @@
     });
 </script>
 
-<div transition:flyAndScale class="bg-neutral-900 absolute bottom-2 left-2 lg:left-auto lg:bottom-10 w-[97%] flex-col items-center gap-2 justify-center rounded-md z-40 lg:w-[35rem] flex-shrink-0 border p-5 flex">
+<div transition:flyAndScale class="bg-neutral-900 absolute bottom-0 left-0 lg:left-auto lg:bottom-10 w-screen flex-col items-center gap-2 justify-center rounded-md z-40 lg:w-[35rem] h-32 md:h-auto flex-shrink-0 border p-5 flex">
     <h1 class="w-full flex font-semibold justify-between items-center">
         {formattedTimestamp}
         <p class="text-muted-foreground font-normal text-sm text-left">Last 2 hours</p>
