@@ -9,9 +9,12 @@
     import { loadRainViewerData } from '$lib/mapUpdater';
     import { loadRouteData, resetUAVUpdater } from '$lib/uavUpdater';
     import { radar_state } from '$lib/runes/current_radar.svelte';
-	    import { fade } from 'svelte/transition';
+    import { fade } from 'svelte/transition';
     import { cursor_data } from '$lib/runes/cursor.svelte';
 	import Controls from './controls.svelte';
+	import { updateTrackData } from '$lib/trackDataUpdater';
+	import { buildFramePolygon, showFramePolygon } from '$lib/utils/frameCoverage';
+	import { trackDataStore } from '$lib/stores/trackData';
   
     let map: any = $state();
     let socket: WebSocket | undefined;
@@ -336,6 +339,15 @@
             window.removeEventListener('mousemove', handleMouseMove);
         }
     });
+
+
+    function colorFromCombatStatus(status: 'Neutral' | 'Friendly' | 'Enemy'): string {
+      switch (status) {
+        case 'Friendly': return '#00ff00'; // green
+        case 'Enemy':    return '#ff0000'; // red
+        default:         return '#ffffff'; // white for neutral
+      }
+    }
 </script>
   
 <div in:fade={{ duration: 150, delay: 300 }} class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
