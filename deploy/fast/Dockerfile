@@ -13,4 +13,4 @@ COPY src/tornet src/tornet
 
 EXPOSE 8000
 
-CMD ["python", "-m", "fastapi", "dev", "src/services/server/main.py"]
+CMD ["uvicorn", "services.server.main:app", "--host", "0.0.0.0", "--port", "8000"]
