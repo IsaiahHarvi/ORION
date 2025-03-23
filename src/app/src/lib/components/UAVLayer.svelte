@@ -1,10 +1,10 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import maplibregl from 'maplibre-gl';
-  import { resetUAVUpdater, loadRouteData } from '$lib/uavUpdater';
+  import { resetUAVUpdater, loadRouteData, createUAVMarkerElement } from '$lib/uavUpdater';
   import { updateTrackData } from '$lib/trackDataUpdater';
   import { trackDataStore } from '$lib/stores/trackData';
-  import { buildFramePolygon, showFramePolygon } from '$lib/utils/frameCoverage';
+  import { buildFramePolygon, showFramePolygon, drawUavToCenterLine } from '$lib/utils/frameCoverage';
   import { get } from 'svelte/store';
 
   export let map: maplibregl.Map;
@@ -13,95 +13,16 @@
   let finalMarkerCoord: [number, number] | null = null;
   let unsub: () => void;
 
-  function colorFromCombatStatus(status: 'Neutral' | 'Friendly' | 'Enemy'): string {
-    switch (status) {
-      case 'Friendly': return '#00ff00';
-      case 'Enemy':    return '#ff0000';
-      default:         return '#ffffff';
-    }
-  }
-
-  // Wrap clearUAVLayers in a function that only runs if the style is loaded.
-  function clearUAVLayers() {
-    if (!map.isStyleLoaded()) {
-      // If the style isn't loaded, try again shortly.
-      setTimeout(clearUAVLayers, 300);
-      return;
-    }
-    const layersToClear = [
-      { source: 'uav-center-line', layer: 'uav-center-line-layer' },
-      { source: 'final-marker-label', layer: 'final-marker-label-layer' }
-    ];
-    layersToClear.forEach(({ source, layer }) => {
-      if (map.getLayer(layer)) {
-        try {
-          map.removeLayer(layer);
-        } catch (e) {
-          console.warn(`Error removing layer ${layer}:`, e);
-        }
-      }
-      if (map.getSource(source)) {
-        try {
-          map.removeSource(source);
-        } catch (e) {
-          console.warn(`Error removing source ${source}:`, e);
-        }
-      }
-    });
-  }
-
-  // Wrap updateCallsignLabel so it waits for the style.
-  function updateCallsignLabel(coord: [number, number]) {
-    if (!map.isStyleLoaded()) {
-      // Wait until the style is ready before updating the label.
-      setTimeout(() => updateCallsignLabel(coord), 300);
-      return;
-    }
-    clearUAVLayers();
-    const sourceId = 'final-marker-label';
-    const layerId  = 'final-marker-label-layer';
-    const { callsign = 'Unknown' } = get(trackDataStore) || {};
-
-    const geojsonData = {
-      type: 'FeatureCollection',
-      features: [{
-        type: 'Feature',
-        properties: { callsign },
-        geometry: { type: 'Point', coordinates: coord }
-      }]
-    };
-
-    // Add source and layer.
-    try {
-      map.addSource(sourceId, { type: 'geojson', data: geojsonData });
-      map.addLayer({
-        id: layerId,
-        type: 'symbol',
-        source: sourceId,
-        layout: {
-          'text-field': ['get', 'callsign'],
-          'text-size': 14,
-          'text-offset': [1, 0],
-          'text-anchor': 'left',
-          'text-allow-overlap': true
-        },
-        paint: { 'text-color': '#ffffff' }
-      });
-    } catch (e) {
-      console.error("Error updating call sign label:", e);
-    }
-  }
-
+  // Instead of using a color option on marker creation,
+  // we now create the UAV marker with our UAV icon tinted based on combat status.
   function recreateFinalMarker(newStatus: 'Neutral' | 'Friendly' | 'Enemy') {
     if (!map || !finalMarkerCoord) return;
     if (finalMarker) {
       finalMarker.remove();
       finalMarker = null;
     }
-    const { callsign = 'Unknown' } = get(trackDataStore) || {};
-
     finalMarker = new maplibregl.Marker({
-      color: colorFromCombatStatus(newStatus),
+      element: createUAVMarkerElement(newStatus),
       draggable: false
     })
       .setLngLat(finalMarkerCoord)
@@ -128,7 +49,7 @@
     const { combatStatus = 'Neutral' } = get(trackDataStore) || {};
 
     finalMarker = new maplibregl.Marker({
-      color: colorFromCombatStatus(combatStatus),
+      element: createUAVMarkerElement(combatStatus),
       draggable: false
     })
       .setLngLat(finalMarkerCoord)
@@ -142,6 +63,73 @@
     });
 
     updateCallsignLabel(finalMarkerCoord);
+  }
+
+  // The rest of your code remains the same...
+  function clearUAVLayers() {
+    if (!map.isStyleLoaded()) {
+      setTimeout(clearUAVLayers, 300);
+      return;
+    }
+    const layersToClear = [
+      { source: 'uav-center-line', layer: 'uav-center-line-layer' },
+      { source: 'final-marker-label', layer: 'final-marker-label-layer' }
+    ];
+    layersToClear.forEach(({ source, layer }) => {
+      if (map.getLayer(layer)) {
+        try {
+          map.removeLayer(layer);
+        } catch (e) {
+          console.warn(`Error removing layer ${layer}:`, e);
+        }
+      }
+      if (map.getSource(source)) {
+        try {
+          map.removeSource(source);
+        } catch (e) {
+          console.warn(`Error removing source ${source}:`, e);
+        }
+      }
+    });
+  }
+
+  function updateCallsignLabel(coord: [number, number]) {
+    if (!map.isStyleLoaded()) {
+      setTimeout(() => updateCallsignLabel(coord), 300);
+      return;
+    }
+    clearUAVLayers();
+    const sourceId = 'final-marker-label';
+    const layerId  = 'final-marker-label-layer';
+    const { callsign = 'Unknown' } = get(trackDataStore) || {};
+
+    const geojsonData = {
+      type: 'FeatureCollection',
+      features: [{
+        type: 'Feature',
+        properties: { callsign },
+        geometry: { type: 'Point', coordinates: coord }
+      }]
+    };
+
+    try {
+      map.addSource(sourceId, { type: 'geojson', data: geojsonData });
+      map.addLayer({
+        id: layerId,
+        type: 'symbol',
+        source: sourceId,
+        layout: {
+          'text-field': ['get', 'callsign'],
+          'text-size': 14,
+          'text-offset': [1, 0],
+          'text-anchor': 'left',
+          'text-allow-overlap': true
+        },
+        paint: { 'text-color': '#ffffff' }
+      });
+    } catch (e) {
+      console.error("Error updating call sign label:", e);
+    }
   }
 
   onMount(() => {
@@ -168,11 +156,8 @@
       }
       if (finalMarkerCoord && d?.imageFrame?.center) {
         const { lat: centerLat, lon: centerLon } = d.imageFrame.center;
-        // Before drawing the line or FOV, ensure style is loaded.
         if (map.isStyleLoaded()) {
-          // Draw line to image frame center.
-          drawUavToCenterLine(finalMarkerCoord, [centerLon, centerLat]);
-          // Draw the FOV polygon if image frame corners exist.
+          drawUavToCenterLine(map, finalMarkerCoord, [centerLon, centerLat]);
           if (d.imageFrame.ulc && d.imageFrame.urc && d.imageFrame.lrc && d.imageFrame.llc) {
             const { center, ulc, urc, lrc, llc } = d.imageFrame;
             const framePoly = buildFramePolygon(ulc, urc, lrc, llc);
