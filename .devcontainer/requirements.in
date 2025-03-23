@@ -16,3 +16,4 @@ huggingface_hub
 keras>=3.0
 xarray
 torchvision
+fastapi
