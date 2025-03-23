@@ -6,12 +6,15 @@
     import { map_state } from '$lib/runes/map_state.svelte';
     import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import { toast } from 'svelte-sonner';
+	import { Switch } from '$lib/components/ui/switch';
+    import { layers_state } from '$lib/runes/toggleable_layers.svelte';
 
     let { children }: {
         children?: Snippet;
     } = $props();
 
     let value = $state('');
+    let checked = $state(true);
 
     function formatTimestamp(timestamp: number): string {
         const date = new Date(timestamp * 1000);
@@ -32,6 +35,8 @@
         if (radar_state.radar_state.timestamp) {
             formattedTimestamp = formatTimestamp(radar_state.radar_state.timestamp);
         }
+
+        layers_state.data.radar_layer = checked;
     });
 
     function handleKeydown(event: KeyboardEvent) {
@@ -57,7 +62,13 @@
         onkeydown={handleKeydown}
         class="px-3 p-2 w-72 placeholder:text-neutral-500 text-sm font-mono bg-neutral-800 border border-neutral-700"
     />
-    <p class="text-foreground font-medium text-sm font-mono">
+    <div class="flex items-center justify-center flex-row gap-3">
+        <Switch bind:checked id="radar-layers" />
+        <label class="text-sm text-white font-mono" for="radar-layers">
+            Show Weather Radar
+        </label>
+    </div>
+    <p class="text-foreground ml-auto lg:mr-64 pr-4 xl:mr-[20rem] font-medium text-sm font-mono">
         {#if formattedTimestamp !== ''}
             {formattedTimestamp}
         {:else}
