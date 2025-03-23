@@ -6,7 +6,6 @@ TORNET_ROOT="${TORNET_ROOT:-./tornet_data}"
 mkdir -p "$TORNET_ROOT"
 echo "Using TORNET_ROOT = $TORNET_ROOT"
 
-# Define an associative array: year => DOI for each TorNet file.
 declare -A tornet_dois=(
   ["2013"]="10.5281/zenodo.12636522"
   ["2014"]="10.5281/zenodo.12637032"
@@ -20,21 +19,21 @@ declare -A tornet_dois=(
   ["2022"]="10.5281/zenodo.12655719"
 )
 
-# Loop over each year and download the corresponding tar.gz file using zenodo_get.
 for year in "${!tornet_dois[@]}"; do
     doi="${tornet_dois[$year]}"
-    output_file="$TORNET_ROOT/tornet_${year}.tar.gz"
-    echo "Downloading Tornet $year (DOI: $doi)..."
-    # The zenodo_get tool downloads the file associated with the DOI.
-    # The '--output' flag directs the downloaded file to our TORNET_ROOT folder.
-    zenodo_get --doi "$doi" --output "$output_file"
+    output_file="$TORNET_ROOT/tornet_${year}.tar.gz/tornet_${year}.tar.gz"
+    if [ -f "$output_file" ]; then
+        echo "File for Tornet $year already exists at $output_file; skipping download."
+    else
+        echo "Downloading Tornet $year (DOI: $doi)..."
+        zenodo_get --doi "$doi" --output "$output_file"
+    fi
 done
 
 echo "Download complete. Now extracting files..."
 
-# Loop over each downloaded file and extract it.
 for year in "${!tornet_dois[@]}"; do
-    archive="$TORNET_ROOT/tornet_${year}.tar.gz"
+    archive="$TORNET_ROOT/tornet_${year}.tar.gz/tornet_${year}.tar.gz"
     if [ -f "$archive" ]; then
         echo "Extracting $archive..."
         tar -xzvf "$archive" -C "$TORNET_ROOT"

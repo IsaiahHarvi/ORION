@@ -5,7 +5,7 @@ sample_data.json
 
 # Python stuff
 __pycache__/
-acm_hackathon_2025.egg-info/
+*.egg-info/
 .ruff_cache/
 
 # Logs

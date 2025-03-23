@@ -17,7 +17,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return R * c
 
 
-def get_nearby_radars(target_lat, target_lon, radius_km=100):
+def get_nearby_radars(target_lat, target_lon, radius_km=100, to_list=True):
     station_df = pd.read_csv("data/nexrad_stations.csv")
     station_df["distance_km"] = station_df.apply(
         lambda row: haversine_distance(
@@ -25,8 +25,12 @@ def get_nearby_radars(target_lat, target_lon, radius_km=100):
         ),
         axis=1,
     )
-    return station_df[station_df["distance_km"] <= radius_km].sort_values("distance_km")
+    nearby_radars = station_df[station_df["distance_km"] <= radius_km].sort_values("distance_km")
 
+    if to_list:
+        return nearby_radars["Radar ID"].tolist()
+    else:
+        return nearby_radars
 
 if __name__ == "__main__":
     city = input("Enter a city (or leave blank to input lat/lon): ").strip()
