@@ -2,7 +2,6 @@ import os
 
 import pandas as pd
 from fastapi import FastAPI
-from routers import cursor
 
 from services.scans.get_scans import download_scans
 from services.scans.get_stations import get_nearby_radars
@@ -15,11 +14,17 @@ model_ = Model()
 DATA_DIR = os.environ.get("SCAN_DIR", "./data/scans")
 os.makedirs(os.path.join(DATA_DIR, "extract"), exist_ok=True)
 
-app.include_router(cursor.router)
 
 @app.get("/")
 async def root():
     return {"message": "Hello World"}
+
+@app.get("/radars/{lat}/{lon}")
+async def model(lat, lon):
+    radars = get_nearby_radars(float(lat), float(lon), radius_km=1000000, output_format="json")
+    if not len(radars):
+        return {"Error" : "Could not find radars"}, 500
+    return radars
 
 @app.get("/model/{lat}/{lon}/{timestamp}")
 async def model(lat, lon, timestamp: str):
