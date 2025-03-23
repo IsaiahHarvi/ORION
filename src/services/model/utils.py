@@ -1,10 +1,40 @@
 import os
 
+import keras
 import matplotlib.pyplot as plt
 import pandas as pd
+from huggingface_hub import hf_hub_download
 
 from tornet.tornet.data.loader import TornadoDataLoader
 from tornet.tornet.display.display import plot_radar
+from tornet.tornet.metrics.keras import metrics as tfm
+from tornet.tornet.models.keras.layers import *  # noqa
+
+
+def get_pretrained():
+    model = keras.saving.load_model(
+        hf_hub_download(
+            repo_id="tornet-ml/tornado_detector_baseline_v1",
+            filename="tornado_detector_baseline.keras",
+            local_dir="data/checkpoints",
+            local_dir_use_symlinks=False,
+        ),
+        compile=False,
+    )
+    metrics = [
+        keras.metrics.AUC(
+            from_logits=(from_logits := True), name="AUC", num_thresholds=2000
+        ),
+        keras.metrics.AUC(
+            from_logits=from_logits, curve="PR", name="AUCPR", num_thresholds=2000
+        ),
+        tfm.BinaryAccuracy(from_logits=from_logits, name="BinaryAccuracy"),
+        tfm.Precision(from_logits=from_logits, name="Precision"),
+        tfm.Recall(from_logits=from_logits, name="Recall"),
+        tfm.F1Score(from_logits=from_logits, name="F1"),
+    ]
+    model.compile(metrics=metrics)
+    return model
 
 
 def plot(file_list):

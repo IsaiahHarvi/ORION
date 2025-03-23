@@ -8,5 +8,7 @@ services:
     environment:
       - SCAN_DIR=/app/scans
       - KERAS_BACKEND=torch
+      - TORNET_ROOT=data/TorNet
     volumes:
       - ./scans:/app/scans
+      - ../../data/TorNet:/app/data/TorNet

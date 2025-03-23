@@ -18,6 +18,8 @@ class Model:
             hf_hub_download(
                 repo_id="tornet-ml/tornado_detector_baseline_v1",
                 filename="tornado_detector_baseline.keras",
+                local_dir="data/checkpoints",
+                local_dir_use_symlinks=False,
             ),
             compile=False,
         )
@@ -63,3 +65,7 @@ class Model:
             n_frames=1,
         )
         return self.transform(data)
+
+
+if __name__ == "__main__":
+    Model()

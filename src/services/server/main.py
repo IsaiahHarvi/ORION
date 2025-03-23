@@ -1,16 +1,26 @@
 import os
 
+import numpy as np
 import pandas as pd
 import pyart
+import torch
+import torchvision.transforms as T
 from fastapi import FastAPI
 
 from services.model.main import Model
+from services.model.utils import get_pretrained
 from services.scans.get_scans import download_scans
 from services.scans.get_stations import get_nearby_radars
 from services.scans.utils import enforce_dir_size_limit
+from tornet.tornet.data.loader import TornadoDataLoader, get_dataloader
+from tornet.tornet.data.preprocess import (
+    add_coordinates,
+    remove_time_dim,
+)
 
 app = FastAPI()
 model_ = Model()
+pretrained_model = get_pretrained()
 
 DATA_DIR = os.environ.get("SCAN_DIR", "./data/scans")
 os.makedirs(os.path.join(DATA_DIR, "radar"), exist_ok=True)
@@ -63,3 +73,47 @@ async def model(lat, lon, timestamp: str):
     enforce_dir_size_limit(DATA_DIR, max_size_bytes=3 * 1024 * 1024 * 1024)
 
     return {"probability": tornado_probability}
+
+
+def filter_numeric(data):
+    """
+    Filters out entries in data that are not numeric arrays/tensors (i.e. do not have a 'shape' attribute).
+    """
+    return {k: v for k, v in data.items() if hasattr(v, "shape")}
+
+@app.get("/model_test/{lat}/{lon}")
+async def model_test(lat, lon):
+    data_root = os.environ.get("TORNET_ROOT")
+
+    # dl = TornadoDataLoader(
+    #     [f"{data_root}/train/2019/TOR_190223_214156_KGWX_809551_X5.nc"],
+    #     variables=["DBZ", "VEL", "KDP", "RHOHV", "ZDR", "WIDTH"],
+    #     n_frames=1,
+    #     transform=T.Compose(
+    #         [
+    #             lambda d: add_coordinates(
+    #                 d, include_az=False, tilt_last=False, backend=torch
+    #             ),
+    #             lambda d: remove_time_dim(d),
+    #         ]
+    #     ),
+    # )
+    # sample = dl[0]
+ ## Set up data loader
+
+    test_years = range(2013, 2023)
+    ds_test = get_dataloader(
+        "keras",
+        data_root,
+        test_years,
+        "test",
+        128,
+        select_keys=list(pretrained_model.input.keys()),
+        # file_list = [f"{data_root}/train/2019/TOR_190223_214156_KGWX_809551_X5.nc"]
+    )
+
+    tornado_probability = pretrained_model.predict(ds_test)
+    return {"probability": tornado_probability.tolist()}
+
+if __name__ == "__main__":
+    model_test(38, 58, )
