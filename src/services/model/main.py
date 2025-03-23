@@ -5,7 +5,6 @@ import torch
 import torchvision.transforms as T
 from huggingface_hub import hf_hub_download
 
-from src.services.scans.utils import extract_nexrad_file
 from tornet.tornet.data.constants import ALL_VARIABLES
 from tornet.tornet.data.loader import read_file
 from tornet.tornet.data.preprocess import add_coordinates, remove_time_dim
@@ -34,7 +33,5 @@ class Model:
         return self.model.predict(x)
 
     def _prepoc(self, file_path):
-        print(file_path)
-        extract_nexrad_file(file_path, (end_dir := os.path.join(os.path.dirname(file_path), "extract")))
-        data = read_file(os.path.join(end_dir, file_path), variables=ALL_VARIABLES, tilt_last=True, n_frames=1)
+        data = read_file(file_path, variables=ALL_VARIABLES, tilt_last=True, n_frames=1)
         return self.transform(data)

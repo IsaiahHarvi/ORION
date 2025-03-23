@@ -1,18 +1,19 @@
 import os
 
 import pandas as pd
+import pyart
 from fastapi import FastAPI
 
+from services.model.main import Model
 from services.scans.get_scans import download_scans
 from services.scans.get_stations import get_nearby_radars
 from services.scans.utils import enforce_dir_size_limit
-from src.services.model.main import Model
 
 app = FastAPI()
 model_ = Model()
 
 DATA_DIR = os.environ.get("SCAN_DIR", "./data/scans")
-os.makedirs(os.path.join(DATA_DIR, "extract"), exist_ok=True)
+os.makedirs(os.path.join(DATA_DIR, "radar"), exist_ok=True)
 
 
 @app.get("/")
@@ -20,7 +21,7 @@ async def root():
     return {"message": "Hello World"}
 
 @app.get("/radars/{lat}/{lon}")
-async def model(lat, lon):
+async def radars(lat, lon):
     radars = get_nearby_radars(float(lat), float(lon), radius_km=1000000, output_format="json")
     if not len(radars):
         return {"Error" : "Could not find radars"}, 500
@@ -40,15 +41,16 @@ async def model(lat, lon, timestamp: str):
     if not scans.success_count:
         return {"Error" : f"{nearest_radar} has 0 scans currently available."}, 500
 
-    print(os.listdir(DATA_DIR))
     files = [os.path.join(DATA_DIR, f) for f in os.listdir(DATA_DIR)
-            if os.path.isfile(os.path.join(DATA_DIR, f))]
+            if os.path.isfile(os.path.join(DATA_DIR, f)) and f not in ["radar", ".gitkeep"]]
+    print(f"{files=}")
     latest_scan = max(files, key=os.path.getmtime)
-    print(files)
+    print(f"{latest_scan=}")
+
+    radar = pyart.io.read_nexrad_archive(latest_scan)
+    pyart.io.write_cfradial(f"{DATA_DIR}/radar/{os.path.basename(latest_scan)}.nc", radar)
 
     enforce_dir_size_limit(DATA_DIR, max_size_bytes=3*1024*1024*1024)
-
-    print(f"Sending {latest_scan} to model")
 
     tornado_probability = model_.predict(latest_scan)
 
