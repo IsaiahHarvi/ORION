@@ -1,13 +1,10 @@
 FROM node:20
 
-WORKDIR /usr/src/app
-
-COPY package*.json ./
-RUN npm i
+WORKDIR /app/src/app
 
 COPY src/app/ .
+RUN npm i
 
 EXPOSE 5173
 
 CMD ["sh", "-c", "npm i && npm run dev -- --host 0.0.0.0 --port 5173"]
-
