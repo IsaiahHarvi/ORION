@@ -8,9 +8,12 @@
     import { page } from '$app/state';
 
 	import '../app.css';
+	import { Toaster } from '$lib/components/ui/sonner';
 	let { children } = $props();
     let map = $state();
 </script>
+
+<Toaster />
 
 <svelte:head>
     <title>
@@ -20,10 +23,8 @@
 
 <div class="flex flex-row h-screen bg-[#0d0d0c] w-screen overflow-hidden">
     <Sidebar />
+    <Topbar />
     <div class="lg:relative overflow-hidden flex items-center justify-center h-full w-full">
-        <!--
-            <Topbar />
-        -->
         {@render children?.()}
     </div>
 </div>

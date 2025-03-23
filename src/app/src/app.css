@@ -92,3 +92,7 @@
 .maplibregl-ctrl-scale {
 	@apply text-white;
 }
+
+html {
+	@apply overflow-hidden;
+}
