@@ -25,7 +25,7 @@
 
 	"postCreateCommand": "sudo chmod +x scripts/* && scripts/setup_dev.sh",
 
-	"forwardPorts": [5171,5173,5432],
+	"forwardPorts": [5171,5173,5432,8000],
 
 	"customizations": {
 		"vscode": {
