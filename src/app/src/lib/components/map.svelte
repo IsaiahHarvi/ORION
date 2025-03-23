@@ -7,6 +7,10 @@
     import { current_lat_long } from '$lib/stores/current_location';
     import { loadRainViewerData } from '$lib/mapUpdater';
     import { loadRouteData, resetUAVUpdater } from '$lib/uavUpdater';
+    import { radar_state } from '$lib/runes/current_radar.svelte';
+    import { fade } from 'svelte/transition';
+  
+    let map: any;
     import { updateTrackData } from '$lib/trackDataUpdater';
     import { trackDataStore } from '$lib/stores/trackData';
   
@@ -28,12 +32,24 @@
     let mapElement: HTMLElement;
     let initialView = { lat: 39.8283, long: -98.5795 };
   
-    // We'll store the final UAV marker & coordinate
+    let lastTimestamp = 0;
+    let loadedUAVData = false;
+  
+    const {
+        showRadarLayer = true,
+        showUAVLayer = false,
+        mapEl = null,
+    }: { showRadarLayer?: boolean; showUAVLayer?: boolean; mapEl?: any } = $props();
+  
+    // Custom marker element for the initial position
+    function createCustomMarkerElement() {
+        const el = document.createElement('div');
+        el.classList.add('h-5', 'w-5', 'bg-neutral-700', 'border-[3px]', 'border-white', 'rounded-full');
+        return el;
+    }
+
     let finalMarker: maplibregl.Marker | null = null;
     let finalMarkerCoord: [number, number] | null = null;
-  
-    // Whether to show radar or UAV route
-    const { showRadarLayer = true, showUAVLayer = false } = $$props;
   
     /**
      * Adds or updates a line from UAV -> imageFrame center
@@ -231,16 +247,19 @@
     });
   
     onMount(() => {
-      // Attempt geolocation
-      if (typeof window !== 'undefined') {
-        navigator.geolocation.getCurrentPosition(({ coords }) => {
-          current_lat_long.set({ lat: coords.latitude, long: coords.longitude });
-          if (map) {
-            map.flyTo({ center: [coords.longitude, coords.latitude], zoom: 8, essential: true });
-          }
-        });
-      }
-  
+        if (typeof window !== 'undefined') {
+            navigator.geolocation.getCurrentPosition(({ coords }) => {
+            current_lat_long.set({ lat: coords.latitude, long: coords.longitude });
+            if (map) {
+                map.flyTo({ center: [coords.longitude, coords.latitude], zoom: 8, essential: true });
+                const marker = new maplibregl.Marker({
+                    element: createCustomMarkerElement()
+                    })
+                    .setLngLat([coords.longitude, coords.latitude])
+                    .addTo(map);
+                }
+            });
+        }
       if ($current_lat_long.lat && $current_lat_long.long) {
         initialView = $current_lat_long;
       }
@@ -248,20 +267,22 @@
       // create map
       map = new maplibregl.Map({
         container: mapElement,
-        style: `https://api.maptiler.com/maps/0195bee2-9b1b-7b54-b0c9-fb330ebe7162/style.json?key=rIQyeDoL1FNvjM5uLY2f`,
+        style: "https://api.maptiler.com/maps/0195bee2-9b1b-7b54-b0c9-fb330ebe7162/style.json?key=rIQyeDoL1FNvjM5uLY2f",
         center: [initialView.long, initialView.lat],
-        zoom: 8
-      });
-  
+        zoom: 8,
+        attributionControl: false,
+        fadeDuration: 0
+    });
+
       map.on('load', () => {
         // load radar
-        if (showRadarLayer) {
-          loadRainViewerData(map);
-        }
-        // load UAV route
-        if (showUAVLayer) {
-          resetUAVUpdater();
-          loadRouteData(map, handleMarkerCreate);
+            if (showRadarLayer) {
+                loadRainViewerData(map);
+            }
+            // load UAV route
+            if (showUAVLayer) {
+                resetUAVUpdater();
+                loadRouteData(map, handleMarkerCreate);
   
           // do an immediate fetch of track data
           updateTrackData();
@@ -272,8 +293,20 @@
       map.on('click', e => {
         if (finalMarker && e.originalEvent.target !== finalMarker.getElement()) {
           trackDataStore.update(d => ({ ...d, selected: false }));
+            }
+        });
+    });
+  
+    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
+  
+    $effect(() => {
+        if (radar_state.radar_state.timestamp !== lastTimestamp) {
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+            lastTimestamp = radar_state.radar_state.timestamp ?? 0;
+            loadRainViewerData(map, radar_state.radar_state.timestamp);
+            }, 300);
         }
-      });
     });
   
     onDestroy(() => {
@@ -282,12 +315,10 @@
         map.remove();
       }
     });
-  </script>
+</script>
   
-  <!-- The map container -->
-  <div class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
-  
-  <style>
-  /* optional styling */
-  </style>
-  
+<div in:fade={{ duration: 150, delay: 300 }} class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
+
+<style>
+/* Additional styling if needed */
+</style>

@@ -22,10 +22,6 @@ export function formatTimestamp(timestamp: number): string {
   return `${weekday[date.getDay()]} ${month[date.getMonth()]} ${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
-export function nextFrame(map: any): void {
-	return;
-}
-
 export function loadRainViewerData(map: any, timestamp?: number): void {
 	fetch('https://api.rainviewer.com/public/weather-maps.json')
 		.then((res) => res.json())
