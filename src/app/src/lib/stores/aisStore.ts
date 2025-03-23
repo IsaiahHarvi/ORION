@@ -1,6 +1,6 @@
 import { writable } from 'svelte/store';
 
-interface AISShip {
+export interface AISShip {
     mmsi: number;
     name: string;
     lat: number;
@@ -9,7 +9,7 @@ interface AISShip {
     heading: number;
 }
 
-interface AISStore {
+export interface AISStore {
     selectedShip: AISShip | null;
 }
 

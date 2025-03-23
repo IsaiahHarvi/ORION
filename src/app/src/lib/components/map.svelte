@@ -10,13 +10,16 @@
   import { fade } from 'svelte/transition';
   import Controls from './controls.svelte';
   import UAVLayer from './UAVLayer.svelte';
-
-  let lastTimestamp = 0;
-  let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-
+  import AISLayer from './AISLayer.svelte';
 
   // Extract props at the top level.
-  const { showRadarLayer = true, showUAVLayer = false, mapEl = null } = $props();
+  // Here we add showAISLayer in addition to the existing props.
+  const { 
+    showRadarLayer = true, 
+    showUAVLayer = false, 
+    showAISLayer = false, 
+    mapEl = null 
+  } = $props();
 
   // Declare reactive state variable for the map using $state.
   let map: any = $state(null);
@@ -40,24 +43,13 @@
     map.setMaxZoom(24);
 
     map.on('load', () => {
-      console.log("Map loaded, props:", { showRadarLayer, showUAVLayer });
+      console.log("Map loaded, props:", { showRadarLayer, showUAVLayer, showAISLayer });
       if (showRadarLayer) {
         loadRainViewerData(map);
       }
-      // UAVLayer is rendered conditionally below.
+      // UAVLayer and AISLayer are rendered conditionally below.
     });
   });
-
-  $effect(() => {
-        if (radar_state.radar_state.timestamp !== lastTimestamp) {
-            if (debounceTimer) clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
-                lastTimestamp = radar_state.radar_state.timestamp ?? 0;
-                loadRainViewerData(map, radar_state.radar_state.timestamp);
-            }, 300);
-        }
-    });
-
 
   onDestroy(() => {
     if (map) {
@@ -69,10 +61,12 @@
 <div class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
 
 {#if map}
-  {console.log("Map is defined, showUAVLayer =", showUAVLayer)}
   <Controls {map} />
   {#if showUAVLayer}
     <UAVLayer {map} />
+  {/if}
+  {#if showAISLayer}
+    <AISLayer {map} />
   {/if}
 {/if}
 

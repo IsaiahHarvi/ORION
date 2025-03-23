@@ -4,7 +4,7 @@
   import { resetUAVUpdater, loadRouteData } from '$lib/uavUpdater';
   import { updateTrackData } from '$lib/trackDataUpdater';
   import { trackDataStore } from '$lib/stores/trackData';
-  // Import the FOV utilities
+  // Import FOV utilities
   import { buildFramePolygon, showFramePolygon } from '$lib/utils/frameCoverage';
   import { get } from 'svelte/store';
 
@@ -22,7 +22,25 @@
     }
   }
 
+  // Remove UAV line and label layers (if present)
+  function clearUAVLayers() {
+    const sourcesAndLayers = [
+      { source: 'uav-center-line', layer: 'uav-center-line-layer' },
+      { source: 'final-marker-label', layer: 'final-marker-label-layer' }
+    ];
+    sourcesAndLayers.forEach(({ source, layer }) => {
+      if (map.getLayer(layer)) {
+        map.removeLayer(layer);
+      }
+      if (map.getSource(source)) {
+        map.removeSource(source);
+      }
+    });
+  }
+
+  // Update or add the UAV label with the current callsign
   function updateCallsignLabel(coord: [number, number]) {
+    clearUAVLayers();
     const sourceId = 'final-marker-label';
     const layerId  = 'final-marker-label-layer';
     // Get the current callsign from the store (fallback to 'Unknown')
@@ -30,35 +48,30 @@
 
     const geojsonData = {
       type: 'FeatureCollection',
-      features: [
-        {
-          type: 'Feature',
-          properties: { callsign },
-          geometry: { type: 'Point', coordinates: coord }
-        }
-      ]
+      features: [{
+        type: 'Feature',
+        properties: { callsign },
+        geometry: { type: 'Point', coordinates: coord }
+      }]
     };
 
-    if (!map.getSource(sourceId)) {
-      map.addSource(sourceId, { type: 'geojson', data: geojsonData });
-      map.addLayer({
-        id: layerId,
-        type: 'symbol',
-        source: sourceId,
-        layout: {
-          'text-field': ['get', 'callsign'],
-          'text-size': 14,
-          'text-offset': [1, 0],
-          'text-anchor': 'left',
-          'text-allow-overlap': true
-        },
-        paint: { 'text-color': '#ffffff' }
-      });
-    } else {
-      (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData(geojsonData);
-    }
+    map.addSource(sourceId, { type: 'geojson', data: geojsonData });
+    map.addLayer({
+      id: layerId,
+      type: 'symbol',
+      source: sourceId,
+      layout: {
+        'text-field': ['get', 'callsign'],
+        'text-size': 14,
+        'text-offset': [1, 0],
+        'text-anchor': 'left',
+        'text-allow-overlap': true
+      },
+      paint: { 'text-color': '#ffffff' }
+    });
   }
 
+  // Draw a line from the UAV marker to the image-frame center
   function drawUavToCenterLine(
     uavCoord: [number, number],
     centerCoord: [number, number],
@@ -79,6 +92,7 @@
       features: [lineFeature]
     };
 
+    // If the source exists, update it; otherwise, add it.
     if (!map.getSource(lineSourceId)) {
       map.addSource(lineSourceId, { type: 'geojson', data: lineFC });
       map.addLayer({
@@ -93,11 +107,13 @@
     }
   }
 
-  // When recreating the final marker, pull the updated callsign from the store.
+  // Recreate the final marker using the latest UAV data and callsign.
   function recreateFinalMarker(newStatus: 'Neutral' | 'Friendly' | 'Enemy') {
     if (!map || !finalMarkerCoord) return;
-    finalMarker?.remove();
-
+    if (finalMarker) {
+      finalMarker.remove();
+      finalMarker = null;
+    }
     const { callsign = 'Unknown' } = get(trackDataStore) || {};
 
     finalMarker = new maplibregl.Marker({
@@ -109,7 +125,6 @@
 
     finalMarker.getElement().style.cursor = 'pointer';
     finalMarker.getElement().addEventListener('click', e => {
-      // On click, update the track data to mark this UAV as selected
       trackDataStore.update(d => ({ ...d, selected: true }));
       updateTrackData();
       e.stopPropagation();
@@ -118,17 +133,20 @@
     updateCallsignLabel(finalMarkerCoord);
   }
 
-  // Callback when the UAV updater creates an initial marker.
+  // When the UAV updater creates an initial marker.
   function handleMarkerCreate(marker: maplibregl.Marker) {
     console.log('UAV marker created:', marker.getLngLat().toArray());
     // Remove the UAV-provided marker
     marker.remove();
+    // Remove any existing final marker
+    if (finalMarker) {
+      finalMarker.remove();
+      finalMarker = null;
+    }
     // Store new coordinate
     finalMarkerCoord = marker.getLngLat().toArray() as [number, number];
-    // Get initial status and callsign from store
-    const { combatStatus = 'Neutral', callsign = 'Unknown', imageFrame } = get(trackDataStore) || {};
+    const { combatStatus = 'Neutral' } = get(trackDataStore) || {};
 
-    // Create the final marker
     finalMarker = new maplibregl.Marker({
       color: colorFromCombatStatus(combatStatus),
       draggable: false
@@ -164,10 +182,12 @@
     
     unsub = trackDataStore.subscribe(d => {
       if (!map) return;
+      // Update marker if UAV data changes.
       if (finalMarkerCoord) {
         const status = d?.combatStatus || 'Neutral';
         recreateFinalMarker(status);
       }
+      // Draw the line to the image frame center.
       if (finalMarkerCoord && d?.imageFrame?.center) {
         const { lat: centerLat, lon: centerLon } = d.imageFrame.center;
         drawUavToCenterLine(finalMarkerCoord, [centerLon, centerLat]);
@@ -186,4 +206,4 @@
   });
 </script>
 
-<!-- This component doesn’t render visible DOM elements; it only manages UAV map layers. -->
+<!-- UAVLayer does not render visible DOM elements; it manages UAV map layers -->

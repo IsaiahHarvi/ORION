@@ -2,13 +2,17 @@
     import { onMount, onDestroy } from 'svelte';
     import type maplibregl from 'maplibre-gl';
     import { loadAISData, resetAISUpdater } from '$lib/aisUpdater';
-
+  
     export let map: maplibregl.Map;
-
+  
     onMount(() => {
-        resetAISUpdater();
-        loadAISData(map);
+      console.log("AISLayer mounted"); // Debug log
+      resetAISUpdater();
+      loadAISData(map);
     });
-
-    onDestroy(resetAISUpdater);
-</script>
+  
+    onDestroy(() => {
+      resetAISUpdater();
+    });
+  </script>
+  

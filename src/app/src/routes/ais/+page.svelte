@@ -1,14 +1,14 @@
 <script lang="ts">
     import Map from '$lib/components/map.svelte';
-    import AISLayer from '$lib/components/AISLayer.svelte';
     import AISData from '$lib/components/AISData.svelte';
     let mapInstance;
 </script>
 
-<Map bind:map={mapInstance} showRadarLayer={false} />
+<!-- Turn off radar if desired -->
+<Map bind:map={mapInstance} showRadarLayer={false} showAISLayer={true} />
 
 {#if mapInstance}
-    <AISLayer map={mapInstance} />
+    <!-- Note: AISLayer is now rendered from within Map.svelte when showAISLayer is true -->
 {/if}
 
 <div class="absolute z-20 top-4 left-4">
