@@ -1,7 +1,7 @@
 {
 	"version": 8,
-	"id": "0195c1f2-c0ae-7b22-b694-5a753a6c59bc",
-	"name": "Streets",
+	"id": "0195c20f-fafe-774b-9a0c-0ce59bdf437c",
+	"name": "streetatetet",
 	"sources": {
 		"maptiler_attribution": {
 			"attribution": "<a href=\"https://www.maptiler.com/copyright/\" target=\"_blank\">&copy; MapTiler</a> <a href=\"https://www.openstreetmap.org/copyright\" target=\"_blank\">&copy; OpenStreetMap contributors</a>",
@@ -18,12 +18,15 @@
 			"type": "background",
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"background-color": {
-					"stops": [
-						[6, "hsl(47,79%,94%)"],
-						[14, "hsl(42,49%,93%)"]
-					]
-				}
+				"background-color": [
+					"interpolate",
+					["exponential", 1],
+					["zoom"],
+					6,
+					"hsl(0, 0%, 47%)",
+					14,
+					"hsl(0, 0%, 47%)"
+				]
 			}
 		},
 		{
@@ -35,7 +38,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(75,51%,85%)",
+				"fill-color": "hsl(0, 0%, 44%)",
 				"fill-opacity": {
 					"stops": [
 						[0, 1],
@@ -54,7 +57,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(97,51%,80%)",
+				"fill-color": "hsl(0, 0%, 42%)",
 				"fill-opacity": {
 					"stops": [
 						[0, 1],
@@ -73,7 +76,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(50,67%,86%)",
+				"fill-color": "hsl(0, 0%, 44%)",
 				"fill-opacity": {
 					"stops": [
 						[0, 1],
@@ -92,7 +95,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(0,0%,100%)",
+				"fill-color": "hsl(0, 0%, 50%)",
 				"fill-opacity": {
 					"stops": [
 						[0, 1],
@@ -111,7 +114,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(119,38%,76%)",
+				"fill-color": "hsl(0, 0%, 40%)",
 				"fill-opacity": {
 					"stops": [
 						[1, 0.8],
@@ -127,7 +130,7 @@
 			"source": "maptiler_planet",
 			"source-layer": "landcover",
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-antialias": false, "fill-color": "hsl(52,93%,89%)", "fill-opacity": 0.85 },
+			"paint": { "fill-antialias": false, "fill-color": "hsl(0, 0%, 45%)", "fill-opacity": 0.85 },
 			"metadata": {},
 			"filter": ["==", "class", "sand"]
 		},
@@ -137,7 +140,7 @@
 			"source": "maptiler_planet",
 			"source-layer": "landcover",
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-color": "hsl(87,46%,85%)", "fill-opacity": 1 },
+			"paint": { "fill-color": "hsl(0, 0%, 44%)", "fill-opacity": 1 },
 			"metadata": {},
 			"filter": ["==", "class", "wood"]
 		},
@@ -149,13 +152,15 @@
 			"maxzoom": 24,
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"fill-color": {
-					"base": 1,
-					"stops": [
-						[4, "hsl(44,34%,87%)"],
-						[16, "hsl(54, 45%, 91%)"]
-					]
-				}
+				"fill-color": [
+					"interpolate",
+					["exponential", 1],
+					["zoom"],
+					4,
+					"hsl(0, 0%, 45%)",
+					16,
+					"hsl(0, 0%, 45%)"
+				]
 			},
 			"metadata": {},
 			"filter": ["in", "class", "residential", "suburbs", "neighbourhood"]
@@ -204,7 +209,7 @@
 			"source": "maptiler_planet",
 			"source-layer": "landcover",
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-antialias": false, "fill-color": "hsl(103, 40%, 85%)", "fill-opacity": 0.5 },
+			"paint": { "fill-antialias": false, "fill-color": "hsl(0, 0%, 44%)", "fill-opacity": 0.5 },
 			"metadata": {},
 			"filter": ["==", "class", "grass"]
 		},
@@ -215,7 +220,7 @@
 			"source-layer": "aeroway",
 			"minzoom": 11,
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-color": "hsl(0,0%,93%)", "fill-opacity": 1 },
+			"paint": { "fill-color": "hsl(0, 0%, 47%)", "fill-opacity": 1 },
 			"metadata": {},
 			"filter": ["==", "$type", "Polygon"]
 		},
@@ -225,7 +230,7 @@
 			"source": "maptiler_planet",
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-color": "hsl(43,100%,99%)", "fill-opacity": 0.7 },
+			"paint": { "fill-color": "hsl(0, 0%, 49%)", "fill-opacity": 0.7 },
 			"metadata": {},
 			"filter": [
 				"all",
@@ -244,7 +249,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(0,0%,88%)",
+				"fill-color": "hsl(0, 0%, 45%)",
 				"fill-opacity": {
 					"stops": [
 						[9, 0.25],
@@ -264,7 +269,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(12,63%,94%)",
+				"fill-color": "hsl(0, 0%, 47%)",
 				"fill-opacity": {
 					"stops": [
 						[9, 0.25],
@@ -284,7 +289,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(94, 100%, 88%)",
+				"fill-color": "hsl(0, 0%, 45%)",
 				"fill-opacity": {
 					"stops": [
 						[9, 0.25],
@@ -304,7 +309,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(194,52%,94%)",
+				"fill-color": "hsl(0, 0%, 47%)",
 				"fill-opacity": {
 					"stops": [
 						[9, 0.25],
@@ -323,7 +328,7 @@
 			"minzoom": 14,
 			"layout": { "line-cap": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(210,73%,78%)",
+				"line-color": "hsl(0, 0%, 12%)",
 				"line-dasharray": [2, 4],
 				"line-opacity": 0.5,
 				"line-width": {
@@ -343,7 +348,7 @@
 			"source-layer": "waterway",
 			"layout": { "line-cap": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(210,73%,78%)",
+				"line-color": "hsl(0, 0%, 12%)",
 				"line-width": {
 					"stops": [
 						[12, 0.5],
@@ -360,7 +365,7 @@
 			"source": "maptiler_planet",
 			"source-layer": "water",
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-antialias": true, "fill-color": "hsl(205,91%,83%)", "fill-opacity": 0.85 },
+			"paint": { "fill-antialias": true, "fill-color": "hsl(0, 0%, 12%)", "fill-opacity": 0.85 },
 			"metadata": {},
 			"filter": ["==", "intermittent", 1]
 		},
@@ -372,7 +377,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-antialias": true,
-				"fill-color": "hsl(204,92%,75%)",
+				"fill-color": "hsl(0, 0%, 11%)",
 				"fill-opacity": ["match", ["get", "intermittent"], 1, 0.85, 1]
 			},
 			"metadata": {},
@@ -386,7 +391,7 @@
 			"minzoom": 11,
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,100%)",
+				"line-color": "hsl(0, 0%, 50%)",
 				"line-width": [
 					"interpolate",
 					["linear", 1],
@@ -406,7 +411,7 @@
 			"source-layer": "aeroway",
 			"minzoom": 11,
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-color": "hsl(0,0%,100%)", "fill-opacity": 1 },
+			"paint": { "fill-color": "hsl(0, 0%, 50%)", "fill-opacity": 1 },
 			"metadata": {},
 			"filter": ["in", "class", "helipad", "heliport"]
 		},
@@ -418,12 +423,15 @@
 			"minzoom": 6,
 			"layout": { "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": {
-					"stops": [
-						[10, "hsl(205,61%,63%)"],
-						[16, "hsl(205,67%,47%)"]
-					]
-				},
+				"line-color": [
+					"interpolate",
+					["exponential", 1],
+					["zoom"],
+					10,
+					"hsl(0, 0%, 35%)",
+					16,
+					"hsl(0, 0%, 28%)"
+				],
 				"line-dasharray": [2, 2],
 				"line-opacity": ["interpolate", ["linear"], ["zoom"], 6, 0.5, 7, 0.8, 8, 1],
 				"line-width": {
@@ -698,7 +706,7 @@
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,73%)",
+				"line-color": "hsl(0, 0%, 39%)",
 				"line-opacity": 0.5,
 				"line-width": {
 					"base": 1.4,
@@ -719,7 +727,7 @@
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,73%)",
+				"line-color": "hsl(0, 0%, 39%)",
 				"line-dasharray": [0.2, 8],
 				"line-opacity": 0.5,
 				"line-width": {
@@ -742,7 +750,7 @@
 			"minzoom": 12,
 			"layout": { "line-cap": "round", "line-join": "miter", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,100%)",
+				"line-color": "hsl(0, 0%, 50%)",
 				"line-opacity": 1,
 				"line-width": {
 					"base": 1.2,
@@ -770,7 +778,7 @@
 			"minzoom": 12,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,63%)",
+				"line-color": "hsl(0, 0%, 35%)",
 				"line-dasharray": {
 					"stops": [
 						[14, [1, 0.5]],
@@ -802,7 +810,7 @@
 			"source": "maptiler_planet",
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-antialias": true, "fill-color": "hsl(42,49%,93%)" },
+			"paint": { "fill-antialias": true, "fill-color": "hsl(0, 0%, 47%)" },
 			"metadata": {},
 			"filter": ["all", ["==", "$type", "Polygon"], ["==", "class", "pier"]]
 		},
@@ -813,7 +821,7 @@
 			"source-layer": "transportation",
 			"layout": { "line-cap": "round", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(42,49%,93%)",
+				"line-color": "hsl(0, 0%, 47%)",
 				"line-width": {
 					"base": 1.2,
 					"stops": [
@@ -831,7 +839,7 @@
 			"source": "maptiler_planet",
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
-			"paint": { "fill-antialias": true, "fill-color": "hsl(42,49%,93%)", "fill-opacity": 0.6 },
+			"paint": { "fill-antialias": true, "fill-color": "hsl(0, 0%, 47%)", "fill-opacity": 0.6 },
 			"metadata": {},
 			"filter": ["all", ["==", "$type", "Polygon"], ["==", "brunnel", "bridge"]]
 		},
@@ -843,7 +851,7 @@
 			"minzoom": 4,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(36,5%,80%)",
+				"line-color": "hsl(0, 0%, 42%)",
 				"line-opacity": 1,
 				"line-width": [
 					"interpolate",
@@ -937,7 +945,7 @@
 			"minzoom": 4,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(28,72%,69%)",
+				"line-color": "hsl(0, 0%, 37%)",
 				"line-opacity": 1,
 				"line-width": [
 					"interpolate",
@@ -970,7 +978,7 @@
 			"minzoom": 4,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(28,72%,69%)",
+				"line-color": "hsl(0, 0%, 37%)",
 				"line-opacity": 1,
 				"line-width": [
 					"interpolate",
@@ -1124,7 +1132,7 @@
 			"minzoom": 4,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,100%)",
+				"line-color": "hsl(0, 0%, 50%)",
 				"line-width": [
 					"interpolate",
 					["linear", 2],
@@ -1217,7 +1225,7 @@
 			"minzoom": 4,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(48,100%,83%)",
+				"line-color": "hsl(0, 0%, 43%)",
 				"line-width": [
 					"interpolate",
 					["linear", 2],
@@ -1245,7 +1253,7 @@
 			"minzoom": 4,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(35,100%,76%)",
+				"line-color": "hsl(0, 0%, 40%)",
 				"line-width": [
 					"interpolate",
 					["linear", 2],
@@ -1283,7 +1291,7 @@
 			"minzoom": 12,
 			"layout": { "line-cap": "round", "line-join": "miter", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,100%)",
+				"line-color": "hsl(0, 0%, 50%)",
 				"line-width": {
 					"base": 1.2,
 					"stops": [
@@ -1310,7 +1318,7 @@
 			"minzoom": 12,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0, 0%, 79%)",
+				"line-color": "hsl(0, 0%, 42%)",
 				"line-dasharray": {
 					"stops": [
 						[14, [1, 0.5]],
@@ -1343,7 +1351,7 @@
 			"minzoom": 12,
 			"layout": { "line-cap": "butt", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0, 0%, 79%)",
+				"line-color": "hsl(0, 0%, 42%)",
 				"line-dasharray": {
 					"stops": [
 						[14, [1, 0.5]],
@@ -1375,12 +1383,15 @@
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"line-color": {
-					"stops": [
-						[8, "hsl(0,0%,72%)"],
-						[16, "hsl(0,0%,70%)"]
-					]
-				},
+				"line-color": [
+					"interpolate",
+					["exponential", 1],
+					["zoom"],
+					8,
+					"hsl(0, 0%, 38%)",
+					16,
+					"hsl(0, 0%, 37%)"
+				],
 				"line-opacity": ["match", ["get", "service"], "yard", 0.5, 1],
 				"line-width": {
 					"base": 1.4,
@@ -1401,7 +1412,7 @@
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,72%)",
+				"line-color": "hsl(0, 0%, 38%)",
 				"line-dasharray": [0.2, 9],
 				"line-opacity": ["match", ["get", "service"], "yard", 0.5, 1],
 				"line-width": {
@@ -1423,7 +1434,7 @@
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,73%)",
+				"line-color": "hsl(0, 0%, 39%)",
 				"line-width": {
 					"base": 1.4,
 					"stops": [
@@ -1443,7 +1454,7 @@
 			"source-layer": "transportation",
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,73%)",
+				"line-color": "hsl(0, 0%, 39%)",
 				"line-dasharray": [0.2, 4],
 				"line-width": {
 					"base": 1.4,
@@ -1466,15 +1477,17 @@
 			"maxzoom": 15,
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"fill-color": "hsl(30,6%,73%)",
+				"fill-color": "hsl(0, 0%, 39%)",
 				"fill-opacity": 0.3,
-				"fill-outline-color": {
-					"base": 1,
-					"stops": [
-						[13, "hsla(35, 6%, 79%, 0.3)"],
-						[14, "hsl(35, 6%, 79%)"]
-					]
-				}
+				"fill-outline-color": [
+					"interpolate",
+					["exponential", 1],
+					["zoom"],
+					13,
+					"hsla(0, 0%, 42%, 0.3)",
+					14,
+					"hsl(0, 0%, 42%)"
+				]
 			},
 			"metadata": {}
 		},
@@ -1487,7 +1500,7 @@
 			"layout": { "visibility": "visible" },
 			"paint": {
 				"fill-extrusion-base": { "property": "render_min_height", "type": "identity" },
-				"fill-extrusion-color": "hsl(44,14%,79%)",
+				"fill-extrusion-color": "hsl(0, 0%, 42%)",
 				"fill-extrusion-height": { "property": "render_height", "type": "identity" },
 				"fill-extrusion-opacity": 0.4
 			},
@@ -1501,7 +1514,7 @@
 			"source-layer": "waterway",
 			"layout": { "line-cap": "round", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,51%)",
+				"line-color": "hsl(0, 0%, 10%)",
 				"line-width": {
 					"base": 1.3,
 					"stops": [
@@ -1519,7 +1532,7 @@
 			"source-layer": "waterway",
 			"layout": { "line-cap": "round", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(204,92%,75%)",
+				"line-color": "hsl(0, 0%, 11%)",
 				"line-width": {
 					"base": 1.3,
 					"stops": [
@@ -1539,7 +1552,7 @@
 			"layout": { "line-cap": "round", "visibility": "visible" },
 			"paint": {
 				"line-blur": 1,
-				"line-color": "hsl(0,0%,100%)",
+				"line-color": "hsl(0, 0%, 50%)",
 				"line-width": {
 					"base": 1,
 					"stops": [
@@ -1558,7 +1571,7 @@
 			"minzoom": 13,
 			"layout": { "line-cap": "round", "line-join": "bevel", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0,0%,64%)",
+				"line-color": "hsl(0, 0%, 35%)",
 				"line-dasharray": [2, 2],
 				"line-width": {
 					"base": 1,
@@ -1578,7 +1591,7 @@
 			"minzoom": 3,
 			"layout": { "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0, 0%, 70%)",
+				"line-color": "hsl(0, 0%, 37%)",
 				"line-dasharray": [2, 1],
 				"line-width": [
 					"interpolate",
@@ -1604,7 +1617,7 @@
 			"minzoom": 0,
 			"layout": { "line-cap": "round", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0, 0%, 63%)",
+				"line-color": "hsl(0, 0%, 35%)",
 				"line-dasharray": [2, 2],
 				"line-width": {
 					"stops": [
@@ -1625,7 +1638,7 @@
 			"minzoom": 0,
 			"layout": { "line-cap": "round", "line-join": "round", "visibility": "visible" },
 			"paint": {
-				"line-color": "hsl(0, 0%, 54%)",
+				"line-color": "hsl(0, 0%, 31%)",
 				"line-width": {
 					"stops": [
 						[1, 0.5],
@@ -1661,9 +1674,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(205,84%,39%)",
+				"text-color": "hsl(0, 0%, 10%)",
 				"text-halo-blur": 1,
-				"text-halo-color": "hsl(202, 76%, 82%)",
+				"text-halo-color": "hsl(0, 0%, 12%)",
 				"text-halo-width": {
 					"stops": [
 						[10, 1],
@@ -1700,19 +1713,25 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": {
-					"stops": [
-						[1, "hsl(203,54%,54%)"],
-						[4, "hsl(203,72%,39%)"]
-					]
-				},
+				"text-color": [
+					"interpolate",
+					["exponential", 1],
+					["zoom"],
+					1,
+					"hsl(0, 0%, 11%)",
+					4,
+					"hsl(0, 0%, 10%)"
+				],
 				"text-halo-blur": 1,
-				"text-halo-color": {
-					"stops": [
-						[1, "hsla(196, 72%, 80%, 0.05)"],
-						[3, "hsla(200, 100%, 88%, 0.75)"]
-					]
-				},
+				"text-halo-color": [
+					"interpolate",
+					["exponential", 1],
+					["zoom"],
+					1,
+					"hsla(0, 0%, 12%, 0.05)",
+					3,
+					"hsla(0, 0%, 12%, 0.75)"
+				],
 				"text-halo-width": 1,
 				"text-opacity": ["step", ["zoom"], 0, 1, ["match", ["get", "class"], ["ocean"], 1, 0], 3, 1]
 			},
@@ -1741,8 +1760,8 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(205,84%,39%)",
-				"text-halo-color": "hsla(0, 100%, 100%, 0.45)",
+				"text-color": "hsl(0, 0%, 10%)",
+				"text-halo-color": "hsla(0, 0%, 12%, 0.45)",
 				"text-halo-width": 1.5
 			},
 			"metadata": {},
@@ -1761,9 +1780,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(26,10%,44%)",
+				"text-color": "hsl(0, 0%, 28%)",
 				"text-halo-blur": 1,
-				"text-halo-color": "hsl(21,64%,96%)",
+				"text-halo-color": "hsl(0, 0%, 48%)",
 				"text-halo-width": 1
 			}
 		},
@@ -1791,9 +1810,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(0,0%,40%)",
+				"text-color": "hsl(0, 0%, 27%)",
 				"text-halo-blur": 1,
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1
 			},
 			"metadata": {},
@@ -1821,9 +1840,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(205,84%,39%)",
+				"text-color": "hsl(0, 0%, 27%)",
 				"text-halo-blur": 0.5,
-				"text-halo-color": "hsla(0, 0%, 100%, 0.15)",
+				"text-halo-color": "hsla(0, 0%, 50%, 0.15)",
 				"text-halo-width": 1
 			},
 			"filter": ["==", "class", "ferry"]
@@ -1850,7 +1869,7 @@
 				"text-font": ["Roboto Regular", "Noto Sans Regular"],
 				"visibility": "visible"
 			},
-			"paint": { "icon-color": "hsl(0, 0%, 65%)", "icon-opacity": 0.5 },
+			"paint": { "icon-color": "hsl(0, 0%, 36%)", "icon-opacity": 0.5 },
 			"filter": [
 				"all",
 				["has", "oneway"],
@@ -1889,10 +1908,10 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(0, 0%, 16%)",
-				"text-color": "hsl(0, 0%, 16%)",
+				"icon-color": "hsl(0, 0%, 17%)",
+				"text-color": "hsl(0, 0%, 17%)",
 				"text-halo-blur": 0.5,
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1
 			},
 			"metadata": {},
@@ -1924,8 +1943,8 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(0,0%,21%)",
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-color": "hsl(0, 0%, 19%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1
 			},
 			"filter": [
@@ -1969,11 +1988,11 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(0, 0%, 100%)",
-				"icon-halo-color": "hsl(0, 0%, 29%)",
+				"icon-color": "hsl(0, 0%, 50%)",
+				"icon-halo-color": "hsl(0, 0%, 22%)",
 				"icon-halo-width": 1,
-				"text-color": "hsl(0, 0%, 29%)",
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-color": "hsl(0, 0%, 22%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1
 			},
 			"filter": [
@@ -2018,11 +2037,11 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(0, 0%, 100%)",
-				"icon-halo-color": "hsl(0, 0%, 29%)",
+				"icon-color": "hsl(0, 0%, 50%)",
+				"icon-halo-color": "hsl(0, 0%, 22%)",
 				"icon-halo-width": 1,
-				"text-color": "hsl(0, 0%, 29%)",
-				"text-halo-color": "rgba(255, 255, 255, 1)",
+				"text-color": "hsl(0, 0%, 22%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 0
 			},
 			"filter": [
@@ -2066,13 +2085,13 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(21, 100%, 45%)",
-				"icon-halo-color": "rgba(255, 255, 255, 1)",
+				"icon-color": "hsl(0, 0%, 28%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 1,
 				"icon-translate": [0, -4],
 				"icon-translate-anchor": "viewport",
-				"text-color": "hsl(21, 100%, 45%)",
-				"text-halo-color": "rgba(255, 255, 255, 1)",
+				"text-color": "hsl(0, 0%, 28%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 0
 			},
 			"filter": [
@@ -2116,11 +2135,11 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(212, 79%, 42%)",
-				"icon-halo-color": "rgba(255, 255, 255, 1)",
+				"icon-color": "hsl(0, 0%, 28%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 1,
-				"text-color": "hsl(0, 0%, 100%)",
-				"text-halo-color": "rgba(255, 255, 255, 1)",
+				"text-color": "hsl(0, 0%, 50%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 0,
 				"text-translate": [0, -0.5]
 			},
@@ -2184,9 +2203,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(51, 10%, 40%)",
+				"icon-color": "hsl(0, 0%, 27%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -2220,9 +2239,9 @@
 					18,
 					1
 				],
-				"text-color": "hsl(51, 10%, 40%)",
+				"text-color": "hsl(0, 0%, 27%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -2317,9 +2336,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(129, 65%, 30%)",
+				"icon-color": "hsl(0, 0%, 22%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -2336,9 +2355,9 @@
 					17,
 					1
 				],
-				"text-color": "hsl(129, 65%, 30%)",
+				"text-color": "hsl(0, 0%, 22%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -2435,9 +2454,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(175, 50%, 40%)",
+				"icon-color": "hsl(0, 0%, 27%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -2450,9 +2469,9 @@
 					17,
 					1
 				],
-				"text-color": "hsl(175, 50%, 40%)",
+				"text-color": "hsl(0, 0%, 27%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -2536,9 +2555,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(283, 55%, 35%)",
+				"icon-color": "hsl(0, 0%, 25%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -2551,9 +2570,9 @@
 					17,
 					1
 				],
-				"text-color": "hsl(283, 55%, 35%)",
+				"text-color": "hsl(0, 0%, 25%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -2629,9 +2648,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(315, 35%, 50%)",
+				"icon-color": "hsl(0, 0%, 30%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -2652,9 +2671,9 @@
 					17,
 					1
 				],
-				"text-color": "hsl(315, 35%, 50%)",
+				"text-color": "hsl(0, 0%, 30%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -2733,9 +2752,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(18, 17%, 30%)",
+				"icon-color": "hsl(0, 0%, 22%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -2750,9 +2769,9 @@
 					17,
 					1
 				],
-				"text-color": "hsl(18, 17%, 30%)",
+				"text-color": "hsl(0, 0%, 22%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -2837,9 +2856,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(18, 24%, 44%)",
+				"icon-color": "hsl(0, 0%, 28%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -2854,9 +2873,9 @@
 					17,
 					1
 				],
-				"text-color": "hsl(18, 24%, 44%)",
+				"text-color": "hsl(0, 0%, 28%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -2941,9 +2960,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(215, 81%, 35%)",
+				"icon-color": "hsl(0, 0%, 25%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -2997,9 +3016,9 @@
 					18,
 					1
 				],
-				"text-color": "hsl(215, 81%, 35%)",
+				"text-color": "hsl(0, 0%, 25%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -3110,9 +3129,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(82, 83%, 25%)",
+				"icon-color": "hsl(0, 0%, 20%)",
 				"icon-halo-blur": 0,
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -3125,9 +3144,9 @@
 					16,
 					1
 				],
-				"text-color": "hsl(82, 83%, 25%)",
+				"text-color": "hsl(0, 0%, 20%)",
 				"text-halo-blur": 0,
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -3186,9 +3205,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(6, 96%, 35%)",
+				"icon-color": "hsl(0, 0%, 25%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -3201,9 +3220,9 @@
 					17,
 					1
 				],
-				"text-color": "hsl(6, 96%, 35%)",
+				"text-color": "hsl(0, 0%, 25%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -3299,8 +3318,8 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(0,0%,25%)",
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-color": "hsl(0, 0%, 20%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1.2,
 				"text-opacity": [
 					"step",
@@ -3366,9 +3385,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(215, 83%, 53%)",
+				"icon-color": "hsl(0, 0%, 31%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.8, 16, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": 2,
 				"icon-opacity": [
 					"step",
@@ -3383,9 +3402,9 @@
 					17,
 					1
 				],
-				"text-color": "hsl(215, 83%, 53%)",
+				"text-color": "hsl(0, 0%, 31%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 12, 1, 14, 0.5, 16, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 2,
 				"text-opacity": [
 					"step",
@@ -3422,9 +3441,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(0,0%,40%)",
+				"text-color": "hsl(0, 0%, 27%)",
 				"text-halo-blur": 0.5,
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1
 			},
 			"filter": ["==", "class", "gate"]
@@ -3476,14 +3495,14 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(215, 83%, 53%)",
+				"icon-color": "hsl(0, 0%, 31%)",
 				"icon-halo-blur": ["interpolate", ["linear"], ["zoom"], 8, 1, 10, 0.5, 12, 0],
-				"icon-halo-color": "hsl(0, 0%, 100%)",
+				"icon-halo-color": "hsl(0, 0%, 50%)",
 				"icon-halo-width": ["interpolate", ["linear"], ["zoom"], 8, 1, 12, 2],
 				"icon-opacity": 1,
-				"text-color": "hsl(215, 83%, 53%)",
+				"text-color": "hsl(0, 0%, 31%)",
 				"text-halo-blur": ["interpolate", ["linear"], ["zoom"], 8, 1, 10, 0.5, 12, 0],
-				"text-halo-color": "hsl(0, 0%, 100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": ["interpolate", ["linear"], ["zoom"], 8, 1, 12, 2]
 			},
 			"filter": ["all", ["has", "iata"], ["!in", "class", "public"]]
@@ -3513,8 +3532,8 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(48,4%,44%)",
-				"text-halo-color": "hsla(0,0%,100%,0.75)",
+				"text-color": "hsl(0, 0%, 28%)",
+				"text-halo-color": "hsla(0, 0%, 50%, 0.75)",
 				"text-halo-width": 0.8,
 				"text-opacity": [
 					"step",
@@ -3566,12 +3585,20 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(0, 20%, 99%)",
-				"icon-halo-color": "hsl(0, 0%, 29%)",
+				"icon-color": "hsl(0, 0%, 49%)",
+				"icon-halo-color": "hsl(0, 0%, 22%)",
 				"icon-halo-width": 1,
-				"text-color": ["interpolate", ["linear"], ["zoom"], 6, "hsl(0,0%,20%)", 12, "hsl(0,0%,0%)"],
+				"text-color": [
+					"interpolate",
+					["linear"],
+					["zoom"],
+					6,
+					"hsl(0, 0%, 19%)",
+					12,
+					"hsl(0, 0%, 11%)"
+				],
 				"text-halo-blur": 0.5,
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1
 			},
 			"metadata": {},
@@ -3611,13 +3638,13 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(0, 0%, 100%)",
-				"icon-halo-color": "hsl(0, 0%, 29%)",
+				"icon-color": "hsl(0, 0%, 50%)",
+				"icon-halo-color": "hsl(0, 0%, 22%)",
 				"icon-halo-width": 1,
 				"icon-opacity": 1,
-				"text-color": "hsl(0,0%,20%)",
+				"text-color": "hsl(0, 0%, 19%)",
 				"text-halo-blur": 0.5,
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 0.8
 			},
 			"metadata": {},
@@ -3645,13 +3672,13 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"icon-color": "hsl(0, 0%, 100%)",
-				"icon-halo-color": "hsl(0, 0%, 29%)",
+				"icon-color": "hsl(0, 0%, 50%)",
+				"icon-halo-color": "hsl(0, 0%, 22%)",
 				"icon-halo-width": 1,
 				"icon-opacity": 1,
-				"text-color": "hsl(0,0%,20%)",
+				"text-color": "hsl(0, 0%, 19%)",
 				"text-halo-blur": 0.5,
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 0.8
 			},
 			"metadata": {},
@@ -3694,9 +3721,9 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(0, 0%, 20%)",
+				"text-color": "hsl(0, 0%, 19%)",
 				"text-halo-blur": 0.8,
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1,
 				"text-opacity": [
 					"interpolate",
@@ -3733,21 +3760,17 @@
 				"visibility": "visible"
 			},
 			"paint": {
-				"text-color": "hsl(0,0%,19%)",
+				"text-color": "hsl(0, 0%, 18%)",
 				"text-halo-blur": 1,
-				"text-halo-color": "hsl(0,0%,100%)",
+				"text-halo-color": "hsl(0, 0%, 50%)",
 				"text-halo-width": 1
 			},
 			"metadata": {},
 			"filter": ["==", "class", "continent"]
 		}
 	],
-	"metadata": {
-		"maptiler:copyright": "You are licensed to use the style or its derivate for serving map tiles exclusively with MapTiler Server or MapTiler Cloud and in accordance with their licenses and terms. If you plan to use the style in a different way, contact us at sales@maptiler.com.",
-		"spaceColor": "hsl(203, 100%, 85%)"
-	},
 	"glyphs": "https://api.maptiler.com/fonts/{fontstack}/{range}.pbf?key=rIQyeDoL1FNvjM5uLY2f",
-	"sprite": "https://api.maptiler.com/maps/0195c1f2-c0ae-7b22-b694-5a753a6c59bc/sprite",
+	"sprite": "https://api.maptiler.com/maps/0195c20f-fafe-774b-9a0c-0ce59bdf437c/sprite",
 	"bearing": 0,
 	"pitch": 0,
 	"center": [0, 0],

@@ -1,7 +1,7 @@
 nexradaws
 pandas
 geopy
-fastapi[standard]
+fastapi[all]
 # keras>=3.0
 # torchvision
 # torch

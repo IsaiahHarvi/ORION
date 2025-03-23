@@ -96,3 +96,7 @@
 html {
 	@apply overflow-hidden;
 }
+
+.toast {
+	@apply rounded-none !important;
+}

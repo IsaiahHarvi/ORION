@@ -16,5 +16,5 @@ huggingface_hub
 keras>=3.0
 xarray
 torchvision
-fastapi[standard]
+fastapi[all]
 tensorflow-cpu
