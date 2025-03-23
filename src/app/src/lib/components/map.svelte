@@ -1,3 +1,4 @@
+<!-- Map.svelte -->
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import maplibregl from 'maplibre-gl';
@@ -7,13 +8,19 @@
     import { loadRainViewerData } from '$lib/mapUpdater';
     import { loadRouteData, resetUAVUpdater } from '$lib/uavUpdater';
     import { updateTrackData } from '$lib/trackDataUpdater';
-    import { trackDataStore } from '$lib/stores/trackData'; // For callsign, selected, etc.
+    import { trackDataStore } from '$lib/stores/trackData';
   
+    // If you want to keep the imageFrame polygon overlay:
+    import { buildFramePolygon, showFramePolygon } from '$lib/utils/frameCoverage';
+  
+    /**
+     * Convert a combat status to a color for the UAV marker.
+     */
     function colorFromCombatStatus(status: 'Neutral' | 'Friendly' | 'Enemy'): string {
       switch (status) {
-        case 'Friendly': return '#00ff00';
-        case 'Enemy':    return '#ff0000';
-        default:         return '#ffffff'; // Neutral
+        case 'Friendly': return '#00ff00'; // green
+        case 'Enemy':    return '#ff0000'; // red
+        default:         return '#ffffff'; // white for neutral
       }
     }
   
@@ -21,22 +28,69 @@
     let mapElement: HTMLElement;
     let initialView = { lat: 39.8283, long: -98.5795 };
   
-    // We'll store the final marker + coordinate
+    // We'll store the final UAV marker & coordinate
     let finalMarker: maplibregl.Marker | null = null;
     let finalMarkerCoord: [number, number] | null = null;
   
-    // Props controlling layers
-    const { showRadarLayer = true, showUAVLayer = false } = $props();
+    // Whether to show radar or UAV route
+    const { showRadarLayer = true, showUAVLayer = false } = $$props;
   
     /**
-     * A helper to set/update the "callsign label" on the map using a symbol layer.
-     * We store a single point feature with property "callsign".
+     * Adds or updates a line from UAV -> imageFrame center
+     */
+    function drawUavToCenterLine(
+      map: maplibregl.Map,
+      uavCoord: [number, number],
+      centerCoord: [number, number],
+      lineSourceId = 'uav-center-line',
+      lineLayerId = 'uav-center-line-layer'
+    ) {
+      // Build a line with two coordinates
+      const lineFeature = {
+        type: 'Feature',
+        geometry: {
+          type: 'LineString',
+          coordinates: [
+            uavCoord,        // [lon, lat] of UAV
+            centerCoord      // [lon, lat] of the image-frame center
+          ]
+        },
+        properties: {}
+      };
+  
+      const lineFC = {
+        type: 'FeatureCollection',
+        features: [lineFeature]
+      };
+  
+      // Create or update the line source/layer
+      if (!map.getSource(lineSourceId)) {
+        map.addSource(lineSourceId, { type: 'geojson', data: lineFC });
+        map.addLayer({
+          id: lineLayerId,
+          type: 'line',
+          source: lineSourceId,
+          layout: {
+            'line-join': 'round',
+            'line-cap': 'round'
+          },
+          paint: {
+            'line-color': '#FFFF00',  // <— bright yellow
+            'line-width': 3
+          }
+        });
+      } else {
+        (map.getSource(lineSourceId) as maplibregl.GeoJSONSource).setData(lineFC);
+      }
+    }
+  
+    /**
+     * Create or update a label on the map for the UAV callsign, using a symbol layer.
      */
     function updateCallsignLabel(callsign: string, coord: [number, number]) {
       const sourceId = 'final-marker-label';
-      const layerId = 'final-marker-label-layer';
+      const layerId  = 'final-marker-label-layer';
   
-      // Our single-feature data
       const geojsonData = {
         type: 'FeatureCollection',
         features: [
@@ -48,10 +102,8 @@
         ]
       };
   
-      // If we haven't added this source/layer yet, add them
       if (!map.getSource(sourceId)) {
         map.addSource(sourceId, { type: 'geojson', data: geojsonData });
-  
         map.addLayer({
           id: layerId,
           type: 'symbol',
@@ -59,35 +111,33 @@
           layout: {
             'text-field': ['get', 'callsign'],
             'text-size': 14,
-            'text-offset': [1, 0],         // shift label to the right
-            'text-anchor': 'left',        // anchor on the left side
-            'text-allow-overlap': true    // so it doesn't disappear
+            'text-offset': [1, 0],
+            'text-anchor': 'left',
+            'text-allow-overlap': true
           },
           paint: {
             'text-color': '#ffffff'
           }
         });
       } else {
-        // If the source already exists, just update its data
         (map.getSource(sourceId) as maplibregl.GeoJSONSource).setData(geojsonData);
       }
     }
   
     /**
-     * Re-create final marker if user changes combatStatus, preserving coordinate.
-     * Then re-update the label to match the callsign in the store.
+     * Re-create the final marker if user changes status or callsign, preserving finalMarkerCoord.
      */
     function recreateFinalMarker(newStatus: 'Neutral' | 'Friendly' | 'Enemy') {
       if (!map || !finalMarkerCoord) return;
   
-      // remove old marker if exists
+      // remove old marker
       finalMarker?.remove();
   
-      // figure out callsign from trackData store
+      // read track data store to get callsign
       const data = $trackDataStore;
       const callsign = data?.callsign || 'Unknown';
   
-      // create marker with the new color
+      // create a new marker with the updated color
       finalMarker = new maplibregl.Marker({
         color: colorFromCombatStatus(newStatus),
         draggable: false
@@ -95,41 +145,35 @@
         .setLngLat(finalMarkerCoord)
         .addTo(map);
   
-      // set the marker to be clickable
+      // make pointer
       finalMarker.getElement().style.cursor = 'pointer';
   
-      // on marker click, set trackData.selected = true and do an update
+      // on marker click => set trackData.selected = true
       finalMarker.getElement().addEventListener('click', e => {
         console.log('Marker clicked!');
         trackDataStore.update(d => ({ ...d, selected: true }));
+        // Optionally refresh data from server
         updateTrackData();
         e.stopPropagation();
       });
   
-      // also update the callsign label next to the marker
+      // label for callsign
       updateCallsignLabel(callsign, finalMarkerCoord);
-    }
-
-    function createCustomMarkerElement() {
-      const el = document.createElement('div');
-      el.classList.add('h-5', 'w-5', 'bg-neutral-700', 'border-[3px]', 'border-white', 'rounded-full');
-      return el;
     }
   
     /**
-     * Called by UAV Updater when it has a final marker. We remove that marker
-     * and re-create it with the correct color, plus set up the label.
+     * Called by loadRouteData(...) once it locates a "final" UAV point to mark.
      */
     function handleMarkerCreate(marker: maplibregl.Marker) {
-      // remove old marker if any
+      // remove old marker
       finalMarker?.remove();
   
-      // store coordinate
+      // store new coordinate
       finalMarkerCoord = marker.getLngLat().toArray() as [number, number];
   
-      // read user’s current track data store
+      // read track data for status/callsign
       const data = $trackDataStore;
-      let status: 'Neutral' | 'Friendly' | 'Enemy' = data?.combatStatus || 'Neutral';
+      const status: 'Neutral' | 'Friendly' | 'Enemy' = data?.combatStatus || 'Neutral';
       const callsign = data?.callsign || 'Unknown';
   
       // remove the UAV-provided marker
@@ -152,31 +196,47 @@
         e.stopPropagation();
       });
   
-      // also add the callsign label next to it
+      // label
       updateCallsignLabel(callsign, finalMarkerCoord);
     }
   
-    // subscribe to trackDataStore, if user changes status or callsign => re-create marker
+    // Subscribe to trackDataStore => re-create marker if needed & draw the line to imageFrame center
     const unsub = trackDataStore.subscribe(d => {
-      if (!finalMarkerCoord || !map) return;
-      // if callsign or combatStatus changed, re-create
-      // (You could be more selective if you want)
-      const status = d?.combatStatus || 'Neutral';
-      recreateFinalMarker(status);
+      if (!map) return;
+  
+      // 1) If we already have finalMarkerCoord, re-create marker if status/callsign changed
+      if (finalMarkerCoord) {
+        const status = d?.combatStatus || 'Neutral';
+        recreateFinalMarker(status);
+      }
+  
+      // 2) If the user has an imageFrame center AND we have finalMarkerCoord => draw line
+      if (finalMarkerCoord && d?.imageFrame?.center) {
+        const { lat: centerLat, lon: centerLon } = d.imageFrame.center;
+        // UAV: finalMarkerCoord is [lon, lat]
+        // center: [centerLon, centerLat]
+        drawUavToCenterLine(map, finalMarkerCoord, [centerLon, centerLat]);
+      } else {
+        // optional: remove the line if no center
+        // e.g. if (map.getLayer('uav-center-line-layer')) map.removeLayer('uav-center-line-layer');
+        //      if (map.getSource('uav-center-line'))      map.removeSource('uav-center-line');
+      }
+  
+      // 3) If we want to show the imageFrame polygon corners
+      if (d.imageFrame && d.imageFrame.ulc && d.imageFrame.urc && d.imageFrame.lrc && d.imageFrame.llc) {
+        const { center, ulc, urc, lrc, llc } = d.imageFrame;
+        const framePoly = buildFramePolygon(ulc, urc, lrc, llc);
+        showFramePolygon(map, framePoly, center);
+      }
     });
   
     onMount(() => {
-      // geolocation
+      // Attempt geolocation
       if (typeof window !== 'undefined') {
         navigator.geolocation.getCurrentPosition(({ coords }) => {
           current_lat_long.set({ lat: coords.latitude, long: coords.longitude });
           if (map) {
             map.flyTo({ center: [coords.longitude, coords.latitude], zoom: 8, essential: true });
-            const marker = new maplibregl.Marker({
-              element: createCustomMarkerElement()
-            })
-              .setLngLat([coords.longitude, coords.latitude])
-              .addTo(map);
           }
         });
       }
@@ -185,7 +245,7 @@
         initialView = $current_lat_long;
       }
   
-      // create the map
+      // create map
       map = new maplibregl.Map({
         container: mapElement,
         style: `https://api.maptiler.com/maps/0195bee2-9b1b-7b54-b0c9-fb330ebe7162/style.json?key=rIQyeDoL1FNvjM5uLY2f`,
@@ -194,16 +254,21 @@
       });
   
       map.on('load', () => {
+        // load radar
         if (showRadarLayer) {
           loadRainViewerData(map);
         }
+        // load UAV route
         if (showUAVLayer) {
           resetUAVUpdater();
           loadRouteData(map, handleMarkerCreate);
+  
+          // do an immediate fetch of track data
+          updateTrackData();
         }
       });
   
-      // if user clicks away from final marker => unselect track data
+      // if user clicks the map away from the final marker => unselect track data
       map.on('click', e => {
         if (finalMarker && e.originalEvent.target !== finalMarker.getElement()) {
           trackDataStore.update(d => ({ ...d, selected: false }));
@@ -211,28 +276,18 @@
       });
     });
   
-    let debounceTimer: ReturnType<typeof setTimeout> | null = null;
-  
-    $effect(() => {
-      if (radar_state.radar_state.timestamp !== lastTimestamp) {
-        if (debounceTimer) clearTimeout(debounceTimer);
-        debounceTimer = setTimeout(() => {
-          lastTimestamp = radar_state.radar_state.timestamp ?? 0;
-          loadRainViewerData(map, radar_state.radar_state.timestamp);
-        }, 300);
-      }
-    });
-  
     onDestroy(() => {
-        if (map) {
-            map.remove();
-        }
+      unsub();
+      if (map) {
+        map.remove();
+      }
     });
   </script>
   
-  <div out:flyAndScale class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
+  <!-- The map container -->
+  <div class="h-full w-full absolute top-0 left-0" bind:this={mapElement}></div>
   
   <style>
-  /* optional style here */
+  /* optional styling */
   </style>
   
