@@ -1,5 +1,3 @@
-// src/lib/uavUpdater.ts
-
 import maplibregl from 'maplibre-gl';
 import { updateTrackData } from '$lib/trackDataUpdater';
 
@@ -42,7 +40,7 @@ function interpolateCoordinates(coords: number[][], segments: number = 10): numb
   return result;
 }
 
-/** Reset stored route data & observations. Call this when the map loads or page changes. */
+/** Reset stored route data & observations. */
 export function resetUAVUpdater(): void {
   accumulatedRoutePoints = [];
   accumulatedObservations = [];
@@ -50,13 +48,23 @@ export function resetUAVUpdater(): void {
 }
 
 /**
- * Load route data. If a final marker is created, we call `onMarkerCreate(marker)` so
- * the caller can store or manage it. If there's no new data, we skip creating a marker.
+ * Load route data from the UAV endpoint.
+ * If the map isn’t ready, we schedule a retry.
  */
 export function loadRouteData(
   map: maplibregl.Map,
   onMarkerCreate: (marker: maplibregl.Marker) => void
 ): void {
+  if (!map) {
+    console.warn("loadRouteData: Map instance is undefined.");
+    return;
+  }
+  // Wait until the style is loaded
+  if (!map.isStyleLoaded()) {
+    setTimeout(() => loadRouteData(map, onMarkerCreate), 300);
+    return;
+  }
+
   fetch('https://api.georobotix.io/ogc/t18/api/datastreams/iabpf1ivua1qm/observations')
     .then(res => res.json())
     .then(data => {
@@ -85,24 +93,28 @@ export function loadRouteData(
       // Interpolate route
       const interpolated = interpolateCoordinates(accumulatedRoutePoints, 10);
       routeGeoJSON.features[0].geometry.coordinates = interpolated;
-      if (map.getSource('route')) {
-        (map.getSource('route') as maplibregl.GeoJSONSource).setData(routeGeoJSON);
-      } else {
-        map.addSource('route', { type: 'geojson', data: routeGeoJSON });
-        map.addLayer({
-          id: 'route-layer-outline',
-          type: 'line',
-          source: 'route',
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': '#212d4f', 'line-width': 10 }
-        });
-        map.addLayer({
-          id: 'route-layer',
-          type: 'line',
-          source: 'route',
-          layout: { 'line-cap': 'round', 'line-join': 'round' },
-          paint: { 'line-color': '#6084eb', 'line-width': 8 }
-        });
+      try {
+        if (map.getSource('route')) {
+          (map.getSource('route') as maplibregl.GeoJSONSource).setData(routeGeoJSON);
+        } else {
+          map.addSource('route', { type: 'geojson', data: routeGeoJSON });
+          map.addLayer({
+            id: 'route-layer-outline',
+            type: 'line',
+            source: 'route',
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
+            paint: { 'line-color': '#212d4f', 'line-width': 10 }
+          });
+          map.addLayer({
+            id: 'route-layer',
+            type: 'line',
+            source: 'route',
+            layout: { 'line-cap': 'round', 'line-join': 'round' },
+            paint: { 'line-color': '#6084eb', 'line-width': 8 }
+          });
+        }
+      } catch (e) {
+        console.error("Error updating route data:", e);
       }
 
       // Create final marker if we have at least one coordinate
@@ -112,15 +124,11 @@ export function loadRouteData(
           .setLngLat(latestCoord)
           .addTo(map);
 
-        // On marker click, do an immediate track data update, etc.
         marker.getElement().addEventListener('click', () => {
-            // This triggers immediate track data update or sets selected = true
-            updateTrackData(); // If you want to refresh data
-        
-            // Also set trackData.selected = true
-            trackDataStore.update(d => ({ ...d, selected: true }));
+          updateTrackData();
+          // Update selection flag in your store as needed
+          // e.g., trackDataStore.update(d => ({ ...d, selected: true }));
         });
-        
 
         // Return the newly created marker to the caller
         onMarkerCreate(marker);
