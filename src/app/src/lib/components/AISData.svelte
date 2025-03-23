@@ -2,6 +2,7 @@
     import { onDestroy } from 'svelte';
     import { aisStore } from '$lib/stores/aisStore';
     import { Button } from '$lib/components/ui/button';
+    import X from '@lucide/svelte/icons/x';
     import {
       Collapsible,
       CollapsibleTrigger,
@@ -18,53 +19,31 @@
     });
   
     onDestroy(unsubscribe);
-  </script>
+
+    function closePanel() {
+        aisStore.update(d => ({ ...d, selectedShip: null }));
+    }
+</script>
   
-  {#if selectedShip}
-    <div transition:flyAndScale class="bg-neutral-900 border shadow-lg rounded-lg p-4 max-w-sm text-white">
-      <!-- Header Section -->
-      <div class="flex flex-col space-y-2">
-        <h2 class="text-xl font-bold">SHIP ID: {selectedShip.name})</h2>
-        <div class="text-gray-400 text-sm">
-          Coordinates: {selectedShip.lat.toFixed(5)}, {selectedShip.lon.toFixed(5)}
+{#if selectedShip}
+    <div transition:flyAndScale class="bg-neutral-900 relative mt-16 border shadow-lg rounded-lg p-4 w-full lg:w-[27.5rem] text-white">
+        <button class="absolute top-4 right-4" on:click={closePanel}>
+            <X class="hover:text-white/40 duration-200 text-white/70" size={18} />
+        </button>
+
+        <div class="flex flex-col space-y-2">
+            <h2 class="text-xl font-bold">{selectedShip.name || 'Unnamed Vessel'}</h2>
+            <div class="text-gray-400 text-sm">MMSI: {selectedShip.mmsi}</div>
         </div>
-      </div>
-  
-      <!-- Collapsible AIS Data Details -->
-      <div class="mt-4">
-        <Collapsible open={true}>
-          <CollapsibleTrigger asChild class="w-full">
-            <Button variant="ghost" class="w-full flex justify-between items-center border border-gray-700 rounded p-2 text-sm font-medium">
-              <span>AIS DATA</span>
-              <ChevronUp class="w-4 h-4" />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <div class="mt-2 border border-gray-700 rounded p-2 text-sm grid grid-cols-2 gap-2">
-              <div><strong>Latitude:</strong> {selectedShip.lat}</div>
-              <div><strong>Longitude:</strong> {selectedShip.lon}</div>
-              <div><strong>Speed:</strong> {selectedShip.speed} knots</div>
-              <div><strong>Heading:</strong> {selectedShip.heading}°</div>
+
+        <div class="mt-4">
+            <div class="grid text-sm my-2 grid-cols-2 gap-2">
+                <div><strong>Latitude:</strong> {selectedShip.lat?.toFixed(5) ?? 'N/A'}</div>
+                <div><strong>Longitude:</strong> {selectedShip.lon?.toFixed(5) ?? 'N/A'}</div>
+                <div><strong>Speed:</strong> {selectedShip.speed ?? 'N/A'} knots</div>
+                <div><strong>Heading:</strong> {selectedShip.heading ?? 'N/A'}°</div>
+                <div class="col-span-2"><strong>Last Updated:</strong> {selectedShip.lastUpdated ?? 'N/A'}</div>
             </div>
-          </CollapsibleContent>
-        </Collapsible>
-  
-        <Button
-          onclick={() => console.log("START TRACKING AIS clicked")}
-          variant="ghost"
-          class="w-full mt-2 border border-gray-700 bg-[#3cc76f] hover:bg-[#3cc76f]/70 border-[#5fe390] hover:text-black text-black rounded p-2 text-sm font-medium"
-        >
-          START TRACKING AIS
-        </Button>
-      </div>
+        </div>
     </div>
-  {:else}
-    <div class="bg-neutral-900 border shadow-lg rounded-lg p-4 max-w-sm text-white">
-      <p>No AIS ship selected.</p>
-    </div>
-  {/if}
-  
-  <style>
-    /* Additional styling if needed */
-  </style>
-  
+{/if}

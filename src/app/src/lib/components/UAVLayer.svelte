@@ -114,19 +114,6 @@
 
     try {
       map.addSource(sourceId, { type: 'geojson', data: geojsonData });
-      map.addLayer({
-        id: layerId,
-        type: 'symbol',
-        source: sourceId,
-        layout: {
-          'text-field': ['get', 'callsign'],
-          'text-size': 14,
-          'text-offset': [1, 0],
-          'text-anchor': 'left',
-          'text-allow-overlap': true
-        },
-        paint: { 'text-color': '#ffffff' }
-      });
     } catch (e) {
       console.error("Error updating call sign label:", e);
     }

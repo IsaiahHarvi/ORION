@@ -49,7 +49,7 @@
     {@render sidebarContent()}
 </div>
 
-<div class="bg-neutral-900 border-b px-4 gap-4 z-40 absolute flex items-center flex-row h-16 top-0 left-0 w-screen visible md:invisible">
+<div class="bg-neutral-900 border-b px-4 gap-4 z-40 absolute flex items-center flex-row h-16 top-0 left-0 w-screen visible lg:invisible">
     <Sheet.Root bind:open>
         <Sheet.Trigger class={buttonVariants({ variant: "outline", size: 'icon' })}>
             <Menu size={16} />
