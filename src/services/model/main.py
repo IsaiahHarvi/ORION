@@ -1,20 +1,22 @@
+import os
+
 import keras
 import torch
 import torchvision.transforms as T
-import xarray as xr
 from huggingface_hub import hf_hub_download
 
-from services.scans.get_scans import download_scans
+from src.services.scans.utils import extract_nexrad_file
 from tornet.tornet.data.constants import ALL_VARIABLES
 from tornet.tornet.data.loader import read_file
 from tornet.tornet.data.preprocess import add_coordinates, remove_time_dim
 from tornet.tornet.metrics.keras import metrics as tfm
+from tornet.tornet.models.keras.layers import *  # noqa
 
 
 class Model:
     def __init__(self):
         self.model = keras.saving.load_model(hf_hub_download(repo_id="tornet-ml/tornado_detector_baseline_v1",
-                                        filename="tornado_detector_baseline.keras", compile=False))
+                                        filename="tornado_detector_baseline.keras"), compile=False)
         self.transform = T.Compose([
             lambda d: add_coordinates(d,include_az=False,tilt_last=False,backend=torch),
             lambda d: remove_time_dim(d)])
@@ -27,10 +29,12 @@ class Model:
                     tfm.F1Score(from_logits=from_logits,name='F1')]
         self.model.compile(metrics=metrics)
 
-    def predict(self, x):
-        x = self._prepoc(x)
+    def predict(self, file_path):
+        x = self._prepoc(file_path)
         return self.model.predict(x)
 
-    def _prepoc(self, file_name):
-        data = read_file(file_name, variables=ALL_VARIABLES, tilt_last=True, n_frames=1)
+    def _prepoc(self, file_path):
+        print(file_path)
+        extract_nexrad_file(file_path, (end_dir := os.path.join(os.path.dirname(file_path), "extract")))
+        data = read_file(os.path.join(end_dir, file_path), variables=ALL_VARIABLES, tilt_last=True, n_frames=1)
         return self.transform(data)

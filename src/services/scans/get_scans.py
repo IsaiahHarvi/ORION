@@ -20,16 +20,21 @@ from pyart.core import Radar
 # from src.services.postgres.store import store_scan_in_postgres
 
 
-def download_scans(radar_id, start, end, temp_dir):
+def download_scans(radar_id, start, temp_dir, scan_count=None):
+    end = start + pd.Timedelta(minutes=int(60*5.5))
     conn = nexradaws.NexradAwsInterface()
     scans = conn.get_avail_scans_in_range(start, end, radar_id)
     if scans is None:
         print("No scans available for the given time range and radar ID.")
         return []
+
     print(
         f"There are {len(scans)} scans available between {start} and {end}\n")
-    print(scans[0: len(scans) // 4])
-    results = conn.download(scans, temp_dir, threads=os.cpu_count())
+
+    if scan_count:
+        scans = scans[0:scan_count]
+
+    results = conn.download(scans, temp_dir, threads=os.cpu_count()//2)
     return results
 
 
@@ -57,9 +62,9 @@ def get_severe_reports(year, start, end):
     return wind_rpts, tor_rpts, hail_rpts
 
 
-def extract_scans(radar_id="KDVN"):
-    start = pd.Timestamp(2020, 8, 10, 16, 30).tz_localize("UTC")
-    end = pd.Timestamp(2020, 8, 10, 21, 0).tz_localize("UTC")
+def extract_scans(radar_id="KDVN", start_time="2020-8-10-16-30"):
+    start = pd.Timestamp(*map(int, start_time.split("-"))).tz_localize("UTC")
+    end = start - pd.Timedelta(minutes=5)
     # current_time = pd.Timestamp.now('UTC')
     # start = current_time - pd.Timedelta(minutes=15)
     # end = current_time + pd.Timedelta(minutes=15)
@@ -74,6 +79,7 @@ def extract_scans(radar_id="KDVN"):
     for i, scan in enumerate(scans.iter_success(), start=1):
         if scan.filename[-3:] == "MDM":
             continue
+
         print(f"Processing scan: {scan.filename}")
         radar = scan.open_pyart()
 
