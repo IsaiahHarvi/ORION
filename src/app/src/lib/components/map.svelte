@@ -10,7 +10,6 @@
     import { radar_state } from '$lib/runes/current_radar.svelte';
     import { fade } from 'svelte/transition';
   
-    let map: any;
     import { updateTrackData } from '$lib/trackDataUpdater';
     import { trackDataStore } from '$lib/stores/trackData';
   
