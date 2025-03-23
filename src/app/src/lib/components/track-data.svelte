@@ -1,6 +1,8 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
-  import { trackDataStore } from '$lib/stores/trackData';
+  import { trackDataStore, combatStatusStore } from '$lib/stores/trackData';
+  import { startTrackDataPolling } from '$lib/trackDataUpdater';
+
   import { Button } from '$lib/components/ui/button';
   import {
     DropdownMenu,
@@ -13,63 +15,119 @@
     CollapsibleTrigger,
     CollapsibleContent
   } from '$lib/components/ui/collapsible';
-  import ChevronDown from "@lucide/svelte/icons/chevron-down"; 
+  import ChevronDown from "@lucide/svelte/icons/chevron-down";
   import ChevronUp from "@lucide/svelte/icons/chevron-up";
   import * as Select from "$lib/components/ui/select/index.js";
-	import { flyAndScale } from '$lib/utils';
+  import { flyAndScale } from '$lib/utils';
 
-  let vesselName = "Vessel Name";
-  let combatStatus = "Neutral";
+  let vesselName = "PLATFORM";
   let vesselId = "ID: 12345";
 
-  // Default track data until a marker is selected.
+  // We store displayed track data in a local object, separate from the raw store.
   let trackData = {
-    altitude: '300m',
-    domain: 'Land',
-    heading: 'North',
-    speed: '20kn',
-    location: 'Lat: 123, Long: 456',
-    lastUpdated: 'Just now',
-    destination: 'Port X',
-    callsign: 'ABC123',
-    length: '100m'
-  };
-  
-  const statusOptions = [
-    { label: 'Neutral', value: 'Neutral', color: 'text-gray-400' },
-    { label: 'Friendly', value: 'Friendly', color: 'text-green-500' },
-    { label: 'Enemy', value: 'Enemy', color: 'text-red-500' }
-  ];
-  let value = "Neutral";
-  $: selectedStatus = statusOptions.find((option) => option.value === value) || statusOptions[0];
+    latitude: 'N/A',
+    longitude: 'N/A',
+    altitude: 'N/A',
+    lastUpdated: 'N/A',
+    callsign: 'N/A',
+    combatStatus: 'Neutral',
+    selected: false,
 
-  // Subscribe to the trackDataStore to update trackData when a marker is selected.
-  const unsubscribe = trackDataStore.subscribe((data) => {
-    if (data) {
-      trackData = {
-        altitude: data.result?.geoRef?.center.alt ? `${data.result.geoRef.center.alt}m` : trackData.altitude,
-        domain: trackData.domain,
-        heading: trackData.heading,
-        speed: trackData.speed,
-        location: `Lat: ${data.result?.geoRef?.center.lat || 'N/A'}, Long: ${data.result?.geoRef?.center.lon || 'N/A'}`,
-        lastUpdated: new Date(data.phenomenonTime).toLocaleTimeString(),
-        destination: trackData.destination,
-        callsign: trackData.callsign,
-        length: trackData.length
-      };
-    }
+    // Extra fields for new data:
+    platformHeading: 'N/A',
+    platformPitch: 'N/A',
+    platformRoll: 'N/A',
+    cameraHFOV: 'N/A',
+    cameraVFOV: 'N/A',
+    cameraYaw: 'N/A',
+    cameraPitch: 'N/A',
+    cameraRoll: 'N/A'
+  };
+
+  // For the combat status dropdown:
+  const statusOptions = [
+    { label: 'Neutral',  value: 'Neutral',  color: 'text-gray-400' },
+    { label: 'Friendly', value: 'Friendly', color: 'text-green-500' },
+    { label: 'Enemy',    value: 'Enemy',    color: 'text-red-500' }
+  ];
+  let combatStatusValue: 'Neutral' | 'Friendly' | 'Enemy';
+  combatStatusStore.subscribe(value => {
+    combatStatusValue = value;
   });
 
-  onDestroy(unsubscribe);
+  // Each time user picks a new status, we update the store:
+  $: combatStatusStore.set(combatStatusValue);
+
+  // Subscribe to trackDataStore so we can display everything
+  const unsubscribe = trackDataStore.subscribe((data) => {
+    if (!data) return;
+
+    // Extract lat/lon/alt if location is present
+    let latStr = 'N/A';
+    let lonStr = 'N/A';
+    let altStr = 'N/A';
+    if (data.location) {
+      latStr = data.location.lat.toFixed(5);
+      lonStr = data.location.lon.toFixed(5);
+      altStr = `${data.location.alt?.toFixed(1)}m`;
+    }
+
+    // Platform attitude
+    const pHeading = data.vehicleAttitude?.heading?.toFixed(1) ?? 'N/A';
+    const pPitch   = data.vehicleAttitude?.pitch?.toFixed(1)   ?? 'N/A';
+    const pRoll    = data.vehicleAttitude?.roll?.toFixed(1)    ?? 'N/A';
+
+    // Camera FOV
+    const hfovStr = data.cameraFOV?.hfov?.toFixed(2) ?? 'N/A';
+    const vfovStr = data.cameraFOV?.vfov?.toFixed(2) ?? 'N/A';
+
+    // Final camera orientation
+    const cYaw   = data.cameraGimbalAttitude?.yaw?.toFixed(1)   ?? 'N/A';
+    const cPitch = data.cameraGimbalAttitude?.pitch?.toFixed(1) ?? 'N/A';
+    const cRoll  = data.cameraGimbalAttitude?.roll?.toFixed(1)  ?? 'N/A';
+
+    trackData = {
+      latitude: latStr,
+      longitude: lonStr,
+      altitude: altStr,
+      lastUpdated: data.lastUpdated || 'N/A',
+      callsign: data.callsign || 'N/A',
+      combatStatus: data.combatStatus || 'Neutral',
+      selected: data.selected ?? false,
+
+      platformHeading: pHeading + '°',
+      platformPitch:   pPitch   + '°',
+      platformRoll:    pRoll    + '°',
+      cameraHFOV: hfovStr + '°',
+      cameraVFOV: vfovStr + '°',
+      cameraYaw:   cYaw   + '°',
+      cameraPitch: cPitch + '°',
+      cameraRoll:  cRoll  + '°'
+    };
+
+    vesselId = data.vesselId || vesselId;
+  });
+
+  // Start polling sensor data
+  startTrackDataPolling();
+
+  // For dropdown display
+  $: selectedStatus = statusOptions.find(option => option.value === combatStatusValue) || statusOptions[0];
+
+  onDestroy(() => {
+    unsubscribe();
+  });
 </script>
 
+<!-- Show overlay only if selected -->
+{#if trackData.selected}
 <div transition:flyAndScale class="bg-neutral-900 border shadow-lg rounded-lg p-4 max-w-sm text-white">
-  <!-- Top Section -->
+  <!-- Top Section (title & status) -->
   <div class="flex flex-col space-y-2">
     <h2 class="text-xl font-bold">{vesselName}</h2>
     <div class="flex items-center space-x-2">
       <span class="text-sm font-medium">Combat Status:</span>
-      <Select.Root type="single" bind:value>
+      <Select.Root type="single" bind:value={combatStatusValue}>
         <Select.Trigger class="w-[180px]">
           <span class={selectedStatus.color}>{selectedStatus.label}</span>
         </Select.Trigger>
@@ -99,26 +157,46 @@
       </CollapsibleTrigger>
       <CollapsibleContent>
         <div class="mt-2 border border-gray-700 rounded p-2 text-sm grid grid-cols-2 gap-2">
+          <div><strong>Latitude:</strong> {trackData.latitude}</div>
+          <div><strong>Longitude:</strong> {trackData.longitude}</div>
           <div><strong>Altitude:</strong> {trackData.altitude}</div>
-          <div><strong>Domain:</strong> {trackData.domain}</div>
-          <div><strong>Heading:</strong> {trackData.heading}</div>
-          <div><strong>Speed:</strong> {trackData.speed}</div>
-          <div><strong>Location:</strong> {trackData.location}</div>
           <div><strong>Last Updated:</strong> {trackData.lastUpdated}</div>
-          <div><strong>Destination:</strong> {trackData.destination}</div>
           <div><strong>Callsign:</strong> {trackData.callsign}</div>
-          <div class="col-span-2"><strong>Length:</strong> {trackData.length}</div>
+          <div class="col-span-2"><strong>Combat Status:</strong> {trackData.combatStatus}</div>
+
+          <!-- PLATFORM ATTITUDE -->
+          <div class="col-span-2 mt-2 border-t pt-2"><strong>Platform Attitude</strong></div>
+          <div><strong>Heading:</strong> {trackData.platformHeading}</div>
+          <div><strong>Pitch:</strong> {trackData.platformPitch}</div>
+          <div><strong>Roll:</strong> {trackData.platformRoll}</div>
+
+          <!-- CAMERA FOV -->
+          <div class="col-span-2 mt-2 border-t pt-2"><strong>Camera FOV</strong></div>
+          <div><strong>HFOV:</strong> {trackData.cameraHFOV}</div>
+          <div><strong>VFOV:</strong> {trackData.cameraVFOV}</div>
+
+          <!-- FINAL CAMERA ORIENTATION -->
+          <div class="col-span-2 mt-2 border-t pt-2"><strong>Camera Orientation</strong></div>
+          <div><strong>Yaw:</strong> {trackData.cameraYaw}</div>
+          <div><strong>Pitch:</strong> {trackData.cameraPitch}</div>
+          <div><strong>Roll:</strong> {trackData.cameraRoll}</div>
         </div>
       </CollapsibleContent>
     </Collapsible>
-    <Button onclick={() => {
-        
-    }} variant="ghost" class="w-full mt-2 border border-gray-700 bg-[#3cc76f] hover:bg-[#3cc76f]/70 border-[#5fe390] hover:text-black text-black rounded p-2 text-sm font-medium">
-        START TRACKING
+
+    <Button
+      onclick={() => {
+        console.log("START TRACKING clicked");
+      }}
+      variant="ghost"
+      class="w-full mt-2 border border-gray-700 bg-[#3cc76f] hover:bg-[#3cc76f]/70 border-[#5fe390] hover:text-black text-black rounded p-2 text-sm font-medium"
+    >
+      START TRACKING
     </Button>
   </div>
 </div>
+{/if}
 
 <style>
-  /* Additional styling can go here */
+  /* Additional styling if needed */
 </style>
