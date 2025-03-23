@@ -4,7 +4,6 @@
   import { resetUAVUpdater, loadRouteData } from '$lib/uavUpdater';
   import { updateTrackData } from '$lib/trackDataUpdater';
   import { trackDataStore } from '$lib/stores/trackData';
-  // Import FOV utilities
   import { buildFramePolygon, showFramePolygon } from '$lib/utils/frameCoverage';
   import { get } from 'svelte/store';
 
@@ -22,28 +21,45 @@
     }
   }
 
-  // Remove UAV line and label layers (if present)
+  // Wrap clearUAVLayers in a function that only runs if the style is loaded.
   function clearUAVLayers() {
-    const sourcesAndLayers = [
+    if (!map.isStyleLoaded()) {
+      // If the style isn't loaded, try again shortly.
+      setTimeout(clearUAVLayers, 300);
+      return;
+    }
+    const layersToClear = [
       { source: 'uav-center-line', layer: 'uav-center-line-layer' },
       { source: 'final-marker-label', layer: 'final-marker-label-layer' }
     ];
-    sourcesAndLayers.forEach(({ source, layer }) => {
+    layersToClear.forEach(({ source, layer }) => {
       if (map.getLayer(layer)) {
-        map.removeLayer(layer);
+        try {
+          map.removeLayer(layer);
+        } catch (e) {
+          console.warn(`Error removing layer ${layer}:`, e);
+        }
       }
       if (map.getSource(source)) {
-        map.removeSource(source);
+        try {
+          map.removeSource(source);
+        } catch (e) {
+          console.warn(`Error removing source ${source}:`, e);
+        }
       }
     });
   }
 
-  // Update or add the UAV label with the current callsign
+  // Wrap updateCallsignLabel so it waits for the style.
   function updateCallsignLabel(coord: [number, number]) {
+    if (!map.isStyleLoaded()) {
+      // Wait until the style is ready before updating the label.
+      setTimeout(() => updateCallsignLabel(coord), 300);
+      return;
+    }
     clearUAVLayers();
     const sourceId = 'final-marker-label';
     const layerId  = 'final-marker-label-layer';
-    // Get the current callsign from the store (fallback to 'Unknown')
     const { callsign = 'Unknown' } = get(trackDataStore) || {};
 
     const geojsonData = {
@@ -55,59 +71,27 @@
       }]
     };
 
-    map.addSource(sourceId, { type: 'geojson', data: geojsonData });
-    map.addLayer({
-      id: layerId,
-      type: 'symbol',
-      source: sourceId,
-      layout: {
-        'text-field': ['get', 'callsign'],
-        'text-size': 14,
-        'text-offset': [1, 0],
-        'text-anchor': 'left',
-        'text-allow-overlap': true
-      },
-      paint: { 'text-color': '#ffffff' }
-    });
-  }
-
-  // Draw a line from the UAV marker to the image-frame center
-  function drawUavToCenterLine(
-    uavCoord: [number, number],
-    centerCoord: [number, number],
-    lineSourceId = 'uav-center-line',
-    lineLayerId = 'uav-center-line-layer'
-  ) {
-    const lineFeature = {
-      type: 'Feature',
-      geometry: {
-        type: 'LineString',
-        coordinates: [uavCoord, centerCoord]
-      },
-      properties: {}
-    };
-
-    const lineFC = {
-      type: 'FeatureCollection',
-      features: [lineFeature]
-    };
-
-    // If the source exists, update it; otherwise, add it.
-    if (!map.getSource(lineSourceId)) {
-      map.addSource(lineSourceId, { type: 'geojson', data: lineFC });
+    // Add source and layer.
+    try {
+      map.addSource(sourceId, { type: 'geojson', data: geojsonData });
       map.addLayer({
-        id: lineLayerId,
-        type: 'line',
-        source: lineSourceId,
-        layout: { 'line-join': 'round', 'line-cap': 'round' },
-        paint: { 'line-color': '#FFFF00', 'line-width': 3 }
+        id: layerId,
+        type: 'symbol',
+        source: sourceId,
+        layout: {
+          'text-field': ['get', 'callsign'],
+          'text-size': 14,
+          'text-offset': [1, 0],
+          'text-anchor': 'left',
+          'text-allow-overlap': true
+        },
+        paint: { 'text-color': '#ffffff' }
       });
-    } else {
-      (map.getSource(lineSourceId) as maplibregl.GeoJSONSource).setData(lineFC);
+    } catch (e) {
+      console.error("Error updating call sign label:", e);
     }
   }
 
-  // Recreate the final marker using the latest UAV data and callsign.
   function recreateFinalMarker(newStatus: 'Neutral' | 'Friendly' | 'Enemy') {
     if (!map || !finalMarkerCoord) return;
     if (finalMarker) {
@@ -133,17 +117,13 @@
     updateCallsignLabel(finalMarkerCoord);
   }
 
-  // When the UAV updater creates an initial marker.
   function handleMarkerCreate(marker: maplibregl.Marker) {
     console.log('UAV marker created:', marker.getLngLat().toArray());
-    // Remove the UAV-provided marker
     marker.remove();
-    // Remove any existing final marker
     if (finalMarker) {
       finalMarker.remove();
       finalMarker = null;
     }
-    // Store new coordinate
     finalMarkerCoord = marker.getLngLat().toArray() as [number, number];
     const { combatStatus = 'Neutral' } = get(trackDataStore) || {};
 
@@ -182,21 +162,23 @@
     
     unsub = trackDataStore.subscribe(d => {
       if (!map) return;
-      // Update marker if UAV data changes.
       if (finalMarkerCoord) {
         const status = d?.combatStatus || 'Neutral';
         recreateFinalMarker(status);
       }
-      // Draw the line to the image frame center.
       if (finalMarkerCoord && d?.imageFrame?.center) {
         const { lat: centerLat, lon: centerLon } = d.imageFrame.center;
-        drawUavToCenterLine(finalMarkerCoord, [centerLon, centerLat]);
-      }
-      // Draw the FOV polygon if imageFrame corners exist.
-      if (d.imageFrame && d.imageFrame.ulc && d.imageFrame.urc && d.imageFrame.lrc && d.imageFrame.llc) {
-        const { center, ulc, urc, lrc, llc } = d.imageFrame;
-        const framePoly = buildFramePolygon(ulc, urc, lrc, llc);
-        showFramePolygon(map, framePoly, center);
+        // Before drawing the line or FOV, ensure style is loaded.
+        if (map.isStyleLoaded()) {
+          // Draw line to image frame center.
+          drawUavToCenterLine(finalMarkerCoord, [centerLon, centerLat]);
+          // Draw the FOV polygon if image frame corners exist.
+          if (d.imageFrame.ulc && d.imageFrame.urc && d.imageFrame.lrc && d.imageFrame.llc) {
+            const { center, ulc, urc, lrc, llc } = d.imageFrame;
+            const framePoly = buildFramePolygon(ulc, urc, lrc, llc);
+            showFramePolygon(map, framePoly, center);
+          }
+        }
       }
     });
   });
@@ -205,5 +187,3 @@
     unsub && unsub();
   });
 </script>
-
-<!-- UAVLayer does not render visible DOM elements; it manages UAV map layers -->
