@@ -14,5 +14,5 @@
     onDestroy(() => {
       resetAISUpdater();
     });
-  </script>
+</script>
   

@@ -1,16 +1,19 @@
 <script lang="ts">
     import Map from '$lib/components/map.svelte';
     import AISData from '$lib/components/AISData.svelte';
-    let mapInstance;
+	import { onMount } from 'svelte';
+	import { layers_state } from '$lib/runes/toggleable_layers.svelte';
+
+    onMount(() => {
+        layers_state.data.uav_layer = false;
+        layers_state.data.ais_layer = true;
+    })
 </script>
 
 <!-- Turn off radar if desired -->
-<Map bind:map={mapInstance} showRadarLayer={false} showAISLayer={true} />
+<Map />
 
-{#if mapInstance}
-    <!-- Note: AISLayer is now rendered from within Map.svelte when showAISLayer is true -->
-{/if}
-
-<div class="absolute z-20 top-4 left-4">
+<div class="absolute w-screen z-20 left-0 px-4 top-4">
     <AISData />
 </div>
+
