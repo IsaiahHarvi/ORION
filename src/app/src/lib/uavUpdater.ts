@@ -1,5 +1,6 @@
 import maplibregl from 'maplibre-gl';
 import { updateTrackData } from '$lib/trackDataUpdater';
+import uavIcon from '$lib/icons/uav-icon.png';
 
 export const routeGeoJSON = {
   type: 'FeatureCollection',
@@ -48,6 +49,42 @@ export function resetUAVUpdater(): void {
 }
 
 /**
+ * Returns a CSS filter string to tint a white icon based on the combat status.
+ */
+function tintFilterFromCombatStatus(status: 'Neutral' | 'Friendly' | 'Enemy'): string {
+  // These filter values are approximate examples.
+  // They assume your UAV icon is a white silhouette.
+  switch (status) {
+    case 'Friendly':
+      // A green tint: adjust hue-rotate and saturate as needed.
+      return 'brightness(0) saturate(100%) invert(45%) sepia(100%) saturate(3000%) hue-rotate(90deg)';
+    case 'Enemy':
+      // A red tint:
+      return 'brightness(0) saturate(100%) invert(15%) sepia(100%) saturate(3000%) hue-rotate(350deg)';
+    default:
+      // Neutral: no tint, or slight gray
+      return 'none';
+  }
+}
+
+/**
+ * Creates an HTML element for a UAV marker using an image.
+ * Optionally applies a tint filter based on combat status.
+ */
+export function createUAVMarkerElement(status: 'Neutral' | 'Friendly' | 'Enemy'): HTMLElement {
+  const el = document.createElement('img');
+  el.className = 'uav-marker';
+  el.src = uavIcon;
+  el.alt = 'UAV';
+  el.style.width = '32px';
+  el.style.height = '32px';
+  el.style.display = 'block';
+  // Apply filter for tinting
+  el.style.filter = tintFilterFromCombatStatus(status);
+  return el;
+}
+
+/**
  * Load route data from the UAV endpoint.
  * If the map isn’t ready, we schedule a retry.
  */
@@ -74,7 +111,6 @@ export function loadRouteData(
       if (items.length === 0) return;
 
       const newLastTime = new Date(items[items.length - 1].phenomenonTime).getTime();
-      // If there's no new data, skip
       if (lastUpdateTime !== null && newLastTime === lastUpdateTime) {
         return;
       }
@@ -120,17 +156,18 @@ export function loadRouteData(
       // Create final marker if we have at least one coordinate
       if (accumulatedRoutePoints.length > 0) {
         const latestCoord = accumulatedRoutePoints[accumulatedRoutePoints.length - 1];
-        const marker = new maplibregl.Marker({ color: '#ffffff', draggable: false })
+        // For initial marker creation, use Neutral tint
+        const marker = new maplibregl.Marker({
+          element: createUAVMarkerElement('Neutral'),
+          draggable: false
+        })
           .setLngLat(latestCoord)
           .addTo(map);
 
         marker.getElement().addEventListener('click', () => {
           updateTrackData();
-          // Update selection flag in your store as needed
-          // e.g., trackDataStore.update(d => ({ ...d, selected: true }));
         });
 
-        // Return the newly created marker to the caller
         onMarkerCreate(marker);
       }
     })
