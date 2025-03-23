@@ -1,0 +1,8 @@
+nexradaws
+pandas
+geopy
+fastapi[standard]
+keras>=3.0
+torchvision
+torch
+huggingface_hub

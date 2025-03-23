@@ -1,0 +1,11 @@
+services:
+  fast:
+    build:
+      context: ../../
+      dockerfile: deploy/fast/Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - SCAN_DIR=/app/scans
+    volumes:
+      - ./scans:/app/scans
