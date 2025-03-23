@@ -2,8 +2,8 @@ import maplibregl from 'maplibre-gl';
 import { radar_state } from '$lib/runes/current_radar.svelte';
 
 export interface RadarLayer {
-  id: string;
-  time: number;
+	id: string;
+	time: number;
 }
 
 export let radarLayers: RadarLayer[] = [];
@@ -16,10 +16,23 @@ export const COLOR_SCHEME = 7;
 export let isPlaying = true;
 
 export function formatTimestamp(timestamp: number): string {
-  const date = new Date(timestamp);
-  const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-  const month = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  return `${weekday[date.getDay()]} ${month[date.getMonth()]} ${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
+	const date = new Date(timestamp);
+	const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+	const month = [
+		'Jan',
+		'Feb',
+		'Mar',
+		'Apr',
+		'May',
+		'Jun',
+		'Jul',
+		'Aug',
+		'Sep',
+		'Oct',
+		'Nov',
+		'Dec'
+	];
+	return `${weekday[date.getDay()]} ${month[date.getMonth()]} ${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
 export function loadRainViewerData(map: any, timestamp?: number): void {
