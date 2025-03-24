@@ -7,7 +7,7 @@ nexradaws
 arm_pyart
 metpy
 geopy
-psycopg2-binary
+psycopg2
 flask
 zenodo_get
 lightning
@@ -17,4 +17,4 @@ keras>=3.0
 xarray
 torchvision
 fastapi[all]
-tensorflow-cpu
+# tensorflow-cpu
