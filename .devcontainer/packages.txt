@@ -1,1 +1,1 @@
-vim tmux
+vim tmux build-essential lipq-dev gcc
