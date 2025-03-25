@@ -32,4 +32,4 @@ jobs:
                     -r .devcontainer/requirements-cpu.txt
 
       - name: Run
-        run: pytest tests/unit
+        run: pytest tests/unit || (code=$?; [ $code -eq 5 ] && echo "No tests collected; passing" && exit 0 || exit $code)
