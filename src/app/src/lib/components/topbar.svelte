@@ -2,12 +2,12 @@
     import { Button } from '$lib/components/ui/button';
     import { page } from '$app/stores';
 	import type { Snippet } from 'svelte';
-    import { radar_state } from '$lib/runes/current_radar.svelte';
-    import { map_state } from '$lib/runes/map_state.svelte';
+    import { radar_state } from '$lib/runes/current-radar.svelte';
+    import { map_state } from '$lib/runes/map-state.svelte';
     import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import { toast } from 'svelte-sonner';
 	import { Checkbox } from '$lib/components/ui/checkbox';
-    import { layers_state } from '$lib/runes/toggleable_layers.svelte';
+    import { layers_state } from '$lib/runes/toggleable-layers.svelte';
 
     let { children }: {
         children?: Snippet;

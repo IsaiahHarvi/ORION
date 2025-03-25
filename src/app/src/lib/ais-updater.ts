@@ -1,39 +1,31 @@
 import maplibregl from 'maplibre-gl';
-import { aisStore } from '$lib/stores/aisStore';
+import { aisStore } from '$lib/stores/ais-store';
 import shipIcon from '$lib/icons/ship-icon.png';
 
 let aisMarkers: Record<string, maplibregl.Marker> = {};
 
-/** Remove all AIS markers from the map. */
 export function resetAISUpdater(): void {
 	Object.values(aisMarkers).forEach((marker) => marker.remove());
 	aisMarkers = {};
 }
 
-/**
- * Fetch AIS data from the API endpoint and render/update markers on the map.
- * This version maps API fields to our AISShip interface.
- */
 export function loadAISData(map: maplibregl.Map): void {
 	fetch('https://api.georobotix.io/ogc/t18/api/datastreams/kuhmds0ib5gd8/observations')
 		.then((res) => res.json())
 		.then((data) => {
 			const items = data?.items || [];
 			items.forEach((item: any) => {
-				// Use "foi@id" as the unique key (as a string)
 				const mmsi = item['foi@id'];
 				const result = item.result;
 				if (!result || !result.location) return;
 
 				const { lat, lon } = result.location;
-				const speed = result.sog; // speed over ground
-				const heading = result.heading; // heading
+				const speed = result.sog;
+				const heading = result.heading;
 
-				// Check if a name is provided. If not, just use the MMSI.
-				const providedName = result.name; // if available
+				const providedName = result.name;
 				const shipName = providedName && providedName.trim() !== '' ? providedName : mmsi;
 
-				// Build our AIS ship data object.
 				const shipData = {
 					mmsi,
 					name: shipName,
@@ -43,18 +35,19 @@ export function loadAISData(map: maplibregl.Map): void {
 					heading
 				};
 
-				// Create or update marker for this ship.
 				if (!aisMarkers[mmsi]) {
-					// Instead of using an emoji, we create an <img> element.
 					const el = document.createElement('img');
 					el.className = 'ais-marker';
-					el.src = shipIcon; // update this path to your ship icon
+					el.src = shipIcon;
 					el.alt = 'AIS Ship';
 					el.style.width = '24px';
 					el.style.height = '24px';
 					el.style.border = '4px';
+					el.className = 'marker';
 
-					const marker = new maplibregl.Marker({ element: el }).setLngLat([lon, lat]).addTo(map);
+					const marker = new maplibregl.Marker({ element: el })
+						.setLngLat([lon, lat])
+						.addTo(map);
 
 					el.onclick = () => {
 						aisStore.update((store) => ({ ...store, selectedShip: shipData }));
@@ -68,6 +61,6 @@ export function loadAISData(map: maplibregl.Map): void {
 		})
 		.catch((err) => console.error('AIS fetch error:', err))
 		.finally(() => {
-			setTimeout(() => loadAISData(map), 10000); // Refresh every 10 seconds
+			setTimeout(() => loadAISData(map), 10000);
 		});
 }

@@ -3,24 +3,24 @@
     import maplibregl from 'maplibre-gl';
     import 'maplibre-gl/dist/maplibre-gl.css';
 
-    import { current_lat_long } from '$lib/stores/current_location';
+    import { current_lat_long } from '$lib/stores/current-location';
     import { flyAndScale } from '$lib/utils';
-    import { loadRainViewerData } from '$lib/mapUpdater';
-    import { radar_state } from '$lib/runes/current_radar.svelte';
+    import { loadRainViewerData } from '$lib/map-updater';
+    import { radar_state } from '$lib/runes/current-radar.svelte';
     import Controls from './controls.svelte';
     import UAVLayer from './UAVLayer.svelte';
     import AISLayer from './AISLayer.svelte';
-    import { map_state } from '$lib/runes/map_state.svelte';
+    import { map_state } from '$lib/runes/map-state.svelte';
     import { cursor_data } from '$lib/runes/cursor.svelte';
-    import { layers_state } from '$lib/runes/toggleable_layers.svelte';
+    import { layers_state } from '$lib/runes/toggleable-layers.svelte';
 
-    import NeonStyle from '$lib/content/styles/neon.json';
-    import DarkStyle from '$lib/content/styles/dark.json';
-    import PositronStyle from '$lib/content/styles/positron.json';
-    import StreetsStyle from '$lib/content/styles/streets.json';
+    import NeonStyle from '$lib/styles/neon.json';
+    import DarkStyle from '$lib/styles/dark.json';
+    import PositronStyle from '$lib/styles/positron.json';
+    import StreetsStyle from '$lib/styles/streets.json';
 
-	import { map_style_state } from '$lib/runes/map_style.svelte';
-	import RadarLayer from './radar-layer.svelte';
+	import { map_style_state } from '$lib/runes/map-style.svelte';
+	import RadarLayer from './RadarLayer.svelte';
 
     let map: any = $state();
     let mapElement: HTMLElement;
@@ -54,7 +54,6 @@
             if (layers_state.data?.radar_layer) {
                 loadRainViewerData(map);
             }
-            Object.values(aisMarkers).forEach(marker => marker.addTo(map));
         });
     }
 
@@ -116,7 +115,10 @@
         if (map_style_state.data !== previousMapStyle) {
             previousMapStyle = map_style_state.data;
             restyleMap()
-            loadRainViewerData(map, radar_state.radar_state.timestamp);
+            
+            if(layers_state.data?.radar_layer) {
+                loadRainViewerData(map, radar_state.radar_state.timestamp);
+            }
         }
 
         if (radar_state.radar_state.timestamp !== lastTimestamp && layers_state.data.radar_layer === true) {

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
     import maplibregl from 'maplibre-gl';
-    import { current_lat_long } from '$lib/stores/current_location';
+    import { current_lat_long } from '$lib/stores/current-location';
     import radarIcon from '$lib/icons/radar-icon.png';
 	import { flyAndScale } from '$lib/utils';
 	import X from '@lucide/svelte/icons/x';
@@ -45,7 +45,7 @@
         el.style.width = '20px';
         el.style.height = '20px';
         el.style.display = 'block';
-        el.style.mixBlendMode = 'luminosity';
+        el.className = 'marker';
 
         el.addEventListener('click', () => {
             radar.open = !radar.open ?? false;

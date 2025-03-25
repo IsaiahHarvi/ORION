@@ -6,7 +6,7 @@
     import Search from '@lucide/svelte/icons/search';
     import { cursor_data } from '$lib/runes/cursor.svelte';
 	import { flyAndScale } from '$lib/utils';
-
+    
 	const { map } = $props();
 
 	let zoom_increments = 0.5;
@@ -23,7 +23,7 @@
 	}
 </script>
 
-<div id="le-contorls" transition:flyAndScale class="absolute z-[90] invisible md:visible bottom-10 right-10">
+<div transition:flyAndScale class="absolute z-[90] invisible md:visible bottom-10 right-10">
 	<div class="flex flex-row items-end gap-2">
         <div class="bg-background border rounded-lg  p-2 px-2">
             <p class="font-mono text-sm">

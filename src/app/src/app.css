@@ -100,3 +100,12 @@ html {
 .toast {
 	@apply rounded-none !important;
 }
+
+* {
+	@apply cursor-default !important;
+}
+
+.marker:hover {
+	filter: brightness(60%) !important;
+	@apply duration-150 !important;
+}

@@ -1,7 +1,7 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
-    import { trackDataStore, combatStatusStore } from '$lib/stores/trackData';
-    import { startTrackDataPolling } from '$lib/trackDataUpdater';
+    import { trackDataStore, combatStatusStore } from '$lib/stores/track-data';
+    import { startTrackDataPolling } from '$lib/track-data-updater';
 
     import { Button } from '$lib/components/ui/button';
     import {
