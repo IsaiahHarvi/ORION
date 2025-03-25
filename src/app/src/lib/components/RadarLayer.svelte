@@ -13,8 +13,9 @@
     onMount(async () => {
         const key = `radars_${$current_lat_long.lat ?? 0}_${$current_lat_long.long ?? 0}`;
         const apiUrl = import.meta.env.VITE_API_URL;
+        console.log(apiUrl);
         let cached = sessionStorage.getItem(key);
-        
+
         if (cached) {
             radars = JSON.parse(cached);
         } else {
