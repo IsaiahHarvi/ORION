@@ -51,3 +51,6 @@ Interested users can build the project themselves.
     ```bash
     docker compose down
     ```
+
+----
+### [LICENSE](./LICENSE)
