@@ -48,7 +48,7 @@
             if (loop) {
                 selectedIndex = (selectedIndex + 1) % max;
             }
-        }, 3000);
+        }, 5000);
         return () => clearInterval(interval);
     });
 </script>

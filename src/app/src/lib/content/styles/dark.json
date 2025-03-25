@@ -1,0 +1,123 @@
+{
+	"version": 8,
+	"sources": {
+		"ne2_shaded": {
+			"maxzoom": 6,
+			"tileSize": 256,
+			"tiles": ["https://tiles.openfreemap.org/natural_earth/ne2sr/{z}/{x}/{y}.png"],
+			"type": "raster"
+		},
+		"openmaptiles": {
+			"type": "vector",
+			"url": "https://tiles.openfreemap.org/planet"
+		}
+	},
+	"sprite": "https://tiles.openfreemap.org/sprites/ofm_f384/ofm",
+	"glyphs": "https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf",
+	"layers": [
+		{
+			"id": "background",
+			"type": "background",
+			"paint": { "background-color": "rgb(12,12,12)" }
+		},
+		{
+			"id": "water",
+			"type": "fill",
+			"source": "openmaptiles",
+			"source-layer": "water",
+			"filter": ["all", ["==", "$type", "Polygon"], ["!=", "brunnel", "tunnel"]],
+			"paint": { "fill-color": "hsl(240, 4%, 11%)", "fill-antialias": false }
+		},
+		{
+			"id": "waterway",
+			"type": "line",
+			"source": "openmaptiles",
+			"source-layer": "waterway",
+			"filter": ["==", "$type", "LineString"],
+			"paint": { "line-color": "rgb(27 ,27 ,29)" }
+		},
+		{
+			"id": "building",
+			"type": "fill",
+			"source": "openmaptiles",
+			"source-layer": "building",
+			"minzoom": 13,
+			"paint": { "fill-color": "rgb(10,10,10)", "fill-outline-color": "rgb(27 ,27 ,29)" }
+		},
+		{
+			"id": "highway_major_inner",
+			"type": "line",
+			"source": "openmaptiles",
+			"source-layer": "transportation",
+			"minzoom": 11,
+			"filter": [
+				"all",
+				["==", "$type", "LineString"],
+				["in", "class", "primary", "secondary", "tertiary", "trunk"]
+			],
+			"paint": {
+				"line-color": "hsl(0, 0%, 7%)",
+				"line-width": ["interpolate", ["exponential", 1.3], ["zoom"], 10, 2, 20, 20]
+			}
+		},
+		{
+			"id": "highway_minor",
+			"type": "line",
+			"source": "openmaptiles",
+			"source-layer": "transportation",
+			"minzoom": 8,
+			"filter": [
+				"all",
+				["==", "$type", "LineString"],
+				["in", "class", "minor", "service", "track"]
+			],
+			"paint": {
+				"line-color": "#181818",
+				"line-width": ["interpolate", ["exponential", 1.55], ["zoom"], 13, 1.8, 20, 20]
+			}
+		},
+		{
+			"id": "boundary_country",
+			"type": "line",
+			"source": "openmaptiles",
+			"source-layer": "boundary",
+			"filter": ["==", "admin_level", 2],
+			"paint": {
+				"line-color": "hsl(240, 4%, 11%)",
+				"line-width": ["interpolate", ["linear"], ["zoom"], 3, 1, 22, 15],
+				"line-opacity": 0.5
+			}
+		},
+		{
+			"id": "boundary_state_province",
+			"type": "line",
+			"source": "openmaptiles",
+			"source-layer": "boundary",
+			"filter": ["==", "admin_level", 4],
+			"paint": {
+				"line-color": "hsl(240, 3%, 20%)",
+				"line-width": ["interpolate", ["linear"], ["zoom"], 4, 0.5, 22, 10],
+				"line-dasharray": [2, 2],
+				"line-opacity": 0.6
+			}
+		},
+		{
+			"id": "place_label",
+			"type": "symbol",
+			"source": "openmaptiles",
+			"source-layer": "place",
+			"layout": {
+				"text-font": ["Noto Sans Regular"],
+				"text-field": "{name:latin}",
+				"text-size": 10,
+				"text-transform": "uppercase",
+				"symbol-spacing": 500
+			},
+			"paint": {
+				"text-color": "rgb(101,101,101)",
+				"text-halo-color": "rgba(0,0,0,0.7)",
+				"text-halo-width": 1
+			}
+		}
+	]
+}

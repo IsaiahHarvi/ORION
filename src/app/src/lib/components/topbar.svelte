@@ -15,7 +15,7 @@
 
     let value = $state('');
     let checked = $state(true);
-    let checked2 = $state(true);
+    let checked2 = $state(false);
 
     function formatTimestamp(timestamp: number): string {
         const date = new Date(timestamp * 1000);

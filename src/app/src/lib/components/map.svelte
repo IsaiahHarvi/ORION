@@ -14,10 +14,11 @@
     import { cursor_data } from '$lib/runes/cursor.svelte';
     import { layers_state } from '$lib/runes/toggleable_layers.svelte';
 
-    import OceanStyle from '$lib/content/styles/ocean.json';
-    import DefaultStyle from '$lib/content/styles/default.json';
-    import SatelliteStyle from '$lib/content/styles/satellite.json';
+    import NeonStyle from '$lib/content/styles/neon.json';
+    import DarkStyle from '$lib/content/styles/dark.json';
+    import PositronStyle from '$lib/content/styles/positron.json';
     import StreetsStyle from '$lib/content/styles/streets.json';
+
 	import { map_style_state } from '$lib/runes/map_style.svelte';
 	import RadarLayer from './radar-layer.svelte';
 
@@ -37,13 +38,13 @@
     }
 
     function getMapStyle(style: string) {
-        return style === 'satellite'
-            ? SatelliteStyle
+        return style === 'neon'
+            ? NeonStyle
+            : style === 'positron'
+            ? PositronStyle
             : style === 'streets'
             ? StreetsStyle
-            : style === 'ocean'
-            ? OceanStyle
-            : DefaultStyle;
+            : DarkStyle;
     }
 
     function restyleMap() {
@@ -115,6 +116,7 @@
         if (map_style_state.data !== previousMapStyle) {
             previousMapStyle = map_style_state.data;
             restyleMap()
+            loadRainViewerData(map, radar_state.radar_state.timestamp);
         }
 
         if (radar_state.radar_state.timestamp !== lastTimestamp && layers_state.data.radar_layer === true) {
@@ -124,6 +126,7 @@
                 loadRainViewerData(map, radar_state.radar_state.timestamp);
             }, 300);
         }
+        
         const currentRadarLayer = layers_state.data?.radar_layer;
         if (currentRadarLayer !== prevRadarLayer) {
             if (currentRadarLayer === true) {
