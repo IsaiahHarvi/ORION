@@ -10,11 +10,14 @@ geopy
 psycopg2
 flask
 zenodo_get
-lightning
-torchmetrics
-huggingface_hub
-keras>=3.0
 xarray
-torchvision
 fastapi[all]
+pytest
+
+# ML/TorNet Deps
+# torchvision
+# lightning
+# torchmetrics
+# huggingface_hub
+# keras>=3.0
 # tensorflow-cpu

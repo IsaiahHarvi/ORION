@@ -5,3 +5,6 @@ description = "Observation, Reconnaissance, Intelligence, and Operations Network
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
+
+[tool.ruff]
+exclude = ["src/tornet"]

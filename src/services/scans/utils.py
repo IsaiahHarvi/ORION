@@ -1,8 +1,4 @@
-import bz2
-import gzip
 import os
-import shutil
-import tarfile
 
 
 def enforce_dir_size_limit(directory, max_size_bytes=15 * 1024 * 1024 * 1024):
