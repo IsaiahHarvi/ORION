@@ -4,7 +4,7 @@
     import 'maplibre-gl/dist/maplibre-gl.css';
     import { current_lat_long } from '$lib/stores/current-location';
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
-    import Map from '$lib/components/MapTemp.svelte';
+    import Map from '$lib/components/Map.svelte';
     import TrackData from '$lib/components/TrackData.svelte';
     import { layers_state } from '$lib/runes/toggleable-layers.svelte';
 

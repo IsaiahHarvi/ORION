@@ -1,5 +1,5 @@
 <script lang="ts">
-    import Map from '$lib/components/MapTemp.svelte';
+    import Map from '$lib/components/Map.svelte';
     import AISData from '$lib/components/AISData.svelte';
 	import { onMount } from 'svelte';
 	import { layers_state } from '$lib/runes/toggleable-layers.svelte';

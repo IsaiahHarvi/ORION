@@ -3,11 +3,11 @@
     import maplibregl from 'maplibre-gl';
     import 'maplibre-gl/dist/maplibre-gl.css';
     import { current_lat_long } from '$lib/stores/current-location';
-    import Sidebar from '$lib/components/SidebarTemp.svelte';
+    import Sidebar from '$lib/components/Sidebar.svelte';
     import Topbar from '$lib/components/Topbar.svelte';
     import { Button } from '$lib/components/ui/button'
-	import Map from '$lib/components/MapTemp.svelte';
-	import Timeline from '$lib/components/TimelineTemp.svelte';
+	import Map from '$lib/components/Map.svelte';
+	import Timeline from '$lib/components/Timeline.svelte';
 	import { layers_state } from '$lib/runes/toggleable-layers.svelte';
 
     onMount(() => {
