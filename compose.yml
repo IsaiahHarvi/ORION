@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: deploy/gui/Dockerfile
+      args:
+        VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     ports:
       - "5173:5173"
     environment:
