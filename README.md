@@ -52,7 +52,7 @@ Interested users can build the project themselves.
 ----
 
 ## API
-Our API is available at: https://orion-api.harville.dev/docs
+Our API is available at: https://orion.harville.dev/api/docs
 
 
 ## [LICENSE](./LICENSE)
