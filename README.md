@@ -25,7 +25,9 @@ Interested users can build the project themselves.
     ```bash
     git clone --recurse-submodules git@github.com:IsaiahHarvi/ORION.git
     cd ORION
-    docker compose up --build
+    docker compose --profile gui-dev up --build
+    # or to target the production API rather than a locally hosted API
+    docker compose --profile gui up --build
     ```
 
 2. **Access the Application:**

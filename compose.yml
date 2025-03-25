@@ -1,2 +1,25 @@
 include:
   - deploy/compose.yml
+
+services:
+  gui:
+    build:
+      context: .
+      dockerfile: deploy/gui/Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=https://orion-api.harville.dev
+    profiles:
+      - gui
+
+  gui-dev:
+    build:
+      context: .
+      dockerfile: deploy/gui/Dockerfile
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=https://localhost:8000
+    profiles:
+      - gui-dev
