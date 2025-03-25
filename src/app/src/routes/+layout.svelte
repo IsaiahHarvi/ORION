@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onMount, setContext } from 'svelte';
-    import Sidebar from '$lib/components/Sidebar.svelte';
+    import Sidebar from '$lib/components/SidebarTemp.svelte';
     import Topbar from '$lib/components/Topbar.svelte';
     import { Button } from '$lib/components/ui/button'
-	import Map from '$lib/components/Map.svelte';
-	import Timeline from '$lib/components/Timeline.svelte';
+	import Map from '$lib/components/MapTemp.svelte';
+	import Timeline from '$lib/components/TimelineTemp.svelte';
     import { page } from '$app/state';
 
 	import '../app.css';
