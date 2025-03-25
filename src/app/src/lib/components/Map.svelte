@@ -60,7 +60,7 @@
 
     function initializeMap() {
         if (map) map.remove();
-        
+
         map = new maplibregl.Map({
             container: mapElement,
             style: getMapStyle(map_style_state.data),
@@ -115,7 +115,7 @@
         if (map_style_state.data !== previousMapStyle) {
             previousMapStyle = map_style_state.data;
             restyleMap()
-            
+
             if(layers_state.data?.radar_layer) {
                 loadRainViewerData(map, radar_state.radar_state.timestamp);
             }
@@ -128,7 +128,7 @@
                 loadRainViewerData(map, radar_state.radar_state.timestamp);
             }, 300);
         }
-        
+
         if (layers_state.data.radar_layer !== prevRadarLayer) {
             if (layers_state.data.radar_layer === true) {
                 removeRadarLayers(map);
@@ -139,7 +139,7 @@
         }
 
         prevRadarLayer = layers_state.data.radar_layer;
-        console.log(layers_state.data.radar_layer)
+        // console.log(layers_state.data.radar_layer)
     });
 
     onDestroy(() => {
@@ -164,5 +164,5 @@
         {#if layers_state.data?.radar_stations_layer}
             <RadarLayer {map} />
         {/if}
-    {/key}  
+    {/key}
 {/if}
