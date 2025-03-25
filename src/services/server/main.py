@@ -58,6 +58,7 @@ async def radars(lat, lon):
         return {"Error": "Could not find radars"}, 500
     return radars
 
+
 @app.get("/api/radars_near/{lat}/{lon}/{radius_km}")
 async def radars_nearby(lat, lon, radius_km):
     radars = get_nearby_radars(

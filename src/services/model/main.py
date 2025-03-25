@@ -1,11 +1,9 @@
-import os
 
 import keras
 import torch
 import torchvision.transforms as T
 from huggingface_hub import hf_hub_download
 
-from tornet.tornet.data.constants import ALL_VARIABLES
 from tornet.tornet.data.loader import read_file
 from tornet.tornet.data.preprocess import add_coordinates, remove_time_dim
 from tornet.tornet.metrics.keras import metrics as tfm

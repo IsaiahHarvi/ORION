@@ -5,6 +5,7 @@ services:
       dockerfile: deploy/fast/Dockerfile
     ports:
       - "8000:8000"
+    container_name: orion-api
     environment:
       - SCAN_DIR=/app/scans
       - KERAS_BACKEND=torch
