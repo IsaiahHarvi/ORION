@@ -2,11 +2,11 @@
     import { onMount, onDestroy } from 'svelte';
     import maplibregl from 'maplibre-gl';
     import 'maplibre-gl/dist/maplibre-gl.css';
-    import { current_lat_long } from '$lib/stores/current_location';
+    import { current_lat_long } from '$lib/stores/current-location';
     import * as Sidebar from "$lib/components/ui/sidebar/index.js";
     import Map from '$lib/components/map.svelte';
-    import TrackData from '$lib/components/track-data.svelte';
-    import { layers_state } from '$lib/runes/toggleable_layers.svelte';
+    import TrackData from '$lib/components/TrackData.svelte';
+    import { layers_state } from '$lib/runes/toggleable-layers.svelte';
 
     onMount(() => {
         layers_state.data.ais_layer = false;

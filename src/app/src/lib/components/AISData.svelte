@@ -1,21 +1,13 @@
 <script lang="ts">
     import { onDestroy } from 'svelte';
-    import { aisStore } from '$lib/stores/aisStore';
-    import { Button } from '$lib/components/ui/button';
-    import X from '@lucide/svelte/icons/x';
-    import {
-      Collapsible,
-      CollapsibleTrigger,
-      CollapsibleContent
-    } from '$lib/components/ui/collapsible';
-    import ChevronUp from "@lucide/svelte/icons/chevron-up";
-    import ChevronDown from "@lucide/svelte/icons/chevron-down";
+    import { aisStore } from '$lib/stores/ais-store';
     import { flyAndScale } from '$lib/utils';
+    import X from '@lucide/svelte/icons/x';
   
     let selectedShip = null;
   
     const unsubscribe = aisStore.subscribe(store => {
-      selectedShip = store.selectedShip;
+        selectedShip = store.selectedShip;
     });
   
     onDestroy(unsubscribe);

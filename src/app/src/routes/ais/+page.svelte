@@ -2,7 +2,7 @@
     import Map from '$lib/components/map.svelte';
     import AISData from '$lib/components/AISData.svelte';
 	import { onMount } from 'svelte';
-	import { layers_state } from '$lib/runes/toggleable_layers.svelte';
+	import { layers_state } from '$lib/runes/toggleable-layers.svelte';
 
     onMount(() => {
         layers_state.data.uav_layer = false;

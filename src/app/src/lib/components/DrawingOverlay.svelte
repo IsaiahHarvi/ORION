@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { map_state } from '$lib/runes/map_state.svelte';
+	import { map_state } from '$lib/runes/map-state.svelte';
 
 	let { color = '#ffffff' } = $props();
 
@@ -114,8 +114,6 @@
 
 	export { clearCanvas, undo, redo };
 </script>
-
-
 
 <canvas
 	bind:this={canvas}

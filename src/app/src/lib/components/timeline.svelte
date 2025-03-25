@@ -2,7 +2,7 @@
     import { Button } from '$lib/components/ui/button'
     import { page } from '$app/stores';
     import { onMount, type Snippet } from 'svelte';
-    import { radar_state } from '$lib/runes/current_radar.svelte';
+    import { radar_state } from '$lib/runes/current-radar.svelte';
     import LoaderCircle from '@lucide/svelte/icons/loader-circle'
     import { Slider } from "$lib/components/ui/slider";
     import { flyAndScale } from '$lib/utils';

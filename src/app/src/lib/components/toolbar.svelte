@@ -1,5 +1,5 @@
 <script lang="ts">
-	import DrawingOverlay from '$lib/components/drawing-overlay.svelte';
+	import DrawingOverlay from '$lib/components/DrawingOverlay.svelte';
 	import Trash from '@lucide/svelte/icons/trash';
 	import PencilLine from '@lucide/svelte/icons/pencil-line';
 	import Undo from '@lucide/svelte/icons/undo';

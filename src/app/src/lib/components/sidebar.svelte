@@ -6,8 +6,8 @@
 	import * as Sheet from "$lib/components/ui/sheet";
 	import { Button, buttonVariants } from '$lib/components/ui/button';
     import { map_style_urls } from '$lib/map-styles';
-    import { map_style_state } from '$lib/runes/map_style.svelte';
-	import { map_state } from '$lib/runes/map_state.svelte';
+    import { map_style_state } from '$lib/runes/map-style.svelte';
+	import { map_state } from '$lib/runes/map-state.svelte';
 	import { toast } from 'svelte-sonner';
 
 	import UAV from '$lib/icons/uav-icon.png';
