@@ -9,6 +9,6 @@ services:
     ports:
       - "5173:5173"
     environment:
-      - VITE_API_URL=${VITE_API_URL:-https://orion-api.harville.dev}  # if not set, use production API url
+      - VITE_API_URL=${VITE_API_URL:-https://orion.harville.dev/api}  # if not set, use production API url
     profiles:
       - gui
