@@ -5,6 +5,8 @@
 # import pyart
 # import torch
 # import torchvision.transforms as T
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -22,13 +24,15 @@ from services.scans.get_stations import get_nearby_radars
 # )
 
 app = FastAPI()
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["http://localhost:5173", "https://orion.harville.dev"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+if os.environ.get("API_MODE") == "dev":
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["*"],
+        allow_credentials=True,
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+
 
 # model_ = Model()
 # pretrained_model = get_pretrained()

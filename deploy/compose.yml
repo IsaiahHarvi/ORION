@@ -1,4 +1,4 @@
 include:
   # - postgres/compose.yml
   - fast/compose.yml
-  - gui/compose.yml
+  # - gui/compose.yml

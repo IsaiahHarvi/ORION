@@ -25,7 +25,10 @@ Interested users can build the project themselves.
     ```bash
     git clone --recurse-submodules git@github.com:IsaiahHarvi/ORION.git
     cd ORION
-    docker compose up --build
+    docker compose --profile gui up --build
+    # Optionally, to target the developmentAPI rather than a locally hosted API, open a devcontainer or export the following env vars.
+    export VITE_API_URL=http://localhost:8000
+    export API_MODE=dev
     ```
 
 2. **Access the Application:**
@@ -38,6 +41,8 @@ Interested users can build the project themselves.
 
     This will load your project locally.
 
+3. **API:**
+    Our API is available at: https://orion-api.harville.dev/docs
 ### Additional Information
 
 -   **Stopping the Containers:**

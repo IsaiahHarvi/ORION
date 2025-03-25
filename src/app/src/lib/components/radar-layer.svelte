@@ -12,11 +12,12 @@
 
 onMount(async () => {
   const key = `radars_${$current_lat_long.lat ?? 0}_${$current_lat_long.long ?? 0}`;
+  const apiUrl = import.meta.env.VITE_API_URL;
   let cached = sessionStorage.getItem(key);
   if (cached) {
     radars = JSON.parse(cached);
   } else {
-    const res = await fetch(`http://localhost:8000/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`);
+    const res = await fetch(`${apiUrl}/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`);
     radars = await res.json();
     sessionStorage.setItem(key, JSON.stringify(radars));
   }
@@ -47,7 +48,7 @@ onMount(async () => {
         el.addEventListener('click', () => {
             radar.open = !radar.open ?? false;
         })
-        
+
         return el;
     }
 </script>
