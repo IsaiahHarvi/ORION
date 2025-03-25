@@ -9,7 +9,6 @@ services:
       - SCAN_DIR=/app/scans
       - KERAS_BACKEND=torch
       - TORNET_ROOT=data/TorNet
-      - VITE_API_URL=https://orion-api.harville.dev/radars
 
     # volumes:
       # - ../../data/TorNet:/app/data/TorNet

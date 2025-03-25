@@ -5,3 +5,5 @@ services:
       dockerfile: deploy/gui/Dockerfile
     ports:
       - "5173:5173"
+    environment:
+      - VITE_API_URL=https://orion-api.harville.dev/radars
