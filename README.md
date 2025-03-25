@@ -40,8 +40,6 @@ Interested users can build the project themselves.
 
     This will load your project locally.
 
-3. **API:**
-    Our API is available at: https://orion-api.harville.dev/docs
 ### Additional Information
 
 -   **Stopping the Containers:**
@@ -52,4 +50,9 @@ Interested users can build the project themselves.
     ```
 
 ----
-### [LICENSE](./LICENSE)
+
+## API
+Our API is available at: https://orion-api.harville.dev/docs
+
+
+## [LICENSE](./LICENSE)

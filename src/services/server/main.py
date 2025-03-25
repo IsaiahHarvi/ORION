@@ -24,6 +24,7 @@ from services.scans.get_stations import get_nearby_radars
 # )
 
 app = FastAPI()
+print("[INFO]\t API URL:", os.environ.get("VITE_API_URL"))
 if not (os.environ.get("VITE_API_URL") == "https://orion.harville.dev/api"):
     # Production sets CORS in nginx, so we wouldnt set it here again.
     print("\nConfiguring CORS\n")
