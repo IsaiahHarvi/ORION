@@ -24,7 +24,7 @@ from services.scans.get_stations import get_nearby_radars
 # )
 
 app = FastAPI()
-print("[INFO]\t API URL:", os.environ.get("VITE_API_URL"))
+print("INFO:\t API URL:", os.environ.get("VITE_API_URL"))
 if not (os.environ.get("VITE_API_URL") == "https://orion.harville.dev/api"):
     # Production sets CORS in nginx, so we wouldnt set it here again.
     print("\nConfiguring CORS\n")
@@ -44,12 +44,12 @@ if not (os.environ.get("VITE_API_URL") == "https://orion.harville.dev/api"):
 # os.makedirs(os.path.join(DATA_DIR, "radar"), exist_ok=True)
 
 
-@app.get("/")
+@app.get("/api/")
 async def root():
     return {"message": "Hello World"}
 
 
-@app.get("/radars/{lat}/{lon}")
+@app.get("/api/radars/{lat}/{lon}")
 async def radars(lat, lon):
     radars = get_nearby_radars(
         float(lat), float(lon), radius_km=1000000, output_format="json"
@@ -58,7 +58,7 @@ async def radars(lat, lon):
         return {"Error": "Could not find radars"}, 500
     return radars
 
-@app.get("/radars_near/{lat}/{lon}/{radius_km}")
+@app.get("/api/radars_near/{lat}/{lon}/{radius_km}")
 async def radars_nearby(lat, lon, radius_km):
     radars = get_nearby_radars(
         float(lat), float(lon), radius_km=int(radius_km), output_format="json"
