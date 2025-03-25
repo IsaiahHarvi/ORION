@@ -9,7 +9,7 @@ services:
       - SCAN_DIR=/app/scans
       - KERAS_BACKEND=torch
       - TORNET_ROOT=data/TorNet
-      - API_MODE=${API_MODE:-production}  # if not set, defaults to production
+      - VITE_API_URL=${API_MODE:-production}  # if not set, defaults to production
 
     # volumes:
       # - ../../data/TorNet:/app/data/TorNet

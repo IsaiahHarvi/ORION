@@ -28,7 +28,6 @@ Interested users can build the project themselves.
     docker compose --profile gui up --build
     # Optionally, to target the developmentAPI rather than a locally hosted API, open a devcontainer or export the following env vars.
     export VITE_API_URL=http://localhost:8000
-    export API_MODE=dev
     ```
 
 2. **Access the Application:**

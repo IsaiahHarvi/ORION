@@ -24,7 +24,9 @@ from services.scans.get_stations import get_nearby_radars
 # )
 
 app = FastAPI()
-if os.environ.get("API_MODE") == "dev":
+if not (os.environ.get("VITE_API_URL") == "https://orion-api.harville.dev"):
+    # Production sets CORS in nginx, so we wouldnt set it here again.
+    print("\nConfiguring CORS\n")
     app.add_middleware(
         CORSMiddleware,
         allow_origins=["*"],
@@ -53,6 +55,15 @@ async def radars(lat, lon):
     )
     if not len(radars):
         return {"Error": "Could not find radars"}, 500
+    return radars
+
+@app.get("/radars_near/{lat}/{lon}/{radius_km}")
+async def radars_nearby(lat, lon, radius_km):
+    radars = get_nearby_radars(
+        float(lat), float(lon), radius_km=int(radius_km), output_format="json"
+    )
+    if not len(radars):
+        return {"Error": f"Could not find radars within {radius_km}km radius"}, 500
     return radars
 
 
