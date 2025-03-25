@@ -3,7 +3,7 @@
 !src/app/src/lib/icons/*.png
 data/TorNet
 sample_data.json
-deploy/fast/scans/
+deploy/api/scans/
 
 # Python stuff
 __pycache__/

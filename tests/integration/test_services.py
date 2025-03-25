@@ -18,7 +18,7 @@ def test_containers_running(docker_services):
     backoff = 1
     max_backoff = 5
     start_time = time.time()
-    pattern = re.compile(r"^orion-")
+    pattern = re.compile(r"^orion-(?!cpu|gpu)")
 
     time.sleep(1)
     while True:
@@ -30,16 +30,16 @@ def test_containers_running(docker_services):
         )
         containers = result.stdout.strip().splitlines()
 
-        expected_containers = len(
-            [
-                container
-                for container in os.listdir("deploy")
-                if container != "postgres" and os.path.isdir(f"deploy/{container}")
-            ]
-        )
-        running_counters = len([c for c in containers if pattern.match(c)])
+        expected_containers = [
+            container
+            for container in os.listdir("deploy")
+            if container != "postgres" and os.path.isdir(f"deploy/{container}")
+        ]
+        running_containers = [c for c in containers if pattern.match(c)]
 
-        if running_counters == expected_containers:
+        print("Running containers:", running_containers)
+        print("Expected containers:", expected_containers)
+        if len(running_containers) == len(expected_containers):
             break
 
         if (time.time() - start_time) > max_timeout:
