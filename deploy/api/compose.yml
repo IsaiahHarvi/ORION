@@ -1,8 +1,8 @@
 services:
-  fast:
+  api:
     build:
       context: ../../
-      dockerfile: deploy/fast/Dockerfile
+      dockerfile: deploy/api/Dockerfile
     ports:
       - "8000:8000"
     container_name: orion-api
