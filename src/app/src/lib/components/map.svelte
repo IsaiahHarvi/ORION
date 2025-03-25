@@ -7,7 +7,7 @@
     import { flyAndScale } from '$lib/utils';
     import { loadRainViewerData } from '$lib/map-updater';
     import { radar_state } from '$lib/runes/current-radar.svelte';
-    import Controls from './controls.svelte';
+    import Controls from './Controls.svelte';
     import UAVLayer from './UAVLayer.svelte';
     import AISLayer from './AISLayer.svelte';
     import { map_state } from '$lib/runes/map-state.svelte';
@@ -129,16 +129,17 @@
             }, 300);
         }
         
-        const currentRadarLayer = layers_state.data?.radar_layer;
-        if (currentRadarLayer !== prevRadarLayer) {
-            if (currentRadarLayer === true) {
+        if (layers_state.data.radar_layer !== prevRadarLayer) {
+            if (layers_state.data.radar_layer === true) {
                 removeRadarLayers(map);
                 loadRainViewerData(map, radar_state.radar_state.timestamp);
             } else {
                 removeRadarLayers(map);
             }
         }
-        prevRadarLayer = currentRadarLayer;
+
+        prevRadarLayer = layers_state.data.radar_layer;
+        console.log(layers_state.data.radar_layer)
     });
 
     onDestroy(() => {

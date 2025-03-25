@@ -23,10 +23,10 @@
 	}
 </script>
 
-<div transition:flyAndScale class="absolute z-[90] invisible md:visible bottom-10 right-10">
-	<div class="flex flex-row items-end gap-2">
-        <div class="bg-background border rounded-lg  p-2 px-2">
-            <p class="font-mono text-sm">
+<div transition:flyAndScale class="absolute z-[90] invisible md:visible top-16 xl:top-auto xl:right-10 xl:bottom-10 right-2">
+	<div class="flex flex-row items-start xl:items-end gap-2">
+        <div class="bg-background border mt-2 xl:mt-0 rounded-lg p-2 px-2">
+            <p class="font-mono text-sm ">
                 Cursor: {cursor_data.lat.toFixed(3)}, {cursor_data.lng.toFixed(3)}
             </p>
         </div>

@@ -1,15 +1,15 @@
 <script lang="ts">
 	import { onMount, setContext } from 'svelte';
-    import Sidebar from '$lib/components/sidebar.svelte';
-    import Topbar from '$lib/components/topbar.svelte';
+    import Sidebar from '$lib/components/Sidebar.svelte';
+    import Topbar from '$lib/components/Topbar.svelte';
     import { Button } from '$lib/components/ui/button'
-	import Map from '$lib/components/map.svelte';
-	import Timeline from '$lib/components/timeline.svelte';
+	import Map from '$lib/components/Map.svelte';
+	import Timeline from '$lib/components/Timeline.svelte';
     import { page } from '$app/state';
 
 	import '../app.css';
 	import { Toaster } from '$lib/components/ui/sonner';
-	import Toolbar from '$lib/components/toolbar.svelte';
+	import Toolbar from '$lib/components/Toolbar.svelte';
 	let { children } = $props();
     let map = $state();
 </script>

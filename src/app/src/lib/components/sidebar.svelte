@@ -5,9 +5,11 @@
 	import Menu from '@lucide/svelte/icons/menu';
 	import * as Sheet from "$lib/components/ui/sheet";
 	import { Button, buttonVariants } from '$lib/components/ui/button';
+    import { Checkbox } from '$lib/components/ui/checkbox';
     import { map_style_urls } from '$lib/map-styles';
     import { map_style_state } from '$lib/runes/map-style.svelte';
 	import { map_state } from '$lib/runes/map-state.svelte';
+    import { layers_state } from '$lib/runes/toggleable-layers.svelte';
 	import { toast } from 'svelte-sonner';
 
 	import UAV from '$lib/icons/uav-icon.png';
@@ -21,6 +23,9 @@
     
 	let open = $state(false);
 	let searchValue = $state('');
+
+    let radarLayersChecked = $derived(layers_state.data.radar_layer);
+    let radarStationsChecked = $derived(layers_state.data.radar_stations_layer);
 
 	function handleKeydown(event: KeyboardEvent) {
 		if (event.key === 'Enter') {
@@ -36,6 +41,11 @@
 			}
 		}
 	}
+
+    $effect(() => {
+        layers_state.data.radar_layer = radarLayersChecked;
+        layers_state.data.radar_stations_layer = radarStationsChecked;
+    });
 </script>
 
 {#snippet nav_content()}
@@ -43,8 +53,23 @@
 		placeholder="e.g. 33.54, -117.6"
 		bind:value={searchValue}
 		onkeydown={handleKeydown}
+        tabindex="-1"
 		class="px-3 p-2 w-full placeholder:text-neutral-500 text-sm font-mono bg-neutral-800 border border-neutral-700 rounded-md mb-2 mt-1"
 	/>
+    <div class="lg:hidden flex flex-col items-start gap-4 py-4 w-full">
+        <div class="flex items-center justify-center flex-row gap-3 w-full">
+            <Checkbox bind:checked={radarLayersChecked} id="radar-layers" />
+            <label class="text-sm text-white font-mono w-full" for="radar-layers">
+                Show Weather Radar
+            </label>
+        </div>
+        <div class="flex items-center justify-center flex-row gap-3 w-full">
+            <Checkbox bind:checked={radarStationsChecked} id="radar-stations" />
+            <label class="text-sm text-white font-mono w-full" for="radar-stations">
+                Show Radar Stations
+            </label>
+        </div>
+    </div>
 	<p class="text-sm py-3 font-mono text-muted-foreground">
 		LAYERS
 	</p>
@@ -91,7 +116,7 @@
 	</div>
 </div>
 
-<div class="bg-neutral-900 border-b px-4 gap-4 z-40 fixed flex items-center h-16 top-0 left-0 w-screen lg:hidden">
+<div class="bg-neutral-900 border-b px-4 gap-4 z-40 fixed flex items-center h-14 top-0 left-0 w-screen lg:hidden">
 	<Sheet.Root bind:open>
 		<Sheet.Trigger class={buttonVariants({ variant: "ghost", size: 'icon' })}>
 			<Menu size={16} />
