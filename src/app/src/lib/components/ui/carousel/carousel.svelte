@@ -51,15 +51,7 @@
 		carouselState.canScrollNext = api.canScrollNext();
 		carouselState.selectedIndex = api.selectedScrollSnap();
 	}
-
-	$effect(() => {
-		if (carouselState.api) {
-			onSelect(carouselState.api);
-			carouselState.api.on("select", onSelect);
-			carouselState.api.on("reInit", onSelect);
-		}
-	});
-
+    
 	function handleKeyDown(e: KeyboardEvent) {
 		if (e.key === "ArrowLeft") {
 			e.preventDefault();
@@ -72,6 +64,16 @@
 
 	$effect(() => {
 		setApi(carouselState.api);
+
+        if (carouselState.api) {
+			onSelect(carouselState.api);
+			carouselState.api.on("select", onSelect);
+			carouselState.api.on("reInit", onSelect);
+		}
+
+        return () => {
+			carouselState.api?.off("select", onSelect);
+		};
 	});
 
 	function onInit(event: CustomEvent<CarouselAPI>) {
@@ -79,12 +81,6 @@
 
 		carouselState.scrollSnaps = carouselState.api.scrollSnapList();
 	}
-
-	$effect(() => {
-		return () => {
-			carouselState.api?.off("select", onSelect);
-		};
-	});
 </script>
 
 <div class={cn("relative", className)} role="region" aria-roledescription="carousel" {...restProps}>
