@@ -108,7 +108,7 @@
 </script>
 
 {#if trackData.selected}
-    <div transition:flyAndScale class="bg-neutral-900 relative mt-16 border shadow-lg pointer-events-auto rounded-lg p-4 w-full lg:w-[27.5rem] text-white">
+    <div transition:flyAndScale class="bg-neutral-900 relative mt-16 border pointer-events-auto rounded-lg p-4 w-full lg:w-[27.5rem] text-white">
         <button class="absolute top-4 right-4" onclick={() => {
             trackDataStore.update(d => ({ ...d, selected: false }));
         }}>

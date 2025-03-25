@@ -40,6 +40,7 @@ export function formatTimestamp(timestamp: number): string {
 }
 
 export function loadRainViewerData(map: any, timestamp?: number): void {
+	console.log('Called');
 	fetch('https://api.rainviewer.com/public/weather-maps.json')
 		.then((res) => res.json())
 		.then((data) => {

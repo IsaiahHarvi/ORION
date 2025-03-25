@@ -14,8 +14,8 @@
     } = $props();
 
     let value = $state('');
-    let checked = $state(true);
-    let checked2 = $state(false);
+    let radarLayersChecked = $derived(layers_state.data.radar_layer);
+    let radarStationsChecked = $derived(layers_state.data.radar_stations_layer);
 
     function formatTimestamp(timestamp: number): string {
         const date = new Date(timestamp * 1000);
@@ -37,21 +37,21 @@
             formattedTimestamp = formatTimestamp(radar_state.radar_state.timestamp);
         }
 
-        layers_state.data.radar_layer = checked;
-        layers_state.data.radar_stations_layer = checked2;
+        layers_state.data.radar_layer = radarLayersChecked;
+        layers_state.data.radar_stations_layer = radarStationsChecked;
     });
 </script>
 
 <div class="bg-neutral-900 overflow-hidden lg:ml-64 xl:ml-[20rem] gap-4 lg:visible invisible w-screen absolute z-40 top-0 flex-shrink-0 border-b h-16 p-4 flex flex-row items-center">
     <div class="flex items-center justify-center flex-row gap-3">
-        <Checkbox bind:checked id="radar-layers" />
+        <Checkbox bind:checked={radarLayersChecked} id="radar-layers" />
         <label class="text-sm text-white font-mono" for="radar-layers">
             Show Weather Radar
         </label>
     </div>
     <div class="flex items-center justify-center flex-row gap-3">
-        <Checkbox bind:checked={checked2} id="radar-layers-le" />
-        <label class="text-sm text-white font-mono" for="radar-layers-le">
+        <Checkbox bind:checked={radarStationsChecked} id="radar-stations" />
+        <label class="text-sm text-white font-mono" for="radar-stations">
             Show Radar Stations
         </label>
     </div>

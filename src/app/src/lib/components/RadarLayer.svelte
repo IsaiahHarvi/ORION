@@ -57,7 +57,9 @@
 
 {#each radars as radar (radar.radar_id)}
     {#if radar.open}
-        <div transition:flyAndScale class="bg-neutral-900 absolute top-4 left-4 mt-16 border shadow-lg pointer-events-auto rounded-lg p-4 w-full lg:w-[27.5rem] text-white">
+            <div
+            transition:flyAndScale
+            class="bg-neutral-900 absolute top-4 left-1/2 -translate-x-1/2 lg:left-4 lg:translate-x-0 mt-14 lg:mt-16 border shadow-lg pointer-events-auto rounded-lg p-4 lg:w-[27.5rem] w-[calc(100vw-2rem)] text-white">
             <button class="absolute top-4 right-4" onclick={() => {
                 radar.open = false;
             }}>
