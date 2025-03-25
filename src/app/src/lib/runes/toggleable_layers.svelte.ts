@@ -6,7 +6,7 @@ export function create_layers_state() {
 		ais_layer: boolean;
 	}>({
 		radar_layer: true,
-		radar_stations_layer: true,
+		radar_stations_layer: false,
 		uav_layer: false,
 		ais_layer: false
 	});

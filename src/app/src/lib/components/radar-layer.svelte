@@ -10,26 +10,28 @@
     let radarMarkers: maplibregl.Marker[] = [];
     let radars = $state([]);
 
-onMount(async () => {
-  const key = `radars_${$current_lat_long.lat ?? 0}_${$current_lat_long.long ?? 0}`;
-  const apiUrl = import.meta.env.VITE_API_URL;
-  let cached = sessionStorage.getItem(key);
-  if (cached) {
-    radars = JSON.parse(cached);
-  } else {
-    const res = await fetch(`${apiUrl}/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`);
-    radars = await res.json();
-    sessionStorage.setItem(key, JSON.stringify(radars));
-  }
-  radars.forEach((radar: { distance: number; lat: number; lon: number; radar_id: string; open: boolean; }) => {
-    const el = markerElement(radar);
-    el.title = radar.radar_id;
-    const marker = new maplibregl.Marker({ element: el })
-      .setLngLat([radar.lon, radar.lat])
-      .addTo(map);
-    radarMarkers.push(marker);
-  });
-});
+    onMount(async () => {
+        const key = `radars_${$current_lat_long.lat ?? 0}_${$current_lat_long.long ?? 0}`;
+        const apiUrl = import.meta.env.VITE_API_URL;
+        let cached = sessionStorage.getItem(key);
+        
+        if (cached) {
+            radars = JSON.parse(cached);
+        } else {
+            const res = await fetch(`${apiUrl}/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`);
+            radars = await res.json();
+            sessionStorage.setItem(key, JSON.stringify(radars));
+        }
+
+        radars.forEach((radar: { distance: number; lat: number; lon: number; radar_id: string; open: boolean; }) => {
+            const el = markerElement(radar);
+            el.title = radar.radar_id;
+            const marker = new maplibregl.Marker({ element: el })
+            .setLngLat([radar.lon, radar.lat])
+            .addTo(map);
+            radarMarkers.push(marker);
+        });
+    });
 
     onDestroy(() => {
         radarMarkers.forEach(marker => marker.remove());

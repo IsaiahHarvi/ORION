@@ -66,16 +66,16 @@
 	<p class="text-sm py-3 font-mono text-muted-foreground">
 		MAP STYLES
 	</p>
-	{#each map_style_urls.slice().sort((a, b) => a.name.localeCompare(b.name)) as style}
+	{#each map_style_urls.slice().sort((a, b) => a.localeCompare(b)) as style}
 		<button
 			class='w-full flex items-center gap-3 px-3 py-3 rounded-md text-sm transition-colors
-			{map_style_state.data === style.name ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}'
+			{map_style_state.data === style ? 'bg-neutral-800 text-white font-semibold' : 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}'
 			onclick={() => {
 				open = false;
-				map_style_state.data = style.name;
+				map_style_state.data = style;
 			}}
 		>
-			<span>{style.name.charAt(0).toUpperCase() + style.name.slice(1)}</span>
+			<span>{style.charAt(0).toUpperCase() + style.slice(1)}</span>
 		</button>
 	{/each}
 {/snippet}

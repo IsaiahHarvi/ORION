@@ -1,3 +1,5 @@
+import { map_style_urls } from '$lib/map-styles';
+
 export function create_map_style_state() {
 	let data = $state(localStorage.getItem('map_style') || 'default');
 
@@ -6,8 +8,10 @@ export function create_map_style_state() {
 			return data;
 		},
 		set data(newStyle) {
-			if (['default', 'streets', 'ocean', 'satellite'].includes(newStyle)) {
+			console.log(newStyle);
+			if (map_style_urls.includes(newStyle)) {
 				data = newStyle;
+				console.log('newStyle');
 				localStorage.setItem('map_style', newStyle);
 			} else {
 				throw new Error('Invalid map style');
