@@ -8,7 +8,7 @@
 	let drawing = $state(false);
 	let color = $state('#ffffff');
 
-	let overlayRef: any;
+	let overlayRef: any = $state();
 
 	function toggleDrawing() {
 		drawing = !drawing;
@@ -52,13 +52,16 @@
 			class="w-full h-full cursor-pointer"
 			style={`background-color: ${color};`}
 		></div>
-		<input
-			type="color"
-			bind:value={color}
-			class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
-			oninput={(e) => {
-				if (overlayRef) overlayRef.color = e.target.value;
-			}}
-		/>
+        <input
+        type="color"
+        bind:value={color}
+        class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+        oninput={(e) => {
+            const target = e.target as HTMLInputElement;
+            if (overlayRef && target) {
+                overlayRef.color = target.value;
+            }
+        }}
+        />
 	</div>
 </div>

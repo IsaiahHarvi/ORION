@@ -2,6 +2,7 @@
     import { onMount, onDestroy } from 'svelte';
     import maplibregl from 'maplibre-gl';
     import 'maplibre-gl/dist/maplibre-gl.css';
+    import type { StyleSpecification } from 'maplibre-gl';
 
     import { current_lat_long } from '$lib/stores/current-location';
     import { flyAndScale } from '$lib/utils';
@@ -18,6 +19,7 @@
     import DarkStyle from '$lib/styles/dark.json';
     import PositronStyle from '$lib/styles/positron.json';
     import StreetsStyle from '$lib/styles/streets.json';
+    
 
 	import { map_style_state } from '$lib/runes/map-style.svelte';
 	import RadarLayer from './RadarLayer.svelte';
@@ -63,7 +65,7 @@
         
         map = new maplibregl.Map({
             container: mapElement,
-            style: getMapStyle(map_style_state.data),
+            style: getMapStyle(map_style_state.data) as StyleSpecification,
             center: [initialView.long, initialView.lat],
             zoom: 8,
             attributionControl: false,

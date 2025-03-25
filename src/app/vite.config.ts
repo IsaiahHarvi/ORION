@@ -11,5 +11,14 @@ export default defineConfig({
 		watch: {
 			usePolling: true
 		}
+	},
+	build: {
+		rollupOptions: {
+			output: {
+				manualChunks: {
+					'svelte-bundle': ['svelte', 'svelte/internal', 'svelte/internal/client']
+				}
+			}
+		}
 	}
 });

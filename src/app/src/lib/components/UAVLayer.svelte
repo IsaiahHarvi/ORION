@@ -114,7 +114,7 @@
 
         const { callsign = 'Unknown' } = get(trackDataStore) || {};
 
-        const geojsonData = {
+        const geojsonData: GeoJSON.FeatureCollection<GeoJSON.Geometry, GeoJSON.GeoJsonProperties> = {
             type: 'FeatureCollection',
             features: [{
                 type: 'Feature',
@@ -163,8 +163,6 @@
 
                     if (d.imageFrame.ulc && d.imageFrame.urc && d.imageFrame.lrc && d.imageFrame.llc) {
                         const { center, ulc, urc, lrc, llc } = d.imageFrame;
-                        const framePoly = buildFramePolygon(ulc, urc, lrc, llc);
-                        showFramePolygon(map, framePoly, center);
                     }
                 }
             }

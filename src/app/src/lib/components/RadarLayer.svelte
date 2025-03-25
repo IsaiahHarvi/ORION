@@ -5,10 +5,19 @@
     import radarIcon from '$lib/icons/radar-icon.png';
 	import { flyAndScale } from '$lib/utils';
 	import X from '@lucide/svelte/icons/x';
+
     const { map } = $props();
 
+    interface Radar {
+        distance: number;
+        lat: number;
+        lon: number;
+        radar_id: string;
+        open: boolean;
+    }
+
     let radarMarkers: maplibregl.Marker[] = [];
-    let radars = $state([]);
+    let radars: Radar[] = $state<Radar[]>([]);
 
     onMount(async () => {
         const key = `radars_${$current_lat_long.lat ?? 0}_${$current_lat_long.long ?? 0}`;
@@ -28,7 +37,7 @@
             el.title = radar.radar_id;
             const marker = new maplibregl.Marker({ element: el })
             .setLngLat([radar.lon, radar.lat])
-            .addTo(map);
+            .addTo(map); 
             radarMarkers.push(marker);
         });
     });
@@ -37,7 +46,7 @@
         radarMarkers.forEach(marker => marker.remove());
     });
 
-    function markerElement(radar): HTMLElement {
+    function markerElement(radar: Radar): HTMLElement {
         const el = document.createElement('img');
         el.className = 'uav-marker';
         el.src = radarIcon;
@@ -48,7 +57,7 @@
         el.className = 'marker';
 
         el.addEventListener('click', () => {
-            radar.open = !radar.open ?? false;
+            radar.open = !radar.open;
         })
 
         return el;
@@ -76,7 +85,6 @@
         </div>
     {/if}
 {/each}
-
 
 <style>
 </style>

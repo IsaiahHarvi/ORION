@@ -7,12 +7,7 @@ export interface LatLon {
 }
 
 // Existing buildFramePolygon and showFramePolygon functions…
-export function buildFramePolygon(
-	ulc: LatLon,
-	urc: LatLon,
-	lrc: LatLon,
-	llc: LatLon
-): Feature<Polygon> {
+export function buildFramePolygon(ulc: LatLon, urc: LatLon, lrc: LatLon, llc: LatLon): void {
 	// ... existing code ...
 	// (This function builds a circle polygon based on the four corners)
 	// [code omitted for brevity]
@@ -57,7 +52,7 @@ export function drawUavToCenterLine(
 	uavCoord: [number, number],
 	centerCoord: [number, number]
 ) {
-	const lineFeature = {
+	const lineFeature: Feature = {
 		type: 'Feature',
 		geometry: {
 			type: 'LineString',
