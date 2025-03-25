@@ -16,7 +16,7 @@ onMount(async () => {
   if (cached) {
     radars = JSON.parse(cached);
   } else {
-    const res = await fetch(`http://localhost:8000/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`);
+    const res = await fetch(`https://orion-api.harville.dev/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`);
     radars = await res.json();
     sessionStorage.setItem(key, JSON.stringify(radars));
   }
@@ -47,7 +47,7 @@ onMount(async () => {
         el.addEventListener('click', () => {
             radar.open = !radar.open ?? false;
         })
-        
+
         return el;
     }
 </script>
