@@ -6,23 +6,7 @@ export interface LatLon {
 	lon: number;
 }
 
-// Existing buildFramePolygon and showFramePolygon functions…
-export function buildFramePolygon(
-	ulc: LatLon,
-	urc: LatLon,
-	lrc: LatLon,
-	llc: LatLon
-): Feature<Polygon> {
-	// ... existing code ...
-	// (This function builds a circle polygon based on the four corners)
-	// [code omitted for brevity]
-}
-
-export function showFramePolygon(
-	map: maplibregl.Map,
-	framePoly: Feature<Polygon>,
-	_center: LatLon
-) {
+export function showFramePolygon(map: maplibregl.Map, framePoly: Feature<Polygon>) {
 	const fillSourceId = 'frame-polygon';
 	const fillLayerId = 'frame-polygon-fill';
 
@@ -68,7 +52,7 @@ export function drawUavToCenterLine(
 
 	const lineFC: FeatureCollection = {
 		type: 'FeatureCollection',
-		features: [lineFeature]
+		features: [lineFeature as Feature]
 	};
 
 	const sourceId = 'uav-center-line';

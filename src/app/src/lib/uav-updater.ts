@@ -1,8 +1,8 @@
-import maplibregl from 'maplibre-gl';
+import maplibregl, { type LngLatLike } from 'maplibre-gl';
 import { updateTrackData } from '$lib/track-data-updater';
 import uavIcon from '$lib/icons/uav-icon.png';
 
-export const routeGeoJSON = {
+export const routeGeoJSON: GeoJSON.FeatureCollection<GeoJSON.LineString> = {
 	type: 'FeatureCollection',
 	features: [
 		{
@@ -14,7 +14,7 @@ export const routeGeoJSON = {
 };
 
 let accumulatedRoutePoints: number[][] = [];
-let accumulatedObservations: any[] = [];
+let accumulatedObservations: { id: string }[] = [];
 let lastUpdateTime: number | null = null;
 
 function interpolateBetween(p1: number[], p2: number[], segments: number): number[][] {
@@ -96,7 +96,7 @@ export function loadRouteData(
 			const items = data.items || [];
 
 			items.sort(
-				(a: any, b: any) =>
+				(a: { phenomenonTime: string }, b: { phenomenonTime: string }) =>
 					new Date(a.phenomenonTime).getTime() - new Date(b.phenomenonTime).getTime()
 			);
 
@@ -110,16 +110,21 @@ export function loadRouteData(
 
 			lastUpdateTime = newLastTime;
 
-			items.forEach((obs: { id: any; result: { geoRef: { center: any } } }) => {
-				if (!accumulatedObservations.find((o) => o.id === obs.id)) {
-					accumulatedObservations.push(obs);
+			items.forEach(
+				(obs: {
+					id: string;
+					result: { geoRef: { center: { lat: number; lon: number } } };
+				}) => {
+					if (!accumulatedObservations.find((o) => o.id === obs.id)) {
+						accumulatedObservations.push(obs);
 
-					const c = obs.result?.geoRef?.center;
-					if (c && c.lat && c.lon) {
-						accumulatedRoutePoints.push([c.lon, c.lat]);
+						const c = obs.result?.geoRef?.center;
+						if (c && c.lat && c.lon) {
+							accumulatedRoutePoints.push([c.lon, c.lat]);
+						}
 					}
 				}
-			});
+			);
 
 			const interpolated = interpolateCoordinates(accumulatedRoutePoints, 10);
 			routeGeoJSON.features[0].geometry.coordinates = interpolated;
@@ -157,7 +162,7 @@ export function loadRouteData(
 					element: createUAVMarkerElement('Neutral'),
 					draggable: false
 				})
-					.setLngLat(latestCoord)
+					.setLngLat(latestCoord as LngLatLike)
 					.addTo(map);
 
 				marker.getElement().addEventListener('click', () => {

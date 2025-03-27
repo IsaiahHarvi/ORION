@@ -1,6 +1,5 @@
 <script lang="ts">
 	import DrawingOverlay from '$lib/components/DrawingOverlay.svelte';
-	import Trash from '@lucide/svelte/icons/trash';
 	import PencilLine from '@lucide/svelte/icons/pencil-line';
 	import Undo from '@lucide/svelte/icons/undo';
 	import Redo from '@lucide/svelte/icons/redo';
@@ -8,56 +7,61 @@
 	let drawing = $state(false);
 	let color = $state('#ffffff');
 
-	let overlayRef: any;
+	let overlayRef: HTMLCanvasElement = $state();
 
 	function toggleDrawing() {
 		drawing = !drawing;
-	}
-
-	function clearCanvas() {
-		overlayRef?.clearCanvas();
 	}
 
 	function undoCanvas() {
 		overlayRef?.undo();
 	}
 
-	function redoCanvas() { 
+	function redoCanvas() {
 		overlayRef?.redo();
 	}
 </script>
 
 {#if drawing}
-	<DrawingOverlay color={color} bind:this={overlayRef} />
+	<DrawingOverlay {color} bind:this={overlayRef} />
 {/if}
 
-<div class="absolute invisible md:visible bottom-2 mb-[6.5rem] left-2 lg:left-auto lg:bottom-10 w-[97%] items-center justify-start rounded-md z-40 lg:w-[35rem] flex-shrink-0 flex flex-row gap-1.5">
-	<button onclick={toggleDrawing}
-		class="w-10 h-10 flex items-center justify-center border hover:bg-neutral-800 duration-100
-		{drawing ? 'text-black bg-white hover:text-black/70 hover:bg-neutral-400' : 'bg-neutral-900 hover:bg-neutral-800'}">
+<div
+	class="invisible absolute bottom-2 left-2 z-40 mb-[6.5rem] flex w-[97%] flex-shrink-0 flex-row items-center justify-start gap-1.5 rounded-md md:visible lg:bottom-10 lg:left-auto lg:w-[35rem]"
+>
+	<button
+		onclick={toggleDrawing}
+		class="flex h-10 w-10 items-center justify-center border duration-100 hover:bg-neutral-800
+		{drawing
+			? 'bg-white text-black hover:bg-neutral-400 hover:text-black/70'
+			: 'bg-neutral-900 hover:bg-neutral-800'}"
+	>
 		<PencilLine size={20} />
 	</button>
 
-	<button class="w-10 h-10 flex items-center justify-center border bg-neutral-900 hover:bg-neutral-800 duration-100" onclick={undoCanvas}>
+	<button
+		class="flex h-10 w-10 items-center justify-center border bg-neutral-900 duration-100 hover:bg-neutral-800"
+		onclick={undoCanvas}
+	>
 		<Undo size={20} />
 	</button>
 
-	<button class="w-10 h-10 flex items-center justify-center border bg-neutral-900 hover:bg-neutral-800 duration-100" onclick={redoCanvas}>
+	<button
+		class="flex h-10 w-10 items-center justify-center border bg-neutral-900 duration-100 hover:bg-neutral-800"
+		onclick={redoCanvas}
+	>
 		<Redo size={20} />
 	</button>
 
 	<!-- Custom Color Picker Button -->
-	<div class="relative w-10 h-10 border">
-		<div
-			class="w-full h-full cursor-pointer"
-			style={`background-color: ${color};`}
-		></div>
+	<div class="relative h-10 w-10 border">
+		<div class="h-full w-full cursor-pointer" style={`background-color: ${color};`}></div>
 		<input
 			type="color"
 			bind:value={color}
-			class="absolute top-0 left-0 w-full h-full opacity-0 cursor-pointer"
+			class="absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
 			oninput={(e) => {
-				if (overlayRef) overlayRef.color = e.target.value;
+				if (overlayRef) overlayRef.color = (e.target as HTMLInputElement).value;
 			}}
 		/>
 	</div>

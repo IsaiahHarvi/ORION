@@ -1,5 +1,5 @@
 export function create_map_state() {
-	let data = $state<any>();
+	let data = $state<unknown>();
 
 	return {
 		get data() {
