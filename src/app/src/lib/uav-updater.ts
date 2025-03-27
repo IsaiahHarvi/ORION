@@ -1,8 +1,28 @@
-import maplibregl, { type LngLatLike } from 'maplibre-gl';
+import maplibregl from 'maplibre-gl';
 import { updateTrackData } from '$lib/track-data-updater';
 import uavIcon from '$lib/icons/uav-icon.png';
 
-export const routeGeoJSON: GeoJSON.FeatureCollection<GeoJSON.LineString> = {
+export interface UAVObservation {
+	id: string;
+	phenomenonTime: string;
+	result?: {
+		geoRef?: {
+			center?: {
+				lat?: number;
+				lon?: number;
+			};
+		};
+	};
+}
+
+export interface UAVUpdaterState {
+	lastUpdateTime: number | null;
+	accumulatedObservations: UAVObservation[];
+	accumulatedRoutePoints: [number, number][];
+	routeGeoJSON: GeoJSON.FeatureCollection;
+}
+
+export const routeGeoJSON: GeoJSON.FeatureCollection = {
 	type: 'FeatureCollection',
 	features: [
 		{
@@ -13,12 +33,16 @@ export const routeGeoJSON: GeoJSON.FeatureCollection<GeoJSON.LineString> = {
 	]
 };
 
-let accumulatedRoutePoints: number[][] = [];
-let accumulatedObservations: { id: string }[] = [];
+let accumulatedRoutePoints: [number, number][] = [];
+let accumulatedObservations: UAVObservation[] = [];
 let lastUpdateTime: number | null = null;
 
-function interpolateBetween(p1: number[], p2: number[], segments: number): number[][] {
-	const result: number[][] = [];
+function interpolateBetween(
+	p1: [number, number],
+	p2: [number, number],
+	segments: number
+): [number, number][] {
+	const result: [number, number][] = [];
 	const [lon1, lat1] = p1;
 	const [lon2, lat2] = p2;
 
@@ -32,8 +56,8 @@ function interpolateBetween(p1: number[], p2: number[], segments: number): numbe
 	return result;
 }
 
-function interpolateCoordinates(coords: number[][], segments: number = 10): number[][] {
-	const result: number[][] = [];
+function interpolateCoordinates(coords: [number, number][], segments = 10): [number, number][] {
+	const result: [number, number][] = [];
 
 	for (let i = 0; i < coords.length - 1; i++) {
 		result.push(...interpolateBetween(coords[i], coords[i + 1], segments));
@@ -65,115 +89,119 @@ function tintFilterFromCombatStatus(status: 'Neutral' | 'Friendly' | 'Enemy'): s
 
 export function createUAVMarkerElement(status: 'Neutral' | 'Friendly' | 'Enemy'): HTMLElement {
 	const el = document.createElement('img');
-	el.className = 'uav-marker';
+	el.className = 'uav-marker marker';
 	el.src = uavIcon;
 	el.alt = 'UAV';
 	el.style.width = '32px';
 	el.style.height = '32px';
 	el.style.display = 'block';
 	el.style.filter = tintFilterFromCombatStatus(status);
-	el.className = 'marker';
 	return el;
 }
 
-export function loadRouteData(
+export async function loadRouteData(
 	map: maplibregl.Map,
-	onMarkerCreate: (marker: maplibregl.Marker) => void
-): void {
-	if (!map) {
-		console.warn('loadRouteData: Map instance is undefined.');
-		return;
+	onMarkerCreate: (marker: maplibregl.Marker) => void,
+	options?: {
+		fetchFn?: typeof fetch;
+		interpolateFn?: typeof interpolateCoordinates;
+		createMarkerElFn?: typeof createUAVMarkerElement;
+		updateTrackFn?: () => void;
+		scheduleNext?: (cb: () => void) => void;
+		MarkerClass?: typeof maplibregl.Marker;
+		state?: UAVUpdaterState;
 	}
+): Promise<void> {
+	const fetchFn = options?.fetchFn ?? fetch;
+	const interpolateFn = options?.interpolateFn ?? interpolateCoordinates;
+	const createMarkerElFn = options?.createMarkerElFn ?? createUAVMarkerElement;
+	const updateTrackFn = options?.updateTrackFn ?? updateTrackData;
+	const scheduleNext = options?.scheduleNext ?? ((cb) => setTimeout(cb, 5000));
+	const MarkerClass = options?.MarkerClass ?? maplibregl.Marker;
+	const state: UAVUpdaterState = options?.state ?? {
+		lastUpdateTime,
+		accumulatedObservations,
+		accumulatedRoutePoints,
+		routeGeoJSON
+	};
 
+	if (!map) return;
 	if (!map.isStyleLoaded()) {
-		setTimeout(() => loadRouteData(map, onMarkerCreate), 300);
+		setTimeout(() => {
+			loadRouteData(map, onMarkerCreate, options);
+		}, 300);
 		return;
 	}
 
-	fetch('https://api.georobotix.io/ogc/t18/api/datastreams/iabpf1ivua1qm/observations')
-		.then((res) => res.json())
-		.then((data) => {
-			const items = data.items || [];
+	try {
+		const res = await fetchFn(
+			'https://api.georobotix.io/ogc/t18/api/datastreams/iabpf1ivua1qm/observations'
+		);
+		const data = await res.json();
+		const items: UAVObservation[] = data.items || [];
 
-			items.sort(
-				(a: { phenomenonTime: string }, b: { phenomenonTime: string }) =>
-					new Date(a.phenomenonTime).getTime() - new Date(b.phenomenonTime).getTime()
-			);
+		items.sort(
+			(a, b) => new Date(a.phenomenonTime).getTime() - new Date(b.phenomenonTime).getTime()
+		);
 
-			if (items.length === 0) return;
+		if (items.length === 0) return;
 
-			const newLastTime = new Date(items[items.length - 1].phenomenonTime).getTime();
+		const newLastTime = new Date(items[items.length - 1].phenomenonTime).getTime();
+		if (state.lastUpdateTime !== null && newLastTime === state.lastUpdateTime) return;
 
-			if (lastUpdateTime !== null && newLastTime === lastUpdateTime) {
-				return;
-			}
+		state.lastUpdateTime = newLastTime;
 
-			lastUpdateTime = newLastTime;
-
-			items.forEach(
-				(obs: {
-					id: string;
-					result: { geoRef: { center: { lat: number; lon: number } } };
-				}) => {
-					if (!accumulatedObservations.find((o) => o.id === obs.id)) {
-						accumulatedObservations.push(obs);
-
-						const c = obs.result?.geoRef?.center;
-						if (c && c.lat && c.lon) {
-							accumulatedRoutePoints.push([c.lon, c.lat]);
-						}
-					}
+		for (const obs of items) {
+			if (!state.accumulatedObservations.find((o) => o.id === obs.id)) {
+				state.accumulatedObservations.push(obs);
+				const c = obs.result?.geoRef?.center;
+				if (c?.lat !== undefined && c?.lon !== undefined) {
+					state.accumulatedRoutePoints.push([c.lon, c.lat]);
 				}
-			);
-
-			const interpolated = interpolateCoordinates(accumulatedRoutePoints, 10);
-			routeGeoJSON.features[0].geometry.coordinates = interpolated;
-
-			try {
-				if (map.getSource('route')) {
-					(map.getSource('route') as maplibregl.GeoJSONSource).setData(routeGeoJSON);
-				} else {
-					map.addSource('route', { type: 'geojson', data: routeGeoJSON });
-
-					map.addLayer({
-						id: 'route-layer-outline',
-						type: 'line',
-						source: 'route',
-						layout: { 'line-cap': 'round', 'line-join': 'round' },
-						paint: { 'line-color': '#212d4f', 'line-width': 10 }
-					});
-
-					map.addLayer({
-						id: 'route-layer',
-						type: 'line',
-						source: 'route',
-						layout: { 'line-cap': 'round', 'line-join': 'round' },
-						paint: { 'line-color': '#6084eb', 'line-width': 8 }
-					});
-				}
-			} catch (e) {
-				console.error('Error updating route data:', e);
 			}
+		}
 
-			if (accumulatedRoutePoints.length > 0) {
-				const latestCoord = accumulatedRoutePoints[accumulatedRoutePoints.length - 1];
+		const interpolated = interpolateFn(state.accumulatedRoutePoints, 10);
+		(state.routeGeoJSON.features[0].geometry as GeoJSON.LineString).coordinates = interpolated;
 
-				const marker = new maplibregl.Marker({
-					element: createUAVMarkerElement('Neutral'),
-					draggable: false
-				})
-					.setLngLat(latestCoord as LngLatLike)
-					.addTo(map);
+		if (map.getSource('route')) {
+			(map.getSource('route') as maplibregl.GeoJSONSource).setData(state.routeGeoJSON);
+		} else {
+			map.addSource('route', { type: 'geojson', data: state.routeGeoJSON });
 
-				marker.getElement().addEventListener('click', () => {
-					updateTrackData();
-				});
+			map.addLayer({
+				id: 'route-layer-outline',
+				type: 'line',
+				source: 'route',
+				layout: { 'line-cap': 'round', 'line-join': 'round' },
+				paint: { 'line-color': '#212d4f', 'line-width': 10 }
+			});
 
-				onMarkerCreate(marker);
-			}
-		})
-		.catch((err) => console.error('Error loading route data:', err))
-		.finally(() => {
-			setTimeout(() => loadRouteData(map, onMarkerCreate), 5000);
-		});
+			map.addLayer({
+				id: 'route-layer',
+				type: 'line',
+				source: 'route',
+				layout: { 'line-cap': 'round', 'line-join': 'round' },
+				paint: { 'line-color': '#6084eb', 'line-width': 8 }
+			});
+		}
+
+		if (state.accumulatedRoutePoints.length > 0) {
+			const latestCoord =
+				state.accumulatedRoutePoints[state.accumulatedRoutePoints.length - 1];
+			const marker = new MarkerClass({
+				element: createMarkerElFn('Neutral'),
+				draggable: false
+			})
+				.setLngLat(latestCoord)
+				.addTo(map);
+
+			marker.getElement().addEventListener('click', updateTrackFn);
+			onMarkerCreate(marker);
+		}
+	} catch (err) {
+		console.error('Error loading route data:', err);
+	} finally {
+		scheduleNext(() => loadRouteData(map, onMarkerCreate, options));
+	}
 }
