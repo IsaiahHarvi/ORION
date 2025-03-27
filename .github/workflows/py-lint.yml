@@ -4,9 +4,15 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'src/**'
+      - '!src/app/**'
   pull_request:
-    branches:
-      - "**"
+    types: [opened, synchronize]
+    paths:
+      - 'src/**'
+      - '!src/app/**'
+
 
 jobs:
   ruff:

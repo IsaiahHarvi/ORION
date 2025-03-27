@@ -2,9 +2,12 @@ name: TS Unit Tests
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'src/app/**/*'
   pull_request:
+    types: [opened, synchronize]
     paths:
       - 'src/app/**/*'
 
