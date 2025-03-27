@@ -1,4 +1,4 @@
-name: TS Unit Tests
+name: TS Linting
 
 on:
   push:
