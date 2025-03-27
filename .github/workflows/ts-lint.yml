@@ -23,5 +23,5 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Run TS unit tests
+      - name: Run TS linting tests
         run: cd src/app && npm ci && npm run lint
