@@ -8,14 +8,14 @@ export interface RadarLayer {
 
 export let radarLayers: RadarLayer[] = [];
 export let animationPosition = 0;
-export let animationTimer: number | null = null;
+export const animationTimer: number | null = null;
 
 export const FRAME_COUNT = 1;
 export const FRAME_DELAY = 1500;
 export const RESTART_DELAY = 1000;
 export const COLOR_SCHEME = 7;
 
-export let isPlaying = true;
+export const isPlaying = true;
 
 export function formatTimestamp(timestamp: number): string {
 	const date = new Date(timestamp);
@@ -39,25 +39,25 @@ export function formatTimestamp(timestamp: number): string {
 	return `${weekday[date.getDay()]} ${month[date.getMonth()]} ${date.getDate().toString().padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date.getMinutes().toString().padStart(2, '0')}`;
 }
 
-export function loadRainViewerData(map: any, timestamp?: number): void {
+export function loadRainViewerData(map: maplibregl.Map, timestamp?: number): void {
 	// console.log('Called');
 	fetch('https://api.rainviewer.com/public/weather-maps.json')
 		.then((res) => res.json())
 		.then((data) => {
 			let valid_past_timestamps: number[] = [];
 
-			data.radar.past.forEach((radar: any) => {
+			data.radar.past.forEach((radar: { time: number }) => {
 				valid_past_timestamps = [...(valid_past_timestamps ?? []), radar.time];
 			});
 
 			radar_state.radar_state.valid_past_timestamps = valid_past_timestamps;
 
 			const oldLayers = [...radarLayers];
-			let newRadarLayers: { id: string; time: any }[] = [];
+			const newRadarLayers: { id: string; time: number }[] = [];
 
 			const radarFrames = data.radar.past.slice(-FRAME_COUNT);
 
-			radarFrames.forEach((frame: any, index: number) => {
+			radarFrames.forEach((frame: { time: number }, index: number) => {
 				const layerId = `radar-layer-${Date.now()}-${index}`;
 				let frameTime = frame.time;
 

@@ -1,41 +1,47 @@
 <script lang="ts">
-    import { onDestroy } from 'svelte';
-    import { aisStore } from '$lib/stores/ais-store';
-    import { flyAndScale } from '$lib/utils';
-    import X from '@lucide/svelte/icons/x';
-  
-    let selectedShip = null;
-  
-    const unsubscribe = aisStore.subscribe(store => {
-        selectedShip = store.selectedShip;
-    });
-  
-    onDestroy(unsubscribe);
+	import { onDestroy } from 'svelte';
+	import { aisStore } from '$lib/stores/ais-store';
+	import { flyAndScale } from '$lib/utils';
+	import X from '@lucide/svelte/icons/x';
 
-    function closePanel() {
-        aisStore.update(d => ({ ...d, selectedShip: null }));
-    }
+	let selectedShip = null;
+
+	const unsubscribe = aisStore.subscribe((store) => {
+		selectedShip = store.selectedShip;
+	});
+
+	onDestroy(unsubscribe);
+
+	function closePanel() {
+		aisStore.update((d) => ({ ...d, selectedShip: null }));
+	}
 </script>
-  
+
 {#if selectedShip}
-    <div transition:flyAndScale class="bg-neutral-900 relative mt-16 border shadow-lg rounded-lg p-4 w-full lg:w-[27.5rem] text-white">
-        <button class="absolute top-4 right-4" on:click={closePanel}>
-            <X class="hover:text-white/40 duration-200 text-white/70" size={18} />
-        </button>
+	<div
+		transition:flyAndScale
+		class="relative mt-16 w-full rounded-lg border bg-neutral-900 p-4 text-white shadow-lg lg:w-[27.5rem]"
+	>
+		<button class="absolute right-4 top-4" on:click={closePanel}>
+			<X class="text-white/70 duration-200 hover:text-white/40" size={18} />
+		</button>
 
-        <div class="flex flex-col space-y-2">
-            <h2 class="text-xl font-bold">{selectedShip.name || 'Unnamed Vessel'}</h2>
-            <div class="text-gray-400 text-sm">MMSI: {selectedShip.mmsi}</div>
-        </div>
+		<div class="flex flex-col space-y-2">
+			<h2 class="text-xl font-bold">{selectedShip.name || 'Unnamed Vessel'}</h2>
+			<div class="text-sm text-gray-400">MMSI: {selectedShip.mmsi}</div>
+		</div>
 
-        <div class="mt-4">
-            <div class="grid text-sm my-2 grid-cols-2 gap-2">
-                <div><strong>Latitude:</strong> {selectedShip.lat?.toFixed(5) ?? 'N/A'}</div>
-                <div><strong>Longitude:</strong> {selectedShip.lon?.toFixed(5) ?? 'N/A'}</div>
-                <div><strong>Speed:</strong> {selectedShip.speed ?? 'N/A'} knots</div>
-                <div><strong>Heading:</strong> {selectedShip.heading ?? 'N/A'}°</div>
-                <div class="col-span-2"><strong>Last Updated:</strong> {selectedShip.lastUpdated ?? 'N/A'}</div>
-            </div>
-        </div>
-    </div>
+		<div class="mt-4">
+			<div class="my-2 grid grid-cols-2 gap-2 text-sm">
+				<div><strong>Latitude:</strong> {selectedShip.lat?.toFixed(5) ?? 'N/A'}</div>
+				<div><strong>Longitude:</strong> {selectedShip.lon?.toFixed(5) ?? 'N/A'}</div>
+				<div><strong>Speed:</strong> {selectedShip.speed ?? 'N/A'} knots</div>
+				<div><strong>Heading:</strong> {selectedShip.heading ?? 'N/A'}°</div>
+				<div class="col-span-2">
+					<strong>Last Updated:</strong>
+					{selectedShip.lastUpdated ?? 'N/A'}
+				</div>
+			</div>
+		</div>
+	</div>
 {/if}

@@ -1,18 +1,12 @@
 <script lang="ts">
-	import { onMount } from 'svelte';
 	import Plus from '@lucide/svelte/icons/plus';
 	import Minus from '@lucide/svelte/icons/minus';
-	import { Slider } from '$lib/components/ui/slider';
-    import Search from '@lucide/svelte/icons/search';
-    import { cursor_data } from '$lib/runes/cursor.svelte';
+	import { cursor_data } from '$lib/runes/cursor.svelte';
 	import { flyAndScale } from '$lib/utils';
-    
+
 	const { map } = $props();
 
 	let zoom_increments = 0.5;
-    let old_zoom_value = $state(0);
-	let zoom_value = $state(3);
-	let sliderChanging = false;
 
 	function zoomIn() {
 		map.zoomIn(zoom_increments);
@@ -23,18 +17,21 @@
 	}
 </script>
 
-<div transition:flyAndScale class="absolute z-[90] invisible md:visible top-16 xl:top-auto xl:right-10 xl:bottom-10 right-2">
-	<div class="flex flex-row items-start xl:items-end gap-2">
-        <div class="bg-background border mt-2 xl:mt-0 rounded-lg p-2 px-2">
-            <p class="font-mono text-sm ">
-                Cursor: {cursor_data.lat.toFixed(3)}, {cursor_data.lng.toFixed(3)}
-            </p>
-        </div>
-		<div class="bg-background border rounded-lg mt-2 flex flex-col">
-			<button class="h-8 w-8 flex items-center justify-center" onclick={zoomIn}>
+<div
+	transition:flyAndScale
+	class="invisible absolute right-2 top-16 z-[90] md:visible xl:bottom-10 xl:right-10 xl:top-auto"
+>
+	<div class="flex flex-row items-start gap-2 xl:items-end">
+		<div class="mt-2 rounded-lg border bg-background p-2 px-2 xl:mt-0">
+			<p class="font-mono text-sm">
+				Cursor: {cursor_data.lat.toFixed(3)}, {cursor_data.lng.toFixed(3)}
+			</p>
+		</div>
+		<div class="mt-2 flex flex-col rounded-lg border bg-background">
+			<button class="flex h-8 w-8 items-center justify-center" onclick={zoomIn}>
 				<Plus size="20" />
 			</button>
-			<button class="h-8 w-8 flex items-center justify-center" onclick={zoomOut}>
+			<button class="flex h-8 w-8 items-center justify-center" onclick={zoomOut}>
 				<Minus size="20" />
 			</button>
 		</div>

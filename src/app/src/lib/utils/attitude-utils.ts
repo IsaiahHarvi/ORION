@@ -14,20 +14,19 @@
  * @returns { heading, pitch } in ground frame
  */
 export function combinePlatformAndGimbal(
-    platformHeading: number,
-    platformPitch: number,
-    gimbalYaw: number,
-    gimbalPitch: number
-  ): { heading: number; pitch: number } {
-    // 1) heading = platformHeading + gimbalYaw
-    let cameraHeading = (platformHeading + gimbalYaw) % 360;
-    if (cameraHeading < 0) cameraHeading += 360;
-  
-    // 2) pitch = platformPitch + gimbalPitch
-    let cameraPitch = platformPitch + gimbalPitch;
-    if (cameraPitch > 90) cameraPitch = 90;
-    if (cameraPitch < -90) cameraPitch = -90;
-  
-    return { heading: cameraHeading, pitch: cameraPitch };
-  }
-  
+	platformHeading: number,
+	platformPitch: number,
+	gimbalYaw: number,
+	gimbalPitch: number
+): { heading: number; pitch: number } {
+	// 1) heading = platformHeading + gimbalYaw
+	let cameraHeading = (platformHeading + gimbalYaw) % 360;
+	if (cameraHeading < 0) cameraHeading += 360;
+
+	// 2) pitch = platformPitch + gimbalPitch
+	let cameraPitch = platformPitch + gimbalPitch;
+	if (cameraPitch > 90) cameraPitch = 90;
+	if (cameraPitch < -90) cameraPitch = -90;
+
+	return { heading: cameraHeading, pitch: cameraPitch };
+}

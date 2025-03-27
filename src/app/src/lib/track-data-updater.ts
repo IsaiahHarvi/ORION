@@ -1,5 +1,10 @@
 import { get } from 'svelte/store';
-import { trackDataStore, combatStatusStore, assignCallsign } from '$lib/stores/track-data';
+import {
+	trackDataStore,
+	combatStatusStore,
+	assignCallsign,
+	type ImageFrameData
+} from '$lib/stores/track-data';
 import { combinePlatformAndGimbal } from '$lib/utils/attitude-utils';
 
 const LOCATION_API = 'https://api.georobotix.io/ogc/t18/api/datastreams/o7pce3e60s0ie/observations';
@@ -14,14 +19,14 @@ const IMAGE_FRAME_API =
 
 const POLL_INTERVAL = 5000;
 
-async function fetchLatestObservation(apiUrl: string): Promise<any | null> {
+async function fetchLatestObservation<T>(apiUrl: string): Promise<Observation<T> | null> {
 	try {
 		const res = await fetch(apiUrl);
 		const data = await res.json();
 
 		if (data.items && data.items.length > 0) {
 			data.items.sort(
-				(a: any, b: any) =>
+				(a: Observation<T>, b: Observation<T>) =>
 					new Date(b.phenomenonTime).getTime() - new Date(a.phenomenonTime).getTime()
 			);
 			return data.items[0];
@@ -33,43 +38,93 @@ async function fetchLatestObservation(apiUrl: string): Promise<any | null> {
 	return null;
 }
 
+type Observation<T> = {
+	'foi@id': string;
+	phenomenonTime: string;
+	result?: T;
+};
+
+type LocationResult = {
+	location?: {
+		lat: number;
+		lon: number;
+		alt?: number;
+	};
+};
+
+type Attitude = {
+	heading?: number;
+	pitch?: number;
+	roll?: number;
+	yaw?: number;
+};
+
+type PlatformResult = {
+	attitude?: Attitude;
+};
+
+type FovResult = {
+	params?: {
+		hfov: number;
+		vfov: number;
+	};
+};
+
+type GeoRef = {
+	center?: { lat: number; lon: number };
+	ulc?: { lat: number; lon: number };
+	urc?: { lat: number; lon: number };
+	lrc?: { lat: number; lon: number };
+	llc?: { lat: number; lon: number };
+};
+
+type ImageFrameResult = {
+	geoRef?: GeoRef;
+};
+
+type LocationData = {
+	lat: number;
+	lon: number;
+	alt?: number;
+};
+
 export async function updateTrackData(): Promise<void> {
-	const [locationObs, platformObs, fovObs, gimbalObs, imageFrameObs] = await Promise.all([
-		fetchLatestObservation(LOCATION_API),
-		fetchLatestObservation(PLATFORM_ATTITUDE_API),
-		fetchLatestObservation(CAMERA_FOV_API),
-		fetchLatestObservation(GIMBAL_ATTITUDE_API),
-		fetchLatestObservation(IMAGE_FRAME_API)
+	const [locationObs, platformObs, fovObs, gimbalObs, imageFrameObs]: [
+		Observation<LocationResult> | null,
+		Observation<PlatformResult> | null,
+		Observation<FovResult> | null,
+		Observation<PlatformResult> | null,
+		Observation<ImageFrameResult> | null
+	] = await Promise.all([
+		fetchLatestObservation<LocationResult>(LOCATION_API),
+		fetchLatestObservation<PlatformResult>(PLATFORM_ATTITUDE_API),
+		fetchLatestObservation<FovResult>(CAMERA_FOV_API),
+		fetchLatestObservation<PlatformResult>(GIMBAL_ATTITUDE_API),
+		fetchLatestObservation<ImageFrameResult>(IMAGE_FRAME_API)
 	]);
 
 	const currentCombatStatus = get(combatStatusStore);
 
-	const vehicleId = locationObs
-		? locationObs['foi@id']
-		: platformObs
-			? platformObs['foi@id']
-			: imageFrameObs
-				? imageFrameObs['foi@id']
-				: 'UNKNOWN';
+	const vehicleId =
+		locationObs?.['foi@id'] ??
+		platformObs?.['foi@id'] ??
+		imageFrameObs?.['foi@id'] ??
+		'UNKNOWN';
 
-	let platformHeading = 0,
-		platformPitch = 0,
-		platformRoll = 0;
+	let platformHeading = 0;
+	let platformPitch = 0;
 
-	if (platformObs && platformObs.result?.attitude) {
+	if (platformObs?.result?.attitude) {
 		platformHeading = platformObs.result.attitude.heading ?? 0;
 		platformPitch = platformObs.result.attitude.pitch ?? 0;
-		platformRoll = platformObs.result.attitude.roll ?? 0;
 	}
 
-	let gimbalYaw = 0,
-		gimbalPitch = 0,
-		gimbalRoll = 0;
+	let gimbalYaw = 0;
+	let gimbalPitch = 0;
 
-	if (gimbalObs && gimbalObs.result?.attitude) {
+	if (gimbalObs?.result?.attitude) {
 		gimbalYaw = gimbalObs.result.attitude.yaw ?? 0;
 		gimbalPitch = gimbalObs.result.attitude.pitch ?? 0;
-		gimbalRoll = gimbalObs.result.attitude.roll ?? 0;
 	}
 
 	const { heading: cameraHeading, pitch: cameraPitch } = combinePlatformAndGimbal(
@@ -79,9 +134,9 @@ export async function updateTrackData(): Promise<void> {
 		gimbalPitch
 	);
 
-	let locationData = null;
+	let locationData: LocationData | null = null;
 
-	if (locationObs && locationObs.result?.location) {
+	if (locationObs?.result?.location) {
 		locationData = {
 			lat: locationObs.result.location.lat,
 			lon: locationObs.result.location.lon,
@@ -89,9 +144,9 @@ export async function updateTrackData(): Promise<void> {
 		};
 	}
 
-	let imageFrame: any = null;
+	let imageFrame: ImageFrameData | undefined = undefined;
 
-	if (imageFrameObs && imageFrameObs.result?.geoRef) {
+	if (imageFrameObs?.result?.geoRef) {
 		const ref = imageFrameObs.result.geoRef;
 		imageFrame = {
 			center: ref.center,
@@ -105,34 +160,26 @@ export async function updateTrackData(): Promise<void> {
 	trackDataStore.update((current) => ({
 		...current,
 		vesselId: vehicleId,
-
 		location: locationData ?? current.location,
-
-		vehicleAttitude:
-			platformObs && platformObs.result?.attitude
-				? {
-						heading: platformObs.result.attitude.heading,
-						pitch: platformObs.result.attitude.pitch,
-						roll: platformObs.result.attitude.roll
-					}
-				: current.vehicleAttitude,
-
-		cameraFOV:
-			fovObs && fovObs.result?.params
-				? {
-						hfov: fovObs.result.params.hfov,
-						vfov: fovObs.result.params.vfov
-					}
-				: current.cameraFOV,
-
+		vehicleAttitude: platformObs?.result?.attitude
+			? {
+					heading: platformObs.result.attitude.heading,
+					pitch: platformObs.result.attitude.pitch,
+					roll: platformObs.result.attitude.roll
+				}
+			: current.vehicleAttitude,
+		cameraFOV: fovObs?.result?.params
+			? {
+					hfov: fovObs.result.params.hfov,
+					vfov: fovObs.result.params.vfov
+				}
+			: current.cameraFOV,
 		cameraGimbalAttitude: {
 			yaw: cameraHeading,
 			pitch: cameraPitch,
 			roll: 0
 		},
-
 		imageFrame,
-
 		combatStatus: currentCombatStatus,
 		callsign: assignCallsign(vehicleId),
 		lastUpdated: new Date().toLocaleTimeString()

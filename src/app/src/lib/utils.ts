@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 	return twMerge(clsx(inputs));
 }
 
-export function clickOutside(node: Node, callback: () => any, exclude: Node[] = []) {
+export function clickOutside(node: Node, callback: () => unknown, exclude: Node[] = []) {
 	const handleClick = (event: MouseEvent) => {
 		if (
 			node &&

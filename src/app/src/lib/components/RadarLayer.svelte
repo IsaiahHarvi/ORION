@@ -1,83 +1,104 @@
 <script lang="ts">
-    import { onMount, onDestroy } from 'svelte';
-    import maplibregl from 'maplibre-gl';
-    import { current_lat_long } from '$lib/stores/current-location';
-    import radarIcon from '$lib/icons/radar-icon.png';
+	import { onMount, onDestroy } from 'svelte';
+	import maplibregl from 'maplibre-gl';
+	import { current_lat_long } from '$lib/stores/current-location';
+	import radarIcon from '$lib/icons/radar-icon.png';
 	import { flyAndScale } from '$lib/utils';
 	import X from '@lucide/svelte/icons/x';
-    const { map } = $props();
+	const { map } = $props();
 
-    let radarMarkers: maplibregl.Marker[] = [];
-    let radars = $state([]);
+	type Radar = {
+		radar_id: string;
+		lat: number;
+		lon: number;
+		distance: number;
+		open: boolean;
+	};
 
-    onMount(async () => {
-        const key = `radars_${$current_lat_long.lat ?? 0}_${$current_lat_long.long ?? 0}`;
-        const apiUrl = import.meta.env.VITE_API_URL;
-        console.log(apiUrl);
-        let cached = sessionStorage.getItem(key);
+	let radarMarkers: maplibregl.Marker[] = [];
+	let radars: Radar[] = $state<Radar[]>([]);
 
-        if (cached) {
-            radars = JSON.parse(cached);
-        } else {
-            const res = await fetch(`${apiUrl}/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`);
-            radars = await res.json();
-            sessionStorage.setItem(key, JSON.stringify(radars));
-        }
+	onMount(async () => {
+		const key = `radars_${$current_lat_long.lat ?? 0}_${$current_lat_long.long ?? 0}`;
+		const apiUrl = import.meta.env.VITE_API_URL;
+		console.log(apiUrl);
+		let cached = sessionStorage.getItem(key);
 
-        radars.forEach((radar: { distance: number; lat: number; lon: number; radar_id: string; open: boolean; }) => {
-            const el = markerElement(radar);
-            el.title = radar.radar_id;
-            const marker = new maplibregl.Marker({ element: el })
-            .setLngLat([radar.lon, radar.lat])
-            .addTo(map);
-            radarMarkers.push(marker);
-        });
-    });
+		if (cached) {
+			radars = JSON.parse(cached);
+		} else {
+			const res = await fetch(
+				`${apiUrl}/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`
+			);
+			radars = await res.json();
+			sessionStorage.setItem(key, JSON.stringify(radars));
+		}
 
-    onDestroy(() => {
-        radarMarkers.forEach(marker => marker.remove());
-    });
+		radars.forEach(
+			(radar: {
+				distance: number;
+				lat: number;
+				lon: number;
+				radar_id: string;
+				open: boolean;
+			}) => {
+				const el = markerElement(radar);
+				el.title = radar.radar_id;
+				const marker = new maplibregl.Marker({ element: el })
+					.setLngLat([radar.lon, radar.lat])
+					.addTo(map);
+				radarMarkers.push(marker);
+			}
+		);
+	});
 
-    function markerElement(radar): HTMLElement {
-        const el = document.createElement('img');
-        el.className = 'uav-marker';
-        el.src = radarIcon;
-        el.alt = 'UAV';
-        el.style.width = '20px';
-        el.style.height = '20px';
-        el.style.display = 'block';
-        el.className = 'marker';
+	onDestroy(() => {
+		radarMarkers.forEach((marker) => marker.remove());
+	});
 
-        el.addEventListener('click', () => {
-            radar.open = !radar.open ?? false;
-        })
+	function markerElement(radar: Radar): HTMLElement {
+		const el = document.createElement('img');
+		el.className = 'uav-marker';
+		el.src = radarIcon;
+		el.alt = 'UAV';
+		el.style.width = '20px';
+		el.style.height = '20px';
+		el.style.display = 'block';
+		el.className = 'marker';
 
-        return el;
-    }
+		el.addEventListener('click', () => {
+			radar.open = !radar.open;
+		});
+
+		return el;
+	}
 </script>
 
 {#each radars as radar (radar.radar_id)}
-    {#if radar.open}
-            <div
-            transition:flyAndScale
-            class="bg-neutral-900 absolute top-4 left-1/2 -translate-x-1/2 lg:left-4 lg:translate-x-0 mt-14 lg:mt-16 border shadow-lg pointer-events-auto rounded-lg p-4 lg:w-[27.5rem] w-[calc(100vw-2rem)] text-white">
-            <button class="absolute top-4 right-4" onclick={() => {
-                radar.open = false;
-            }}>
-                <X class="hover:text-white/40 duration-200 text-white/70" size={18} />
-            </button>
-            <h2 class="text-xl font-bold">{radar.radar_id}</h2>
-            <div class="mt-4">
-            <div class="grid text-sm my-2 grid-cols-1 gap-2">
-                <div><strong>Latitude:</strong> {radar.lat.toFixed(5)}</div>
-                <div><strong>Longitude:</strong> {radar.lon.toFixed(5)}</div>
-                <div><strong>Distance (km):</strong> {radar.distance.toFixed(0)}</div>
-            </div>
-        </div>
-        </div>
-    {/if}
+	{#if radar.open}
+		<div
+			transition:flyAndScale
+			class="pointer-events-auto absolute left-1/2 top-4 mt-14 w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border bg-neutral-900 p-4 text-white shadow-lg lg:left-4 lg:mt-16 lg:w-[27.5rem] lg:translate-x-0"
+		>
+			<button
+				class="absolute right-4 top-4"
+				onclick={() => {
+					radar.open = false;
+				}}
+			>
+				<X class="text-white/70 duration-200 hover:text-white/40" size={18} />
+			</button>
+			<h2 class="text-xl font-bold">{radar.radar_id}</h2>
+			<div class="mt-4">
+				<div class="my-2 grid grid-cols-1 gap-2 text-sm">
+					<div><strong>Latitude:</strong> {radar.lat.toFixed(5)}</div>
+					<div><strong>Longitude:</strong> {radar.lon.toFixed(5)}</div>
+					<div><strong>Distance (km):</strong> {radar.distance.toFixed(0)}</div>
+				</div>
+			</div>
+		</div>
+	{/if}
 {/each}
-
 
 <style>
 </style>

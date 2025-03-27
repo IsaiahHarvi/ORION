@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import { map_state } from '$lib/runes/map-state.svelte';
 
 	let { color = '#ffffff' } = $props();
 
@@ -117,7 +116,7 @@
 
 <canvas
 	bind:this={canvas}
-	class="absolute top-0 left-0 w-screen h-screen z-[35] touch-none"
+	class="absolute left-0 top-0 z-[35] h-screen w-screen touch-none"
 	onmousedown={startDraw}
 	onmousemove={draw}
 	onmouseup={stopDraw}

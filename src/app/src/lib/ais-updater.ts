@@ -1,5 +1,5 @@
 import maplibregl from 'maplibre-gl';
-import { aisStore } from '$lib/stores/ais-store';
+import { aisStore, type AISShip } from '$lib/stores/ais-store';
 import shipIcon from '$lib/icons/ship-icon.png';
 
 let aisMarkers: Record<string, maplibregl.Marker> = {};
@@ -9,13 +9,26 @@ export function resetAISUpdater(): void {
 	aisMarkers = {};
 }
 
+type Item = {
+	'foi@id': string;
+	result: {
+		location?: {
+			lat: number;
+			lon: number;
+		};
+		sog?: number;
+		heading?: number;
+		name?: string;
+	};
+};
+
 export function loadAISData(map: maplibregl.Map): void {
 	fetch('https://api.georobotix.io/ogc/t18/api/datastreams/kuhmds0ib5gd8/observations')
 		.then((res) => res.json())
 		.then((data) => {
 			const items = data?.items || [];
-			items.forEach((item: any) => {
-				const mmsi = item['foi@id'];
+			items.forEach((item: Item) => {
+				const mmsi: number = Number(item['foi@id']);
 				const result = item.result;
 				if (!result || !result.location) return;
 
@@ -50,7 +63,10 @@ export function loadAISData(map: maplibregl.Map): void {
 						.addTo(map);
 
 					el.onclick = () => {
-						aisStore.update((store) => ({ ...store, selectedShip: shipData }));
+						aisStore.update((store) => ({
+							...store,
+							selectedShip: shipData as AISShip
+						}));
 					};
 
 					aisMarkers[mmsi] = marker;
