@@ -4,9 +4,6 @@ on:
   push:
     branches:
       - main
-    paths:
-      - 'src/**'
-      - '!src/app/**'
   pull_request:
     types: [opened, synchronize]
     paths:
