@@ -2,10 +2,13 @@ name: Python Unit Tests
 
 on:
   push:
+    branches:
+      - main
     paths:
       - 'src/**'
       - '!src/app/**'
   pull_request:
+    types: [opened, synchronize]
     paths:
       - 'src/**'
       - '!src/app/**'
