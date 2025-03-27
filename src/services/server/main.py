@@ -74,7 +74,7 @@ async def radars_nearby(lat, lon, radius_km):
 async def radars(lat, lon):
     """Returns all radars and distances"""
     radars = get_radars(
-        lat=float(lat), lon=float(lon), radius_km=1000000, output_format="json"
+        float(lat), float(lon), radius_km=1000000, output_format="json"
     )
     if not len(radars):
         return {"Error": "Could not find any radars"}, 500
