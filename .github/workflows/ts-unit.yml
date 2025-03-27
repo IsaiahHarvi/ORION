@@ -1,0 +1,24 @@
+name: TS Unit Tests
+
+on:
+  push:
+    paths:
+      - 'src/app/**/*'
+  pull_request:
+    paths:
+      - 'src/app/**/*'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: "20"
+
+      - name: Run TS unit tests
+        run: cd src/app && npm ci && npm run test

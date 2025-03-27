@@ -7,11 +7,11 @@
 		"dev": "vite dev",
 		"build": "npm run format && npm run lint && vite build",
 		"preview": "vite preview",
-        "test": "vitest run",
+		"test": "vitest run",
 		"prepare": "svelte-kit sync || echo ''",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
-		"format": "prettier --check .",
+		"format": "prettier --write .",
 		"lint": "eslint ."
 	},
 	"devDependencies": {
@@ -48,6 +48,7 @@
 		"typescript-eslint": "^8.20.0",
 		"vaul-svelte": "^1.0.0-next.6",
 		"vite": "^6.0.0",
+		"vitest": "^3.0.9",
 		"zod": "^3.24.2"
 	},
 	"dependencies": {
