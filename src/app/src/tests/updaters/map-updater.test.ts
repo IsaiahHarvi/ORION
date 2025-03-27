@@ -25,7 +25,7 @@ describe('loadRainViewerData', () => {
 
 		document.body.innerHTML = `<div id="radar-timestamp"></div>`;
 
-		await loadRainViewerData(mockMap as unknown as maplibregl.Map, mockFetch);
+		await loadRainViewerData(mockMap as unknown as maplibregl.Map, undefined, mockFetch);
 
 		expect(mockFetch).toHaveBeenCalledWith(
 			'https://api.rainviewer.com/public/weather-maps.json'

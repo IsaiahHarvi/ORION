@@ -58,11 +58,14 @@ export function formatTimestamp(timestamp: number): string {
 
 export async function loadRainViewerData(
 	map: maplibregl.Map,
+	timestamp?: number,
 	givenFetchFn?: typeof fetch
 ): Promise<void> {
 	const fetchFn = givenFetchFn ?? fetch;
+
 	const res = await fetchFn('https://api.rainviewer.com/public/weather-maps.json');
 	const data: RainViewerResponse = await res.json();
+	console.log(data);
 
 	const valid_past_timestamps = data.radar.past.map((radar) => radar.time);
 	radar_state.radar_state.valid_past_timestamps = valid_past_timestamps;
@@ -79,7 +82,7 @@ export async function loadRainViewerData(
 		map.addSource(layerId, {
 			type: 'raster',
 			tiles: [
-				`https://tilecache.rainviewer.com/v2/radar/${frame.time}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`
+				`https://tilecache.rainviewer.com/v2/radar/${timestamp ?? frame.time}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`
 			],
 			tileSize: 256
 		});
