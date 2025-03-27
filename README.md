@@ -32,8 +32,8 @@ Interested users can build the project themselves.
     git clone --recurse-submodules git@github.com:IsaiahHarvi/ORION.git
     cd ORION
     docker compose --profile gui up --build
-    # Optionally, to target the developmentAPI rather than a locally hosted API, open a devcontainer or export the following env vars.
-    export VITE_API_URL=http://localhost:8000
+    # Optionally, to target the developmentAPI rather than a locally hosted API export the following env var
+    export VITE_API_URL=http://localhost:5171
     ```
 
 2. **Access the Application:**
@@ -42,6 +42,8 @@ Interested users can build the project themselves.
 
     ```
     http://localhost:5173
+    or
+    http://127.0.0.1:5173
     ```
 
     This will load your project locally.
@@ -52,7 +54,7 @@ Interested users can build the project themselves.
     To stop the running containers, press `Ctrl+C` in the terminal and then run:
 
     ```bash
-    docker compose down
+    docker compose --profile gui down
     ```
 
 ----
