@@ -76,99 +76,115 @@ export function createUAVMarkerElement(status: 'Neutral' | 'Friendly' | 'Enemy')
 	return el;
 }
 
-export function loadRouteData(
+export async function loadRouteData(
 	map: maplibregl.Map,
-	onMarkerCreate: (marker: maplibregl.Marker) => void
-): void {
-	if (!map) {
-		console.warn('loadRouteData: Map instance is undefined.');
-		return;
+	onMarkerCreate: (marker: maplibregl.Marker) => void,
+	options?: {
+		fetchFn?: typeof fetch;
+		interpolateFn?: typeof interpolateCoordinates;
+		createMarkerElFn?: typeof createUAVMarkerElement;
+		updateTrackFn?: () => void;
+		scheduleNext?: (cb: () => void) => void;
+		MarkerClass?: typeof maplibregl.Marker; // Add option to inject Marker class
+		state?: {
+			lastUpdateTime: number | null;
+			accumulatedObservations: any[];
+			accumulatedRoutePoints: [number, number][];
+			routeGeoJSON: any;
+		};
 	}
+): Promise<void> {
+	const fetchFn = options?.fetchFn ?? fetch;
+	const interpolateFn = options?.interpolateFn ?? interpolateCoordinates;
+	const createMarkerElFn = options?.createMarkerElFn ?? createUAVMarkerElement;
+	const updateTrackFn = options?.updateTrackFn ?? updateTrackData;
+	const scheduleNext = options?.scheduleNext ?? ((cb) => setTimeout(cb, 5000));
+	const MarkerClass = options?.MarkerClass ?? maplibregl.Marker; // Use injected Marker class or default
+	const state = options?.state ?? {
+		lastUpdateTime,
+		accumulatedObservations,
+		accumulatedRoutePoints,
+		routeGeoJSON
+	};
 
+	if (!map) return;
 	if (!map.isStyleLoaded()) {
-		setTimeout(() => loadRouteData(map, onMarkerCreate), 300);
+		setTimeout(() => {
+			loadRouteData(map, onMarkerCreate, options);
+		}, 300);
 		return;
 	}
 
-	fetch('https://api.georobotix.io/ogc/t18/api/datastreams/iabpf1ivua1qm/observations')
-		.then((res) => res.json())
-		.then((data) => {
-			const items = data.items || [];
+	try {
+		const res = await fetchFn(
+			'https://api.georobotix.io/ogc/t18/api/datastreams/iabpf1ivua1qm/observations'
+		);
+		const data = await res.json();
+		const items = data.items || [];
 
-			items.sort(
-				(a: any, b: any) =>
-					new Date(a.phenomenonTime).getTime() - new Date(b.phenomenonTime).getTime()
-			);
+		items.sort(
+			(a: any, b: any) =>
+				new Date(a.phenomenonTime).getTime() - new Date(b.phenomenonTime).getTime()
+		);
 
-			if (items.length === 0) return;
+		if (items.length === 0) return;
 
-			const newLastTime = new Date(items[items.length - 1].phenomenonTime).getTime();
+		const newLastTime = new Date(items[items.length - 1].phenomenonTime).getTime();
+		if (state.lastUpdateTime !== null && newLastTime === state.lastUpdateTime) return;
 
-			if (lastUpdateTime !== null && newLastTime === lastUpdateTime) {
-				return;
-			}
+		state.lastUpdateTime = newLastTime;
 
-			lastUpdateTime = newLastTime;
-
-			items.forEach((obs: { id: any; result: { geoRef: { center: any } } }) => {
-				if (!accumulatedObservations.find((o) => o.id === obs.id)) {
-					accumulatedObservations.push(obs);
-
-					const c = obs.result?.geoRef?.center;
-					if (c && c.lat && c.lon) {
-						accumulatedRoutePoints.push([c.lon, c.lat]);
-					}
+		items.forEach((obs: any) => {
+			if (!state.accumulatedObservations.find((o) => o.id === obs.id)) {
+				state.accumulatedObservations.push(obs);
+				const c = obs.result?.geoRef?.center;
+				if (c && c.lat && c.lon) {
+					state.accumulatedRoutePoints.push([c.lon, c.lat]);
 				}
+			}
+		});
+
+		const interpolated = interpolateFn(state.accumulatedRoutePoints, 10);
+		state.routeGeoJSON.features[0].geometry.coordinates = interpolated;
+
+		if (map.getSource('route')) {
+			(map.getSource('route') as maplibregl.GeoJSONSource).setData(state.routeGeoJSON);
+		} else {
+			map.addSource('route', { type: 'geojson', data: state.routeGeoJSON });
+
+			map.addLayer({
+				id: 'route-layer-outline',
+				type: 'line',
+				source: 'route',
+				layout: { 'line-cap': 'round', 'line-join': 'round' },
+				paint: { 'line-color': '#212d4f', 'line-width': 10 }
 			});
 
-			const interpolated = interpolateCoordinates(accumulatedRoutePoints, 10);
-			routeGeoJSON.features[0].geometry.coordinates = interpolated;
+			map.addLayer({
+				id: 'route-layer',
+				type: 'line',
+				source: 'route',
+				layout: { 'line-cap': 'round', 'line-join': 'round' },
+				paint: { 'line-color': '#6084eb', 'line-width': 8 }
+			});
+		}
 
-			try {
-				if (map.getSource('route')) {
-					(map.getSource('route') as maplibregl.GeoJSONSource).setData(routeGeoJSON);
-				} else {
-					map.addSource('route', { type: 'geojson', data: routeGeoJSON });
+		if (state.accumulatedRoutePoints.length > 0) {
+			const latestCoord =
+				state.accumulatedRoutePoints[state.accumulatedRoutePoints.length - 1];
+			const marker = new MarkerClass({
+				element: createMarkerElFn('Neutral'),
+				draggable: false
+			})
+				.setLngLat(latestCoord)
+				.addTo(map);
 
-					map.addLayer({
-						id: 'route-layer-outline',
-						type: 'line',
-						source: 'route',
-						layout: { 'line-cap': 'round', 'line-join': 'round' },
-						paint: { 'line-color': '#212d4f', 'line-width': 10 }
-					});
-
-					map.addLayer({
-						id: 'route-layer',
-						type: 'line',
-						source: 'route',
-						layout: { 'line-cap': 'round', 'line-join': 'round' },
-						paint: { 'line-color': '#6084eb', 'line-width': 8 }
-					});
-				}
-			} catch (e) {
-				console.error('Error updating route data:', e);
-			}
-
-			if (accumulatedRoutePoints.length > 0) {
-				const latestCoord = accumulatedRoutePoints[accumulatedRoutePoints.length - 1];
-
-				const marker = new maplibregl.Marker({
-					element: createUAVMarkerElement('Neutral'),
-					draggable: false
-				})
-					.setLngLat(latestCoord)
-					.addTo(map);
-
-				marker.getElement().addEventListener('click', () => {
-					updateTrackData();
-				});
-
-				onMarkerCreate(marker);
-			}
-		})
-		.catch((err) => console.error('Error loading route data:', err))
-		.finally(() => {
-			setTimeout(() => loadRouteData(map, onMarkerCreate), 5000);
-		});
+			marker.getElement().addEventListener('click', updateTrackFn);
+			onMarkerCreate(marker);
+		}
+	} catch (err) {
+		console.error('Error loading route data:', err);
+	} finally {
+		scheduleNext(() => loadRouteData(map, onMarkerCreate, options));
+	}
 }

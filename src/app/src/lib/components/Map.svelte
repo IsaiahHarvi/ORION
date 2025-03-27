@@ -1,6 +1,6 @@
 <script lang="ts">
     import { onMount, onDestroy } from 'svelte';
-    import maplibregl from 'maplibre-gl';
+    import maplibregl, { type StyleSpecification } from 'maplibre-gl';
     import 'maplibre-gl/dist/maplibre-gl.css';
 
     import { current_lat_long } from '$lib/stores/current-location';
@@ -63,7 +63,7 @@
 
         map = new maplibregl.Map({
             container: mapElement,
-            style: getMapStyle(map_style_state.data),
+            style: getMapStyle(map_style_state.data) as StyleSpecification,
             center: [initialView.long, initialView.lat],
             zoom: 8,
             attributionControl: false,
