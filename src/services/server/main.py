@@ -9,7 +9,6 @@ import os
 
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import RedirectResponse
 
 # from services.model.main import Model
 # from services.model.utils import get_pretrained
@@ -73,9 +72,7 @@ async def radars_nearby(lat, lon, radius_km):
 @app.get("/radars/{lat}/{lon}")
 async def radars(lat, lon):
     """Returns all radars and distances"""
-    radars = get_radars(
-        float(lat), float(lon), radius_km=1000000, output_format="json"
-    )
+    radars = get_radars(float(lat), float(lon), radius_km=1000000, output_format="json")
     if not len(radars):
         return {"Error": "Could not find any radars"}, 500
     return radars
