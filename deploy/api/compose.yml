@@ -4,7 +4,7 @@ services:
       context: ../../
       dockerfile: deploy/api/Dockerfile
     ports:
-      - "8000:8000"
+      - "5171:5171"
     container_name: orion-api
     environment:
       - SCAN_DIR=/app/scans

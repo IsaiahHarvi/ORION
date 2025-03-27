@@ -17,7 +17,7 @@ def haversine_distance(lat1, lon1, lat2, lon2):
     return R * c
 
 
-def get_nearby_radars(target_lat, target_lon, radius_km=100, output_format="list"):
+def get_radars(target_lat, target_lon, radius_km=100, output_format="list"):
     station_df = pd.read_csv("data/nexrad_stations.csv")
     station_df["distance_km"] = station_df.apply(
         lambda row: haversine_distance(
@@ -73,7 +73,7 @@ if __name__ == "__main__":
             exit(1)
 
     radius_km = 200
-    nearby_radars = get_nearby_radars(target_lat, target_lon, radius_km)
+    nearby_radars = get_radars(target_lat, target_lon, radius_km)
     if nearby_radars.empty:
         print(f"No radars found within {radius_km} km of the provided location.")
     else:
