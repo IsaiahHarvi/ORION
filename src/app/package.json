@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite dev",
-		"build": "npm run format && npm run lint && vite build",
+		"build": "vite build",
 		"preview": "vite preview",
 		"test": "vitest run",
 		"prepare": "svelte-kit sync || echo ''",
@@ -53,6 +53,7 @@
 	},
 	"dependencies": {
 		"@sveltejs/adapter-node": "^5.2.12",
+		"jsdom": "^26.0.0",
 		"maplibre-gl": "^5.2.0",
 		"svelte-persisted-store": "^0.12.0"
 	}
