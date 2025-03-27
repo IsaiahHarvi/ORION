@@ -2,6 +2,12 @@
 
 _Observation, Reconnaissance, Intelligence, and Operations Network_
 
+[![Version](https://img.shields.io/github/v/release/IsaiahHarvi/ORION.svg)](https://github.com/IsaiahHarvi/ORION/releases)
+[![Tests Passing](https://img.shields.io/github/actions/workflow/status/IsaiahHarvi/ORION/integration.yml)](https://github.com/IsaiahHarvi/ORION/actions?query=workflow%3Atest)
+[![GitHub Contributors](https://img.shields.io/github/contributors/IsaiahHarvi/ORION.svg)](https://github.com/IsaiahHarvi/ORION/graphs/contributors)
+[![Issues](https://img.shields.io/github/issues/IsaiahHarvi/ORION.svg)](https://github.com/IsaiahHarvi/ORION/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/IsaiahHarvi/ORION.svg)](https://github.com/IsaiahHarvi/ORION/pulls)
+
 ---
 
 A versatile software platform designed for use across missions in public safety, security, environmental monitoring, and defense. Leveraging machine learning, ORION filters and transforms data from diverse sources—including UAVs and NEXRAD—into actionable insights for effective decision-making.
