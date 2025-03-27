@@ -15,6 +15,6 @@ RUN pip install -r requirements.txt
 COPY src/services/ src/services/
 COPY src/tornet src/tornet
 
-EXPOSE 8000
+EXPOSE 5171
 
-CMD ["uvicorn", "services.server.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "services.server.main:app", "--host", "0.0.0.0", "--port", "5171"]
