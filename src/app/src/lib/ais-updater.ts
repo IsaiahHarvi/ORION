@@ -9,26 +9,28 @@ export function resetAISUpdater(): void {
 	aisMarkers = {};
 }
 
-type Item = {
-	'foi@id': string;
-	result: {
-		location?: {
-			lat: number;
-			lon: number;
-		};
-		sog?: number;
-		heading?: number;
-		name?: string;
+type ResultData = {
+	location: {
+		lat: number;
+		lon: number;
 	};
+	sog: number;
+	heading: number;
+	name?: string;
+};
+
+type AISItem = {
+	'foi@id': number;
+	result?: ResultData;
 };
 
 export function loadAISData(map: maplibregl.Map): void {
 	fetch('https://api.georobotix.io/ogc/t18/api/datastreams/kuhmds0ib5gd8/observations')
 		.then((res) => res.json())
 		.then((data) => {
-			const items = data?.items || [];
-			items.forEach((item: Item) => {
-				const mmsi: number = Number(item['foi@id']);
+			const items: AISItem[] = data?.items || [];
+			items.forEach((item) => {
+				const mmsi = item['foi@id'];
 				const result = item.result;
 				if (!result || !result.location) return;
 
@@ -37,9 +39,10 @@ export function loadAISData(map: maplibregl.Map): void {
 				const heading = result.heading;
 
 				const providedName = result.name;
-				const shipName = providedName && providedName.trim() !== '' ? providedName : mmsi;
+				const shipName =
+					providedName && providedName.trim() !== '' ? providedName : mmsi.toString();
 
-				const shipData = {
+				const shipData: AISShip = {
 					mmsi,
 					name: shipName,
 					lat,
@@ -65,7 +68,7 @@ export function loadAISData(map: maplibregl.Map): void {
 					el.onclick = () => {
 						aisStore.update((store) => ({
 							...store,
-							selectedShip: shipData as AISShip
+							selectedShip: shipData
 						}));
 					};
 

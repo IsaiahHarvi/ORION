@@ -1,10 +1,10 @@
 <script lang="ts">
 	import { onDestroy } from 'svelte';
-	import { aisStore } from '$lib/stores/ais-store';
+	import { aisStore, type AISShip } from '$lib/stores/ais-store';
 	import { flyAndScale } from '$lib/utils';
 	import X from '@lucide/svelte/icons/x';
 
-	let selectedShip = null;
+	let selectedShip: AISShip | null = null;
 
 	const unsubscribe = aisStore.subscribe((store) => {
 		selectedShip = store.selectedShip;
@@ -37,10 +37,6 @@
 				<div><strong>Longitude:</strong> {selectedShip.lon?.toFixed(5) ?? 'N/A'}</div>
 				<div><strong>Speed:</strong> {selectedShip.speed ?? 'N/A'} knots</div>
 				<div><strong>Heading:</strong> {selectedShip.heading ?? 'N/A'}°</div>
-				<div class="col-span-2">
-					<strong>Last Updated:</strong>
-					{selectedShip.lastUpdated ?? 'N/A'}
-				</div>
 			</div>
 		</div>
 	</div>
