@@ -34,20 +34,20 @@
 		class="flex h-10 w-10 items-center justify-center border duration-100 hover:bg-neutral-800
 		{drawing
 			? 'bg-white text-black hover:bg-neutral-400 hover:text-black/70'
-			: 'bg-neutral-900 hover:bg-neutral-800'}"
+			: 'bg-background hover:bg-neutral-800'}"
 	>
 		<PencilLine size={20} />
 	</button>
 
 	<button
-		class="flex h-10 w-10 items-center justify-center border bg-neutral-900 duration-100 hover:bg-neutral-800"
+		class="flex h-10 w-10 items-center justify-center border bg-background duration-100 hover:bg-neutral-800"
 		onclick={undoCanvas}
 	>
 		<Undo size={20} />
 	</button>
 
 	<button
-		class="flex h-10 w-10 items-center justify-center border bg-neutral-900 duration-100 hover:bg-neutral-800"
+		class="flex h-10 w-10 items-center justify-center border bg-background duration-100 hover:bg-neutral-800"
 		onclick={redoCanvas}
 	>
 		<Redo size={20} />

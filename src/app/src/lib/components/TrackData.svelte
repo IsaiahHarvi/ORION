@@ -97,7 +97,7 @@
 {#if trackData.selected}
 	<div
 		transition:flyAndScale
-		class="pointer-events-auto relative mt-16 w-full rounded-lg border bg-neutral-900 p-4 text-white lg:w-[27.5rem]"
+		class="pointer-events-auto relative mt-16 w-full rounded-lg border bg-background p-4 text-white lg:w-[27.5rem]"
 	>
 		<button
 			class="absolute right-4 top-4"

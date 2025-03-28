@@ -16,9 +16,9 @@
 	import Ship from '$lib/icons/ship-icon.png';
 
 	const tabs = [
-		{ name: 'Radar', href: '/', icon: Radar },
-		{ name: 'UAV', href: '/uav', icon: UAV },
-		{ name: 'AIS', href: '/ais', icon: Ship }
+		{ name: 'Weather Radar', href: '/', icon: Radar },
+		{ name: 'UAV Data', href: '/uav', icon: UAV },
+		{ name: 'AIS Data', href: '/ais', icon: Ship }
 	];
 
 	let open = $state(false);
@@ -54,7 +54,7 @@
 		bind:value={searchValue}
 		onkeydown={handleKeydown}
 		tabindex="-1"
-		class="mb-2 mt-1 w-full rounded-md border border-neutral-700 bg-neutral-800 p-2 px-3 font-mono text-sm placeholder:text-neutral-500"
+		class="mb-2 mt-1 w-full rounded-md border bg-muted p-3 px-3 font-mono text-sm placeholder:text-muted-foreground/50"
 	/>
 	<div class="flex w-full flex-col items-start gap-4 py-4 lg:hidden">
 		<div class="flex w-full flex-row items-center justify-center gap-3">
@@ -70,21 +70,16 @@
 			</label>
 		</div>
 	</div>
-	<p class="py-3 font-mono text-sm text-muted-foreground">LAYERS</p>
+	<p class="py-3 font-mono text-sm text-muted-foreground">VIEWS</p>
 	{#each tabs as tab}
 		<a
 			href={tab.href}
 			class="flex w-full items-center gap-3 rounded-md px-3 py-3 text-sm transition-colors
 			{page.url.pathname === tab.href
-				? 'bg-neutral-800 font-semibold text-white'
-				: 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}"
+				? 'bg-muted border font-medium text-white'
+				: 'hover:bg-muted border border-transparent hover:border-border duration-300 hover:text-white'}"
 			onclick={() => (open = false)}
 		>
-			{#if typeof tab.icon === 'string'}
-				<img src={tab.icon} alt={tab.name} class="h-5 w-5" />
-			{:else}
-				<tab.icon size={20} />
-			{/if}
 			<span>{tab.name}</span>
 		</a>
 	{/each}
@@ -93,8 +88,8 @@
 		<button
 			class="flex w-full items-center gap-3 rounded-md px-3 py-3 text-sm transition-colors
 			{map_style_state.data === style
-				? 'bg-neutral-800 font-semibold text-white'
-				: 'text-neutral-400 hover:bg-neutral-800 hover:text-white'}"
+				? 'bg-muted border font-medium text-white'
+				: 'hover:bg-muted border border-transparent hover:border-border duration-300 hover:text-white'}"
 			onclick={() => {
 				open = false;
 				map_style_state.data = style;
@@ -106,20 +101,15 @@
 {/snippet}
 
 <div
-	class="invisible flex h-screen flex-shrink-0 flex-col border-r bg-neutral-900 px-4 pt-6 lg:visible lg:w-64 xl:w-[20rem]"
+	class="invisible flex h-screen mt-16 flex-shrink-0 flex-col border-r bg-background px-4 pt-6 lg:visible lg:w-64 xl:w-[20rem]"
 >
-	<div class="mb-4 flex items-center gap-2 text-lg font-medium text-foreground">
-		<Globe size={20} />
-		ORION
-	</div>
-
 	<div class="flex flex-col gap-1">
 		{@render nav_content()}
 	</div>
 </div>
 
 <div
-	class="fixed left-0 top-0 z-40 flex h-14 w-screen items-center gap-4 border-b bg-neutral-900 px-4 lg:hidden"
+	class="fixed left-0 top-0 z-40 flex h-14 w-screen items-center gap-4 border-b bg-background px-4 lg:hidden"
 >
 	<Sheet.Root bind:open>
 		<Sheet.Trigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>

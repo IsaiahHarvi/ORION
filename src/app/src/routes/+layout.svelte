@@ -27,12 +27,14 @@
 </svelte:head>
 
 <div class="flex h-screen w-screen flex-row overflow-hidden bg-[#0d0d0c]">
-	<Sidebar />
+    <Sidebar />
 	<Topbar />
 	<div class="flex h-full w-full items-center justify-center overflow-hidden lg:relative">
 		{#if page.url.pathname === '/'}
 			<div class="flex h-full w-full items-center justify-center lg:relative">
-				<Toolbar />
+				<!--
+                <Toolbar />
+                -->
 				<Timeline />
 			</div>
 		{/if}

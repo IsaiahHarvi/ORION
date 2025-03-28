@@ -3,23 +3,22 @@
 	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { layers_state } from '$lib/runes/toggleable-layers.svelte';
+    import { Button } from '$ui/button';
+    import Menu from '@lucide/svelte/icons/menu'
 
 	let radarLayersChecked = $derived(layers_state.data.radar_layer);
 	let radarStationsChecked = $derived(layers_state.data.radar_stations_layer);
 
 	function formatTimestamp(timestamp: number): string {
-		const date = new Date(timestamp * 1000);
-		const weekday = date.toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
-		const day = date.getDate();
-		const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
-		const year = date.getFullYear().toString().slice(-2);
-		const hours24 = date.getHours();
-		const hours12 = hours24 % 12 || 12;
-		const hours = hours12.toString().padStart(2, '0');
-		const minutes = date.getMinutes().toString().padStart(2, '0');
-		const ampm = hours24 >= 12 ? 'PM' : 'AM';
-		return `${weekday} ${day} ${month} ${year}, ${hours}:${minutes} ${ampm}`;
-	}
+        const date = new Date(timestamp * 1000);
+        const weekday = date.toLocaleString('en-US', { weekday: 'short' }).toUpperCase();
+        const day = date.getDate();
+        const month = date.toLocaleString('en-US', { month: 'short' }).toUpperCase();
+        const year = date.getFullYear().toString().slice(-2);
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        return `${weekday} ${day} ${month} ${year}, ${hours}:${minutes}`;
+    }
 
 	let formattedTimestamp = $state('');
 	$effect(() => {
@@ -33,23 +32,33 @@
 </script>
 
 <div
-	class="invisible absolute top-0 z-40 flex h-16 w-screen flex-shrink-0 flex-row items-center gap-4 overflow-hidden border-b bg-neutral-900 p-4 lg:visible lg:ml-64 xl:ml-[20rem]"
+	class="invisible absolute top-0 z-40 flex h-16 w-screen flex-shrink-0 flex-row items-center gap-4 overflow-hidden border-b bg-background p-3 lg:visible"
 >
+    <button class='rounded-lg hover:bg-muted duration-200 border h-9 w-9 flex items-center justify-center'>
+        <Menu size={20} />
+    </button>
+    <header class="flex flex-row items-center gap-4 mr-4">
+        <h1>
+            ORION
+        </h1>
+        <p class='text-sm font-mono text-muted-foreground'>
+            WEB INTERFACE
+        </p>
+    </header>
 	<div class="flex flex-row items-center justify-center gap-3">
 		<Checkbox bind:checked={radarLayersChecked} id="radar-layers" />
-		<label class="font-mono text-sm text-white" for="radar-layers"> Show Weather Radar </label>
+		<label class=" text-sm text-white" for="radar-layers"> Show Weather Radar </label>
 	</div>
 	<div class="flex flex-row items-center justify-center gap-3">
 		<Checkbox bind:checked={radarStationsChecked} id="radar-stations" />
-		<label class="font-mono text-sm text-white" for="radar-stations">
+		<label class=" text-sm text-white" for="radar-stations">
 			Show Radar Stations
 		</label>
 	</div>
-	<p class="ml-auto pr-4 font-mono text-sm font-medium text-foreground lg:mr-64 xl:mr-[20rem]">
-		{#if formattedTimestamp !== ''}
-			{formattedTimestamp}
-		{:else}
-			<LoaderCircle class="animate-spin" size="18" />
-		{/if}
-	</p>
+    <p class="font-mono ml-auto">
+        <span class="text-success">
+            ONLINE
+        </span>
+        {formatTimestamp(Math.floor(Date.now() / 1000))}
+    </p>
 </div>
