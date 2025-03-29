@@ -1,21 +1,6 @@
 import maplibregl from 'maplibre-gl';
 import { radar_state } from '$lib/runes/current-radar.svelte';
-
-export interface RadarLayer {
-	id: string;
-	time: number;
-}
-
-export interface RainViewerFrame {
-	time: number;
-	path?: string;
-}
-
-export interface RainViewerResponse {
-	radar: {
-		past: RainViewerFrame[];
-	};
-}
+import type { RainViewerResponse, RadarLayer } from '$types';
 
 export let radarLayers: RadarLayer[] = [];
 export let animationPosition = 0;
@@ -65,44 +50,57 @@ export async function loadRainViewerData(
 
 	const res = await fetchFn('https://api.rainviewer.com/public/weather-maps.json');
 	const data: RainViewerResponse = await res.json();
-	console.log(data);
 
-	const valid_past_timestamps = data.radar.past.map((radar) => radar.time);
-	radar_state.radar_state.valid_past_timestamps = valid_past_timestamps;
+	const valid_timestamps = [
+		...data.radar.nowcast.map((radar) => ({
+			time: radar.time,
+			isNowcast: true,
+			path: radar.path
+		})),
+		...data.radar.past.map((radar) => ({
+			time: radar.time,
+			isNowcast: false,
+			path: radar.path
+		}))
+	].sort((a, b) => a.time - b.time);
+    
+	radar_state.radar_state.valid_timestamps = valid_timestamps;
+
+	const targetTimestamp = timestamp ?? radar_state.radar_state.timestamp;
+	const matchedFrame = valid_timestamps.find((f) => f.time === targetTimestamp);
+	if (!matchedFrame) return;
 
 	const oldLayers = [...radarLayers];
 	const newRadarLayers: RadarLayer[] = [];
 
-	const radarFrames = data.radar.past.slice(-FRAME_COUNT);
+	const layerId = `radar-layer-${Date.now()}`;
+	let tileUrl = `https://tilecache.rainviewer.com/v2/radar/${matchedFrame.time}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`;
 
-	for (let index = 0; index < radarFrames.length; index++) {
-		const frame = radarFrames[index];
-		const layerId = `radar-layer-${Date.now()}-${index}`;
-
-		map.addSource(layerId, {
-			type: 'raster',
-			tiles: [
-				`https://tilecache.rainviewer.com/v2/radar/${timestamp ?? frame.time}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`
-			],
-			tileSize: 256
-		});
-
-		map.addLayer({
-			id: layerId,
-			type: 'raster',
-			source: layerId,
-			layout: { visibility: 'visible' },
-			paint: { 'raster-opacity': 0 }
-		});
-
-		map.setPaintProperty(layerId, 'raster-opacity-transition', { duration: 800 });
-
-		setTimeout(() => {
-			map.setPaintProperty(layerId, 'raster-opacity', 0.7);
-		}, 50);
-
-		newRadarLayers.push({ id: layerId, time: frame.time });
+	if (matchedFrame.isNowcast) {
+		tileUrl = `https://tilecache.rainviewer.com${matchedFrame.path}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`;
 	}
+
+	map.addSource(layerId, {
+		type: 'raster',
+		tiles: [tileUrl],
+		tileSize: 256
+	});
+
+	map.addLayer({
+		id: layerId,
+		type: 'raster',
+		source: layerId,
+		layout: { visibility: 'visible' },
+		paint: { 'raster-opacity': 0 }
+	});
+
+	map.setPaintProperty(layerId, 'raster-opacity-transition', { duration: 800 });
+
+	setTimeout(() => {
+		map.setPaintProperty(layerId, 'raster-opacity', 0.7);
+	}, 50);
+
+	newRadarLayers.push({ id: layerId, time: matchedFrame.time });
 
 	oldLayers.forEach((oldLayer) => {
 		if (map.getLayer(oldLayer.id)) {

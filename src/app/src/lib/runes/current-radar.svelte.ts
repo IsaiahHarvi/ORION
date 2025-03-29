@@ -1,11 +1,13 @@
+import type { RadarTimestamp } from '$types';
+
 export type CurrentRadar = {
 	timestamp?: number;
-	valid_past_timestamps: number[];
+	valid_timestamps: RadarTimestamp[];
 };
 
 export function create_radar_state() {
 	let radar_state = $state<CurrentRadar>({
-		valid_past_timestamps: []
+		valid_timestamps: []
 	});
 
 	return {

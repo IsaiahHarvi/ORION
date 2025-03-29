@@ -19,7 +19,7 @@
 	import { map_style_state } from '$lib/runes/map-style.svelte';
 	import RadarLayer from './RadarLayer.svelte';
 
-	let map: maplibregl.Map | undefined = $state<maplibregl.Map>();
+	let map: maplibregl.Map | undefined = $state<maplibregl.Map | undefined>();
 	let mapElement: HTMLElement;
 	let initialView = { lat: 39.8283, long: -98.5795 };
 
@@ -53,7 +53,7 @@
 
 		map = new maplibregl.Map({
 			container: mapElement,
-			style: getMapStyle(map_style_state.data),
+			style: getMapStyle(map_style_state.data) as StyleSpecification,
 			center: [initialView.long, initialView.lat],
 			zoom: 8,
 			attributionControl: false,
