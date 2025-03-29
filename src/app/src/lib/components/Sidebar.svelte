@@ -1,10 +1,8 @@
 <script lang="ts">
 	import { page } from '$app/state';
 	import Radar from '@lucide/svelte/icons/radar';
-	import Globe from '@lucide/svelte/icons/globe';
 	import Menu from '@lucide/svelte/icons/menu';
 	import * as Sheet from '$lib/components/ui/sheet';
-	import { buttonVariants } from '$lib/components/ui/button';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { map_style_urls } from '$lib/map-styles';
 	import { map_style_state } from '$lib/runes/map-style.svelte';
@@ -98,15 +96,15 @@
 	{/each}
 {/snippet}
 
-<div
+<aside
 	class="invisible flex h-screen mt-16 flex-shrink-0 flex-col border-r bg-background px-4 pt-6 lg:visible lg:w-64 xl:w-[20rem]"
 >
-	<div class="flex flex-col gap-1">
+	<nav class="flex flex-col gap-1">
 		{@render nav_content()}
-	</div>
-</div>
+    </nav>
+</aside>
 
-<div
+<nav
 	class="fixed left-0 top-0 z-40 flex h-14 w-screen items-center gap-4 border-b bg-background px-4 lg:hidden"
 >
 	<Sheet.Root bind:open>
@@ -140,4 +138,4 @@
             WEB INTERFACE
         </p>
     </header>
-</div>
+</nav>

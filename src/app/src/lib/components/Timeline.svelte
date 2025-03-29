@@ -6,7 +6,7 @@
 
 	let validTimestamps: number[] = $derived(radar_state.radar_state.valid_past_timestamps);
 	let max = $state(0);
-	let selectedIndex = $state(validTimestamps.length - 1);
+	let selectedIndex = $derived(validTimestamps.length - 1);
 	let setIndex = $state(false);
 
 	function formatTimestamp(timestamp: number): string {

@@ -1,10 +1,6 @@
 <script lang="ts">
-	import { radar_state } from '$lib/runes/current-radar.svelte';
-	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
 	import { Checkbox } from '$lib/components/ui/checkbox';
 	import { layers_state } from '$lib/runes/toggleable-layers.svelte';
-    import { Button } from '$ui/button';
-    import Menu from '@lucide/svelte/icons/menu'
 
 	let radarLayersChecked = $derived(layers_state.data.radar_layer);
 	let radarStationsChecked = $derived(layers_state.data.radar_stations_layer);
@@ -20,12 +16,7 @@
         return `${weekday} ${day} ${month} ${year}, ${hours}:${minutes}`;
     }
 
-	let formattedTimestamp = $state('');
 	$effect(() => {
-		if (radar_state.radar_state.timestamp) {
-			formattedTimestamp = formatTimestamp(radar_state.radar_state.timestamp);
-		}
-
 		layers_state.data.radar_layer = radarLayersChecked;
 		layers_state.data.radar_stations_layer = radarStationsChecked;
 	});
