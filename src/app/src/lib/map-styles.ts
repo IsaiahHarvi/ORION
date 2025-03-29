@@ -1,1 +1,1 @@
-export const map_style_urls = ['dark', 'neon', 'positron', 'streets'];
+export const map_style_urls = ['dark', 'neon'];

@@ -15,8 +15,6 @@
 
 	import NeonStyle from '$lib/styles/neon.json';
 	import DarkStyle from '$lib/styles/dark.json';
-	import PositronStyle from '$lib/styles/positron.json';
-	import StreetsStyle from '$lib/styles/streets.json';
 
 	import { map_style_state } from '$lib/runes/map-style.svelte';
 	import RadarLayer from './RadarLayer.svelte';
@@ -37,13 +35,7 @@
 	}
 
 	function getMapStyle(style: string) {
-		return style === 'neon'
-			? NeonStyle
-			: style === 'positron'
-				? PositronStyle
-				: style === 'streets'
-					? StreetsStyle
-					: DarkStyle;
+		return style === 'neon' ? NeonStyle : DarkStyle;
 	}
 
 	function restyleMap() {
