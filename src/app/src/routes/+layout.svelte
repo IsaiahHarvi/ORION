@@ -7,7 +7,6 @@
 
 	import '../app.css';
 	import { Toaster } from '$lib/components/ui/sonner';
-	import Toolbar from '$lib/components/Toolbar.svelte';
 	let { children } = $props();
 </script>
 
@@ -22,21 +21,19 @@
 	<Map />
 {/if}
 
-<svelte:head>
-	<title>ORION - Observation, Reconnaissance, Intelligence, and Operations Network</title>
-</svelte:head>
-
 <div class="flex h-screen w-screen flex-row overflow-hidden bg-[#0d0d0c]">
-	<Sidebar />
+    <Sidebar />
 	<Topbar />
-	<div class="flex h-full w-full items-center justify-center overflow-hidden lg:relative">
+	<main class="flex h-full w-full items-center justify-center overflow-hidden lg:relative">
 		{#if page.url.pathname === '/'}
-			<div class="flex h-full w-full items-center justify-center lg:relative">
-				<Toolbar />
+			<section aria-label="Home - Weather Radar" class="flex h-full w-full items-center justify-center lg:relative">
+				<!--
+                <Toolbar />
+                -->
 				<Timeline />
-			</div>
+			</section>
 		{/if}
 
 		{@render children?.()}
-	</div>
+	</main>
 </div>

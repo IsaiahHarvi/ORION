@@ -1,39 +1,14 @@
 <script lang="ts">
-	import Plus from '@lucide/svelte/icons/plus';
-	import Minus from '@lucide/svelte/icons/minus';
 	import { cursor_data } from '$lib/runes/cursor.svelte';
 	import { flyAndScale } from '$lib/utils';
-
-	const { map } = $props();
-
-	let zoom_increments = 0.5;
-
-	function zoomIn() {
-		map.zoomIn(zoom_increments);
-	}
-
-	function zoomOut() {
-		map.zoomOut(zoom_increments);
-	}
 </script>
 
 <div
 	transition:flyAndScale
-	class="invisible absolute right-2 top-16 z-[90] md:visible xl:bottom-10 xl:right-10 xl:top-auto"
+	class="z-[90] absolute bottom-0 w-screen lg:block hidden lg:ml-64 xl:ml-[20rem]"
 >
-	<div class="flex flex-row items-start gap-2 xl:items-end">
-		<div class="mt-2 rounded-lg border bg-background p-2 px-2 xl:mt-0">
-			<p class="font-mono text-sm">
-				Cursor: {cursor_data.lat.toFixed(3)}, {cursor_data.lng.toFixed(3)}
-			</p>
-		</div>
-		<div class="mt-2 flex flex-col rounded-lg border bg-background">
-			<button class="flex h-8 w-8 items-center justify-center" onclick={zoomIn}>
-				<Plus size="20" />
-			</button>
-			<button class="flex h-8 w-8 items-center justify-center" onclick={zoomOut}>
-				<Minus size="20" />
-			</button>
-		</div>
-	</div>
+	<p class="text-sm border-t h-10 px-4 bg-background text-muted-foreground gap-6 flex flex-row items-center justify-start">
+        <span>LAT: {Math.abs(cursor_data.lat).toFixed(3)}° {cursor_data.lat >= 0 ? 'N' : 'S'}</span>
+        <span>LON: {Math.abs(cursor_data.lng).toFixed(3)}° {cursor_data.lng >= 0 ? 'E' : 'W'}</span>
+    </p>
 </div>

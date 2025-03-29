@@ -28,7 +28,7 @@
 	};
 
 	const statusOptions = [
-		{ label: 'Neutral', value: 'Neutral', color: 'text-gray-400' },
+		{ label: 'Neutral', value: 'Neutral', color: 'text-muted-foreground' },
 		{ label: 'Friendly', value: 'Friendly', color: 'text-green-500' },
 		{ label: 'Enemy', value: 'Enemy', color: 'text-red-500' }
 	];
@@ -97,7 +97,7 @@
 {#if trackData.selected}
 	<div
 		transition:flyAndScale
-		class="pointer-events-auto relative mt-16 w-full rounded-lg border bg-neutral-900 p-4 text-white lg:w-[27.5rem]"
+		class="pointer-events-auto relative mt-16 w-full rounded-lg border bg-background p-4 text-white lg:w-[27.5rem]"
 	>
 		<button
 			class="absolute right-4 top-4"
@@ -108,9 +108,9 @@
 			<X class="text-white/70 duration-200 hover:text-white/40" size={18} />
 		</button>
 		<div class="flex flex-col space-y-2">
-			<h2 class="text-xl font-bold">{trackData.callsign}</h2>
+			<h2 class="text-lg">{trackData.callsign}</h2>
 			<div class="flex items-center space-x-2">
-				<span class="text-sm font-medium">Combat Status:</span>
+				<span class="text-sm">Combat Status:</span>
 				<Select.Root type="single" bind:value={combatStatusValue}>
 					<Select.Trigger class="w-[180px]">
 						<span class={selectedStatus.color}>{selectedStatus.label}</span>
@@ -127,7 +127,7 @@
 					</Select.Content>
 				</Select.Root>
 			</div>
-			<div class="text-sm text-gray-400">{vesselId}</div>
+			<div class="text-sm text-muted-foreground">{vesselId}</div>
 		</div>
 
 		<div class="mt-4">

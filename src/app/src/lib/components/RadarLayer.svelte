@@ -78,7 +78,7 @@
 	{#if radar.open}
 		<div
 			transition:flyAndScale
-			class="pointer-events-auto absolute left-1/2 top-4 mt-14 w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border bg-neutral-900 p-4 text-white shadow-lg lg:left-4 lg:mt-16 lg:w-[27.5rem] lg:translate-x-0"
+			class="pointer-events-auto absolute left-1/2 top-4 mt-14 w-[calc(100vw-2rem)] -translate-x-1/2 rounded-lg border bg-background p-4 text-white shadow-lg lg:left-4 lg:mt-16 lg:w-[27.5rem] lg:translate-x-0"
 		>
 			<button
 				class="absolute right-4 top-4"

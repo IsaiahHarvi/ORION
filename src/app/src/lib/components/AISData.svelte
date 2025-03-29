@@ -20,7 +20,7 @@
 {#if selectedShip}
 	<div
 		transition:flyAndScale
-		class="relative mt-16 w-full rounded-lg border bg-neutral-900 p-4 text-white shadow-lg lg:w-[27.5rem]"
+		class="relative mt-16 w-full rounded-lg border bg-background p-4 text-white shadow-lg lg:w-[27.5rem]"
 	>
 		<button class="absolute right-4 top-4" on:click={closePanel}>
 			<X class="text-white/70 duration-200 hover:text-white/40" size={18} />
@@ -28,7 +28,7 @@
 
 		<div class="flex flex-col space-y-2">
 			<h2 class="text-xl font-bold">{selectedShip.name || 'Unnamed Vessel'}</h2>
-			<div class="text-sm text-gray-400">MMSI: {selectedShip.mmsi}</div>
+			<div class="text-sm text-muted-foreground">MMSI: {selectedShip.mmsi}</div>
 		</div>
 
 		<div class="mt-4">
