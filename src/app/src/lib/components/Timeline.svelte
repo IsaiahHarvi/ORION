@@ -4,9 +4,12 @@
 	import { Slider } from '$lib/components/ui/slider';
 	import { flyAndScale } from '$lib/utils';
 
-	let validTimestamps: number[] = $derived(radar_state.radar_state.valid_past_timestamps);
+    let validTimestamps: number[] = $derived(
+        radar_state.radar_state.valid_timestamps
+            .map((t) => t.time)
+    );
 	let max = $state(0);
-	let selectedIndex = $derived(validTimestamps.length - 1);
+	let selectedIndex = $state(radar_state.radar_state.valid_timestamps.length - 1);
 	let setIndex = $state(false);
 
 	function formatTimestamp(timestamp: number): string {
@@ -20,19 +23,19 @@
 	let loop = $state(false);
 
 	$effect(() => {
-		max = radar_state.radar_state.valid_past_timestamps?.length;
+		max = radar_state.radar_state.valid_timestamps?.length;
 		if (max !== 0 && setIndex !== true) {
 			selectedIndex = max;
 			setIndex = true;
 		}
 
-		const newTimestamp = radar_state.radar_state.valid_past_timestamps[selectedIndex];
-		radar_state.radar_state.timestamp = newTimestamp;
-		formattedTimestamp = formatTimestamp(newTimestamp);
-
+        const newTimestamp = radar_state.radar_state.valid_timestamps[selectedIndex]?.time ?? 0;
+        radar_state.radar_state.timestamp = newTimestamp;
+        formattedTimestamp = formatTimestamp(newTimestamp);
+        
 		if (!newTimestamp) {
 			formattedTimestamp = formatTimestamp(
-				radar_state.radar_state.valid_past_timestamps[max - 1]
+				radar_state.radar_state.valid_timestamps[max - 1]?.time
 			);
 		}
 	});
@@ -64,7 +67,7 @@
 			class="mt-1 w-full"
 			bind:value={selectedIndex}
 			min={0}
-			{max}
+			max={(max - 1)}
 			step={1}
 		/>
 	</div>

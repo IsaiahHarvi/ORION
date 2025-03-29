@@ -41,8 +41,6 @@
 	}
 
 	function handleMarkerCreate(marker: maplibregl.Marker) {
-		console.log('UAV marker created:', marker.getLngLat().toArray());
-
 		marker.remove();
 
 		if (finalMarker) {
@@ -135,16 +133,13 @@
 	onMount(() => {
 		resetUAVUpdater();
 
-		console.log('UAVLayer onMount: map.isStyleLoaded =', map.isStyleLoaded());
 
 		if (!map.isStyleLoaded()) {
 			map.on('load', () => {
-				console.log('Map loaded, starting UAV updater');
 				loadRouteData(map, handleMarkerCreate);
 				updateTrackData();
 			});
 		} else {
-			console.log('Map style already loaded, starting UAV updater immediately');
 			loadRouteData(map, handleMarkerCreate);
 			updateTrackData();
 		}

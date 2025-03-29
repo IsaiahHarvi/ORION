@@ -15,7 +15,16 @@ describe('loadRainViewerData', () => {
 
 		const fakeRadarData = {
 			radar: {
-				past: [{ time: 12345 }, { time: 67890 }]
+				past: [
+					{ time: 1743219600, path: '/v2/radar/1743219600' },
+					{ time: 1743220200, path: '/v2/radar/1743220200' },
+					{ time: 1743220800, path: '/v2/radar/1743220800' },
+					{ time: 1743221400, path: '/v2/radar/1743221400' }
+				],
+				nowcast: [
+					{ time: 1743222000, path: '/v2/radar/nowcast_abc123' },
+					{ time: 1743222600, path: '/v2/radar/nowcast_def456' }
+				]
 			}
 		};
 
@@ -25,7 +34,7 @@ describe('loadRainViewerData', () => {
 
 		document.body.innerHTML = `<div id="radar-timestamp"></div>`;
 
-		await loadRainViewerData(mockMap as unknown as maplibregl.Map, undefined, mockFetch);
+		await loadRainViewerData(mockMap as unknown as maplibregl.Map, 1743219600, mockFetch);
 
 		expect(mockFetch).toHaveBeenCalledWith(
 			'https://api.rainviewer.com/public/weather-maps.json'
