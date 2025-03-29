@@ -74,6 +74,14 @@
 	color: var(--success);
 }
 
+[data-dialog-close] {
+	background-color: transparent !important;
+}
+
+strong {
+	@apply font-medium text-muted-foreground;
+}
+
 @layer base {
 	* {
 		@apply border-border;

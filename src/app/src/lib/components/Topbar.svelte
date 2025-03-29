@@ -32,11 +32,8 @@
 </script>
 
 <div
-	class="invisible absolute top-0 z-40 flex h-16 w-screen flex-shrink-0 flex-row items-center gap-4 overflow-hidden border-b bg-background p-3 lg:visible"
+	class="invisible absolute top-0 z-40 flex h-16 w-screen flex-shrink-0 flex-row items-center gap-4 overflow-hidden border-b bg-background p-3 pl-4 lg:visible"
 >
-    <button class='rounded-lg hover:bg-muted duration-200 border h-9 w-9 flex items-center justify-center'>
-        <Menu size={20} />
-    </button>
     <header class="flex flex-row items-center gap-4 mr-4">
         <h1>
             ORION

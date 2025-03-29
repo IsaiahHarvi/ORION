@@ -28,7 +28,7 @@
 
 		<div class="flex flex-col space-y-2">
 			<h2 class="text-xl font-bold">{selectedShip.name || 'Unnamed Vessel'}</h2>
-			<div class="text-sm text-gray-400">MMSI: {selectedShip.mmsi}</div>
+			<div class="text-sm text-muted-foreground">MMSI: {selectedShip.mmsi}</div>
 		</div>
 
 		<div class="mt-4">

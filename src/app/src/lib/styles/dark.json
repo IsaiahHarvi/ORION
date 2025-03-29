@@ -18,7 +18,7 @@
 		{
 			"id": "background",
 			"type": "background",
-			"paint": { "background-color": "rgb(12,12,12)" }
+			"paint": { "background-color": "rgb(10, 10, 10)" }
 		},
 		{
 			"id": "water",
@@ -114,8 +114,8 @@
 				"symbol-spacing": 500
 			},
 			"paint": {
-				"text-color": "rgb(101,101,101)",
-				"text-halo-color": "rgba(0,0,0,0.7)",
+				"text-color": "rgb(144,144,144)",
+				"text-halo-color": "rgba(200,200,200,0.1)",
 				"text-halo-width": 1
 			}
 		}

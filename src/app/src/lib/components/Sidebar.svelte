@@ -57,18 +57,16 @@
 		class="mb-2 mt-1 w-full rounded-md border bg-muted p-3 px-3 font-mono text-sm placeholder:text-muted-foreground/50"
 	/>
 	<div class="flex w-full flex-col items-start gap-4 py-4 lg:hidden">
-		<div class="flex w-full flex-row items-center justify-center gap-3">
-			<Checkbox bind:checked={radarLayersChecked} id="radar-layers" />
-			<label class="w-full font-mono text-sm text-white" for="radar-layers">
-				Show Weather Radar
-			</label>
-		</div>
-		<div class="flex w-full flex-row items-center justify-center gap-3">
-			<Checkbox bind:checked={radarStationsChecked} id="radar-stations" />
-			<label class="w-full font-mono text-sm text-white" for="radar-stations">
-				Show Radar Stations
-			</label>
-		</div>
+        <div class="flex flex-row items-center justify-center gap-3">
+            <Checkbox bind:checked={radarLayersChecked} id="radar-layers" />
+            <label class=" text-sm text-white" for="radar-layers"> Show Weather Radar </label>
+        </div>
+        <div class="flex flex-row items-center justify-center gap-3">
+            <Checkbox bind:checked={radarStationsChecked} id="radar-stations" />
+            <label class=" text-sm text-white" for="radar-stations">
+                Show Radar Stations
+            </label>
+        </div>
 	</div>
 	<p class="py-3 font-mono text-sm text-muted-foreground">VIEWS</p>
 	{#each tabs as tab}
@@ -112,22 +110,34 @@
 	class="fixed left-0 top-0 z-40 flex h-14 w-screen items-center gap-4 border-b bg-background px-4 lg:hidden"
 >
 	<Sheet.Root bind:open>
-		<Sheet.Trigger class={buttonVariants({ variant: 'ghost', size: 'icon' })}>
-			<Menu size={16} />
+		<Sheet.Trigger>
+            <button onclick={() => {
+                open = !open;
+            }} class='rounded-lg hover:bg-muted duration-200 border h-9 w-9 flex items-center justify-center'>
+                <Menu size={20} />
+            </button>
 		</Sheet.Trigger>
 		<Sheet.Content side="left" class="w-[75%] px-4 py-6">
-			<div class="mb-6 flex items-center gap-2 text-lg font-medium text-foreground">
-				<Globe size={20} />
-				ORION
-			</div>
+            <header class="flex mb-6 flex-row items-center gap-4">
+                <h1>
+                    ORION
+                </h1>
+                <p class='text-sm font-mono text-muted-foreground'>
+                    WEB INTERFACE
+                </p>
+            </header>
 			<div class="flex flex-col gap-1">
 				{@render nav_content()}
 			</div>
 		</Sheet.Content>
 	</Sheet.Root>
 
-	<h1 class="flex flex-row items-center gap-2 text-lg font-medium text-foreground">
-		<Globe size={20} />
-		ORION
-	</h1>
+    <header class="flex flex-row items-center gap-4 mr-4">
+        <h1>
+            ORION
+        </h1>
+        <p class='text-sm font-mono text-muted-foreground'>
+            WEB INTERFACE
+        </p>
+    </header>
 </div>
