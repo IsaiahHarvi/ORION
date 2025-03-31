@@ -15,6 +15,7 @@ services:
       - VITE_API_URL=${VITE_API_URL:-https://orion.harville.dev/api}  # if not set, use production API url
     profiles:
       - gui
+    restart: unless-stopped
 
 networks:
   default:
