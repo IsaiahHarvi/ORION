@@ -8,6 +8,9 @@ import pytest
 
 @pytest.fixture(scope="session")
 def docker_services():
+    env = os.environ.copy()
+    env["VITE_API_URL"] = "http://127.0.0.1:5171/api"
+    env["RESTART_POLICY"] = "no"
     subprocess.run("docker compose --profile gui up --build -d".split(" "), check=True)
     yield
     subprocess.run("docker compose --profile gui down -v".split(" "), check=True)
