@@ -11,6 +11,6 @@ services:
       - KERAS_BACKEND=torch
       - TORNET_ROOT=data/TorNet
       - VITE_API_URL=${VITE_API_URL:-production}  # if not set, defaults to production
-
+    restart: ${RESTART_POLICY:-unless-stopped}
     # volumes:
       # - ../../data/TorNet:/app/data/TorNet

@@ -17,4 +17,4 @@ COPY src/tornet src/tornet
 
 EXPOSE 5171
 
-CMD ["uvicorn", "services.api.api:app", "--host", "0.0.0.0", "--port", "5171"]
+CMD ["uvicorn", "services.api.api:app", "--host", "0.0.0.0", "--port", "5171", "--workers", "8"]

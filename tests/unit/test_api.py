@@ -12,6 +12,7 @@ BASE_URL = "http://127.0.0.1:5171/api"
 def api_service():
     env = os.environ.copy()
     env["VITE_API_URL"] = BASE_URL
+    env["RESTART_POLICY"] = "no"
     subprocess.run(
         "docker compose up api --build -d".split(" "),
         check=True,
