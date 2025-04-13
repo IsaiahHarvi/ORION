@@ -4,6 +4,7 @@
 data/TorNet
 sample_data.json
 deploy/api/scans/
+src/radar/outputs
 
 # Python stuff
 __pycache__/

@@ -50,7 +50,7 @@ export async function loadRainViewerData(
 
 	const res = await fetchFn('https://api.rainviewer.com/public/weather-maps.json');
 	const data: RainViewerResponse = await res.json();
-
+    
 	const valid_timestamps = [
 		...data.radar.nowcast.map((radar) => ({
 			time: radar.time,

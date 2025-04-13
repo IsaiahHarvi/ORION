@@ -1,0 +1,7 @@
+{
+	"InstallScripts" : 
+	[
+		"C:/Projects/ORION/src/radar/build/cmake_install.cmake"
+	],
+	"Parallel" : false
+}
