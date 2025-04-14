@@ -147,3 +147,46 @@ dist
 .yarn/build-state.yml
 .yarn/install-state.gz
 .pnp.*
+
+# cpp stuff
+# Build artifacts
+*.o
+*.obj
+*.so
+*.dll
+*.dylib
+*.lib
+*.a
+*.exe
+*.out
+
+# CMake
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# CLion
+.idea/
+cmake-build-*/
+
+# Compiled folders
+src/radar/build
+bin/
+dist/
+
+# Logs and temp
+*.log
+*.tmp
+*.swp
+
+# Mac & Linux junk
+.DS_Store
+*.dSYM/
+
+# Windows junk
+Thumbs.db

@@ -29,7 +29,7 @@ std::string extract_code(const std::string& url) {
     return code;
 }
 
-int main() {
+void load_all() {
     Stations::load_csv("data/nexrad_stations.csv");
     auto [lat, lon] = Stations::get("KCBW");
 
@@ -65,12 +65,21 @@ int main() {
             std::cerr << "⚠️ Skipping " << code << ": " << e.what() << std::endl;
         }
     }
-    
-    
-    // auto raw = ftp::download_ftp("ftp://tgftp.nws.noaa.gov/SL.us008001/DF.of/DC.radar/DS.p94r0/SI.kcbw/sn.last");
-    // auto decompressed = parser::decompress_bzip2(raw);
-    // parser::RadarSweep sweep = parser::parse_packet_16(decompressed);
-    // Visualizer::save_image(sweep, "outputs/radar.png", lat, lon);
+}
+
+void load_one() {
+    Stations::load_csv("data/nexrad_stations.csv");
+    auto [lat, lon] = Stations::get("KRLX");
+
+    auto raw = FTP::download_single("ftp://tgftp.nws.noaa.gov/SL.us008001/DF.of/DC.radar/DS.p94r0/SI.krlx/sn.last");
+    auto decompressed = parser::decompress_bzip2(raw);
+    parser::RadarSweep sweep = parser::parse_packet_16(decompressed);
+    Visualizer::save_image(sweep, "outputs/radar.png", lat, lon);
+}
+
+int main() {
+    //load_all();
+    load_one();
     
     return 0;
 }
