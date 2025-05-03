@@ -1,5 +1,3 @@
-include:
-  - deploy/compose.yml
 
 services:
   gui:
@@ -7,16 +5,32 @@ services:
       context: .
       dockerfile: deploy/gui/Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
+         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
+    image: "ghcr.io/isaiahharvi/orion/orion-gui:latest"
+    environment:
+      VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     ports:
       - "5173:5173"
-    container_name: orion-gui
-    environment:
-      - VITE_API_URL=${VITE_API_URL:-https://orion.harville.dev/api}  # if not set, use production API url
     profiles:
       - gui
-    restart: ${RESTART_POLICY:-unless-stopped}
+
+  api:
+    build:
+      context: .
+      dockerfile: deploy/api/Dockerfile
+      args:
+         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
+    image: "ghcr.io/isaiahharvi/orion/orion-api:latest"
+    environment:
+      SERVICE: api
+      SCAN_DIR: /app/scans
+      KERAS_BACKEND: torch
+      TORNET_ROOT: data/TorNet
+      VITE_API_URL: ${VITE_API_URL:-production}
+    ports:
+      - "5171:5171"
 
 networks:
   default:
     name: orion
+
