@@ -5,9 +5,12 @@ data/TorNet
 sample_data.json
 deploy/api/scans/
 
+.vscode
+
 # Nexrad
 src/nexrad-r
 src/nexrad/build
+src/nexrad/outputs
 
 # for now, subject to change
 src/geoserver
