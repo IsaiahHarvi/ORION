@@ -11,6 +11,7 @@ deploy/api/scans/
 src/nexrad-r
 src/nexrad/build
 src/nexrad/outputs
+build
 
 # for now, subject to change
 src/geoserver
