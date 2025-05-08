@@ -28,7 +28,7 @@
 			radars = JSON.parse(cached);
 		} else {
 			const res = await fetch(
-				`${apiUrl}/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`
+				`${apiUrl}/radar/stations/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`
 			);
 			radars = await res.json();
 			sessionStorage.setItem(key, JSON.stringify(radars));

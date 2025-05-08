@@ -61,6 +61,19 @@
         "stop_token": "cpp",
         "thread": "cpp",
         "algorithm": "cpp",
-        "optional": "cpp"
-    }
+        "optional": "cpp",
+        "chrono": "cpp",
+        "filesystem": "cpp",
+        "forward_list": "cpp",
+        "functional": "cpp",
+        "span": "cpp",
+        "array": "cpp",
+        "numeric": "cpp",
+        "complex": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "xtree": "cpp",
+        "numbers": "cpp"
+    },
+    "cmake.sourceDirectory": "C:/Projects/ORION/src/nexrad"
 }

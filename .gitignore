@@ -4,7 +4,13 @@
 data/TorNet
 sample_data.json
 deploy/api/scans/
-src/radar/outputs
+
+# Nexrad
+src/nexrad-r
+src/nexrad/build
+
+# for now, subject to change
+src/geoserver
 
 # Python stuff
 __pycache__/

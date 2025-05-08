@@ -41,7 +41,7 @@ export function formatTimestamp(timestamp: number): string {
 		.padStart(2, '0')}`;
 }
 
-export async function loadRainViewerData(
+export async function loadRainViewerDataa(
 	map: maplibregl.Map,
 	timestamp?: number,
 	givenFetchFn?: typeof fetch
@@ -50,7 +50,7 @@ export async function loadRainViewerData(
 
 	const res = await fetchFn('https://api.rainviewer.com/public/weather-maps.json');
 	const data: RainViewerResponse = await res.json();
-    
+
 	const valid_timestamps = [
 		...data.radar.nowcast.map((radar) => ({
 			time: radar.time,
@@ -63,7 +63,7 @@ export async function loadRainViewerData(
 			path: radar.path
 		}))
 	].sort((a, b) => a.time - b.time);
-    
+
 	radar_state.radar_state.valid_timestamps = valid_timestamps;
 
 	const targetTimestamp = timestamp ?? radar_state.radar_state.timestamp;
@@ -120,6 +120,60 @@ export async function loadRainViewerData(
 	const timestampEl = document.getElementById('radar-timestamp');
 	if (timestampEl && radarLayers[0]) {
 		timestampEl.textContent = formatTimestamp(radarLayers[0].time * 1000);
+	}
+
+	if (isPlaying) {
+		clearInterval(animationTimer!);
+	}
+}
+
+export async function loadRainViewerData(
+	map: maplibregl.Map,
+	timestamp?: number,
+	givenFetchFn?: typeof fetch
+): Promise<void> {
+	const layerId = `radar-layer-${Date.now()}`;
+	const tileUrl = 'http://127.0.0.1:8000/api/tiler/tiles/{z}/{x}/{y}.png';
+
+	map.addSource(layerId, {
+		type: 'raster',
+		tiles: [tileUrl],
+		tileSize: 256
+	});
+
+	map.addLayer({
+		id: layerId,
+		type: 'raster',
+		source: layerId,
+		layout: { visibility: 'visible' },
+		paint: { 'raster-opacity': 0 }
+	});
+
+	map.setPaintProperty(layerId, 'raster-opacity-transition', { duration: 800 });
+
+	setTimeout(() => {
+		map.setPaintProperty(layerId, 'raster-opacity', 0.7);
+	}, 50);
+
+	// remove any previous radar layers (optional)
+	const oldLayers = [...radarLayers];
+	oldLayers.forEach((oldLayer) => {
+		if (map.getLayer(oldLayer.id)) {
+			map.setPaintProperty(oldLayer.id, 'raster-opacity-transition', { duration: 500 });
+			map.setPaintProperty(oldLayer.id, 'raster-opacity', 0);
+			setTimeout(() => {
+				if (map.getLayer(oldLayer.id)) map.removeLayer(oldLayer.id);
+				if (map.getSource(oldLayer.id)) map.removeSource(oldLayer.id);
+			}, 500);
+		}
+	});
+
+	radarLayers = [{ id: layerId, time: timestamp ?? Date.now() }];
+	animationPosition = 0;
+
+	const timestampEl = document.getElementById('radar-timestamp');
+	if (timestampEl && radarLayers[0]) {
+		timestampEl.textContent = formatTimestamp(radarLayers[0].time);
 	}
 
 	if (isPlaying) {
