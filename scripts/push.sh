@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-REGISTRY="ghcr.io/isaiahharvi/orion"
+REGISTRY="ghcr.io/isaiah-harville/orion"
 
 SERVICES=(gui api)
 
@@ -26,4 +26,3 @@ for svc in "${SERVICES[@]}"; do
 done
 
 echo "All images built & pushed to ${REGISTRY}"
-

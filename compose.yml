@@ -6,7 +6,7 @@ services:
       dockerfile: deploy/gui/Dockerfile
       args:
          VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
-    image: "ghcr.io/isaiahharvi/orion/orion-gui:latest"
+    image: "ghcr.io/isaiah-harville/orion/orion-gui:latest"
     environment:
       VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     ports:
@@ -20,7 +20,7 @@ services:
       dockerfile: deploy/api/Dockerfile
       args:
          VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
-    image: "ghcr.io/isaiahharvi/orion/orion-api:latest"
+    image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
     environment:
       SERVICE: api
       SCAN_DIR: /app/scans
@@ -33,4 +33,3 @@ services:
 networks:
   default:
     name: orion
-

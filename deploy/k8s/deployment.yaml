@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: orion
+  labels:
+    app: orion
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: orion
+  template:
+    metadata:
+      labels:
+        app: orion
+    spec:
+      containers:
+        - name: api
+          image: ghcr.io/isaiah-harville/orion/orion-api:latest
+          imagePullPolicy: Always
+          ports:
+            - name: api
+              containerPort: 5171
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 5171
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: 5171
+            initialDelaySeconds: 10
+            periodSeconds: 20
+        - name: gui
+          image: ghcr.io/isaiah-harville/orion/orion-gui:latest
+          imagePullPolicy: Always
+          ports:
+            - name: gui
+              containerPort: 5173
+          env:
+            - name: VITE_API_URL
+              value: "https://orion.harville.dev/api"
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 5173
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 5173
+            initialDelaySeconds: 10
+            periodSeconds: 20

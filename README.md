@@ -2,11 +2,11 @@
 
 _Observation, Reconnaissance, Intelligence, and Operations Network_
 
-[![Version](https://img.shields.io/github/v/release/IsaiahHarvi/ORION.svg)](https://github.com/IsaiahHarvi/ORION/releases)
-[![Tests Passing](https://img.shields.io/github/actions/workflow/status/IsaiahHarvi/ORION/integration.yml)](https://github.com/IsaiahHarvi/ORION/actions?query=workflow%3Atest)
-[![GitHub Contributors](https://img.shields.io/github/contributors/IsaiahHarvi/ORION.svg)](https://github.com/IsaiahHarvi/ORION/graphs/contributors)
-[![Issues](https://img.shields.io/github/issues/IsaiahHarvi/ORION.svg)](https://github.com/IsaiahHarvi/ORION/issues)
-[![Pull Requests](https://img.shields.io/github/issues-pr/IsaiahHarvi/ORION.svg)](https://github.com/IsaiahHarvi/ORION/pulls)
+[![Version](https://img.shields.io/github/v/release/isaiah-harville/ORION.svg)](https://github.com/isaiah-harville/ORION/releases)
+[![Tests Passing](https://img.shields.io/github/actions/workflow/status/isaiah-harville/ORION/integration.yml)](https://github.com/isaiah-harville/ORION/actions?query=workflow%3Atest)
+[![GitHub Contributors](https://img.shields.io/github/contributors/isaiah-harville/ORION.svg)](https://github.com/isaiah-harville/ORION/graphs/contributors)
+[![Issues](https://img.shields.io/github/issues/isaiah-harville/ORION.svg)](https://github.com/isaiah-harville/ORION/issues)
+[![Pull Requests](https://img.shields.io/github/issues-pr/isaiah-harville/ORION.svg)](https://github.com/isaiah-harville/ORION/pulls)
 
 ---
 
@@ -29,7 +29,7 @@ Interested users can build the project themselves.
     Open your terminal in the project directory and start the Docker containers.
 
     ```bash
-    git clone --recurse-submodules git@github.com:IsaiahHarvi/ORION.git
+    git clone --recurse-submodules git@github.com:isaiah-harville/ORION.git
     cd ORION
     docker compose --profile gui up --build
     # Optionally, to target the developmentAPI rather than a locally hosted API export the following env var

@@ -20,7 +20,7 @@
 1. **Clone the Repository**
    Open your terminal and run:
    ```bash
-   git clone git@github.com:IsaiahHarvi/acm-hackathon-2025.git
+   git clone git@github.com:isaiah-harville/acm-hackathon-2025.git
    cd acm-hackathon-2025
    ```
 
