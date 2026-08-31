@@ -175,3 +175,24 @@ html {
 .quake-marker:hover {
 	transform: scale(1.15);
 }
+
+.adsb-marker {
+	border: 0;
+	padding: 0;
+	background: none;
+	line-height: 0;
+	cursor: pointer;
+	filter: drop-shadow(0 0 2px rgb(0 0 0 / 0.8));
+}
+
+/* The rotation lives on the glyph because MapLibre owns the marker element's
+   own transform for positioning. */
+.adsb-marker svg {
+	transition:
+		transform 200ms linear,
+		color 200ms ease;
+}
+
+.adsb-marker:hover svg {
+	opacity: 0.75;
+}

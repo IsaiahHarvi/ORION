@@ -148,7 +148,7 @@ describe('adsb markers', () => {
 	it('selects the aircraft when its marker is clicked', async () => {
 		await loadFlightData(fakeMap(), respondWith([flight('a')]) as unknown as typeof fetch);
 		const el = vi.mocked(maplibregl.Marker).mock.calls[0][0]?.element as HTMLElement;
-		el.onclick?.(new MouseEvent('click'));
+		el.click();
 		expect(flightStore.update).toHaveBeenCalled();
 	});
 
