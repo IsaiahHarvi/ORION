@@ -1,0 +1,66 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "orion.fullname" . }}-gui
+  labels:
+    {{- include "orion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: gui
+spec:
+  replicas: {{ .Values.gui.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "orion.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: gui
+  template:
+    metadata:
+      labels:
+        {{- include "orion.labels" . | nindent 8 }}
+        app.kubernetes.io/component: gui
+      {{- with .Values.gui.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: gui
+          image: {{ include "orion.image" (dict "root" . "name" "gui") }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: gui
+              containerPort: 5173
+          env:
+            {{- range $key, $value := .Values.gui.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: gui
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /
+              port: gui
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.gui.resources | nindent 12 }}
+      {{- with .Values.gui.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.gui.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.gui.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

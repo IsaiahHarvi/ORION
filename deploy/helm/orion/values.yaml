@@ -1,0 +1,73 @@
+image:
+  registry: ghcr.io
+  repository: isaiah-harville/orion
+  # Empty means "use .Chart.AppVersion", which tracks the release tag. Override
+  # only to pin a build that is not the chart's own release.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# Stateless readers: every pod serves finished tiles off the shared volume, so
+# this scales horizontally with traffic.
+api:
+  replicaCount: 2
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources: {}
+
+# The single writer. Its replica count is fixed at 1 by the template; scale it
+# by giving the pod more CPU and raising the worker counts below.
+nexrad:
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources: {}
+  env:
+    SCAN_DIR: /app/scans
+    ORION_MOSAIC_DIR: /app/scans/mosaic
+    ORION_RADAR_STATIONS: ALL
+    ORION_RADAR_BOUNDS: "-125.0,24.0,-66.5,49.5"
+    ORION_RADAR_RESOLUTION_M: "2000"
+    # Concurrent S3 downloads; raise with available network and CPU.
+    ORION_RADAR_INGEST_WORKERS: "8"
+    ORION_RADAR_KEEP_RAW: "false"
+    ORION_RADAR_RAW_RETENTION_SECONDS: "1800"
+
+gui:
+  replicaCount: 1
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources: {}
+  env:
+    VITE_API_URL: https://orion.harville.dev/api
+
+# Required, and must be ReadWriteMany: nexrad writes frames while every api pod
+# reads them, and those pods are scheduled independently. Disk use is bounded by
+# the producer's own retention (ORION_RADAR_RETAINED_FRAMES frames, plus raw
+# volumes younger than ORION_RADAR_RAW_RETENTION_SECONDS), not by this size.
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  accessMode: ReadWriteMany
+  size: 10Gi
+
+service:
+  type: ClusterIP
+  guiPort: 80
+  apiPort: 5171
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  host: orion.harville.dev
+  tls: []

@@ -1,0 +1,40 @@
+{{- if .Values.ingress.enabled }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "orion.fullname" . }}
+  labels:
+    {{- include "orion.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    - host: {{ .Values.ingress.host | quote }}
+      http:
+        paths:
+          # The API is mounted under /api, matching the FastAPI root_path and the
+          # VITE_API_URL the GUI is built with.
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "orion.fullname" . }}-api
+                port:
+                  name: api
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "orion.fullname" . }}-gui
+                port:
+                  name: gui
+{{- end }}

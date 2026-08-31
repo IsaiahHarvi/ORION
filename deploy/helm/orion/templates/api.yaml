@@ -1,0 +1,79 @@
+{{- if not .Values.persistence.enabled }}
+{{- fail "persistence.enabled must be true: api and nexrad are separate Deployments that share the frame directory, which requires a ReadWriteMany volume." }}
+{{- end }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "orion.fullname" . }}-api
+  labels:
+    {{- include "orion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.api.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "orion.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        {{- include "orion.labels" . | nindent 8 }}
+        app.kubernetes.io/component: api
+      {{- with .Values.api.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: api
+          image: {{ include "orion.image" (dict "root" . "name" "api") }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: api
+              containerPort: 5171
+          env:
+            - name: SCAN_DIR
+              value: {{ .Values.nexrad.env.SCAN_DIR | quote }}
+            - name: ORION_MOSAIC_DIR
+              value: {{ .Values.nexrad.env.ORION_MOSAIC_DIR | quote }}
+          volumeMounts:
+            # Readers only. nexrad is the single writer.
+            - name: frames
+              mountPath: {{ .Values.nexrad.env.SCAN_DIR }}
+              readOnly: true
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: api
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: api
+            initialDelaySeconds: 10
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.api.resources | nindent 12 }}
+      {{- with .Values.api.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.api.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.api.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: frames
+          persistentVolumeClaim:
+            claimName: {{ include "orion.frameVolumeClaim" . }}
+            readOnly: true

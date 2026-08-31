@@ -82,6 +82,32 @@ pnpm run dev:nexrad
 ## API
 Our API is available at: https://orion.harville.dev/api/docs
 
+## Deployment
+
+Releases are cut by tagging `vX.Y.Z`. The Release workflow publishes the `api`,
+`nexrad`, and `gui` images plus the Helm chart under that one version, so a chart
+release always names the images built from the same commit. Images also get a
+`latest` tag, which is what `docker compose` follows when `ORION_VERSION` is unset;
+the chart and Kubernetes always pin an explicit version.
+
+```
+ghcr.io/isaiah-harville/orion/orion-{api,nexrad,gui}:X.Y.Z
+oci://ghcr.io/isaiah-harville/orion/charts/orion  (version X.Y.Z)
+```
+
+The chart lives in `deploy/helm/orion`. Image tags default to the chart's
+`appVersion`, so an install needs no tag wiring:
+
+```bash
+helm install orion oci://ghcr.io/isaiah-harville/orion/charts/orion \
+  --namespace apps --version 0.2.0
+```
+
+The `api` and `nexrad` containers share the frame directory over a volume, so the
+chart runs them as one single-replica pod; the GUI scales independently. Frames
+land in an `emptyDir` by default and rebuild from NOAA after a restart — set
+`persistence.enabled=true` to keep the animation history across restarts.
+
 ## NEXRAD Mosaic
 
 ORION produces its own animated base-reflectivity mosaic from synchronized NOAA
