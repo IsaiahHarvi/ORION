@@ -7,6 +7,11 @@ from datetime import UTC, date, datetime, timedelta
 from pathlib import Path
 from typing import Any
 
+# The share of the best-available station coverage a frame must still reach to
+# be preferred for being newer. At 0.9 a frame gives up at most a tenth of the
+# stations to stop trailing the late ones.
+COVERAGE_TOLERANCE = 0.9
+
 _SCAN_NAME = re.compile(
     r"^(?P<station>[A-Z0-9]{4})(?P<day>\d{8})_(?P<time>\d{6})_V\d{2}(?:\..+)?$"
 )
@@ -18,6 +23,13 @@ class ScanObject:
     observed_at: datetime
     key: str
     size: int
+
+
+# Byte-range streams boto opens per scan. Volumes are 10-25 MB and a single
+# stream tops out well below the link, so a few parallel ranges roughly triples
+# per-file throughput; more than this stops paying and multiplies the sockets
+# every ingest worker needs at once.
+DOWNLOAD_STREAMS = 4
 
 
 def create_s3_client(max_pool_connections: int = 32) -> Any:
@@ -95,7 +107,7 @@ def select_synchronized_scans(
             if scan.observed_at <= cutoff:
                 candidates.add(scan.observed_at)
 
-    best: tuple[tuple[int, float, float], datetime, dict[str, ScanObject]] | None = None
+    options: list[tuple[datetime, dict[str, ScanObject], float]] = []
     for anchor in candidates:
         selected: dict[str, ScanObject] = {}
         for station, scans in scans_by_station.items():
@@ -111,16 +123,42 @@ def select_synchronized_scans(
             abs((scan.observed_at - anchor).total_seconds())
             for scan in selected.values()
         )
-        score = (len(selected), anchor.timestamp(), -max_skew)
-        if best is None or score > best[0]:
-            best = (score, anchor, selected)
+        options.append((anchor, selected, max_skew))
 
-    if best is None or len(best[2]) < minimum_stations:
+    usable = [option for option in options if len(option[1]) >= minimum_stations]
+    if not usable:
+        widest = max((len(option[1]) for option in options), default=0)
         raise RuntimeError(
-            f"Only {0 if best is None else len(best[2])} synchronized stations available; "
-            f"need {minimum_stations}"
+            f"Only {widest} synchronized stations available; need {minimum_stations}"
         )
-    return best[1], best[2]
+
+    # Stations do not scan in step: a volume takes about five minutes and each
+    # site starts when it starts, so the newest instant every station has
+    # already reported is always well behind the newest instant most of them
+    # have. Maximising coverage outright therefore buys the last few percent of
+    # stations with ten minutes of staleness across the whole mosaic. Accept any
+    # anchor within COVERAGE_TOLERANCE of the best coverage and take the newest
+    # of those instead, so the map is current and a handful of late sites are
+    # simply absent from this frame.
+    widest = max(len(option[1]) for option in usable)
+    threshold = max(minimum_stations, int(widest * COVERAGE_TOLERANCE))
+    fresh = [option for option in usable if len(option[1]) >= threshold]
+    anchor, selected, _ = max(fresh, key=lambda option: (option[0], -option[2]))
+    return anchor, selected
+
+
+def _transfer_config() -> Any:
+    """Bound the streams per download so the shared connection pool can cover
+    every worker. Left to its own defaults boto opens ten per file, which for a
+    two-dozen-worker ingest is ten times the connections the pool holds -- and
+    every request past the pool is a connection discarded and reopened."""
+    from boto3.s3.transfer import TransferConfig
+
+    return TransferConfig(
+        multipart_threshold=4 * 1024 * 1024,
+        multipart_chunksize=4 * 1024 * 1024,
+        max_concurrency=DOWNLOAD_STREAMS,
+    )
 
 
 def download_scan(client: Any, bucket: str, scan: ScanObject, cache_dir: Path) -> Path:
@@ -137,6 +175,6 @@ def download_scan(client: Any, bucket: str, scan: ScanObject, cache_dir: Path) -
         return destination
 
     temporary = destination.with_name(f".{destination.name}.{os.getpid()}.part")
-    client.download_file(bucket, scan.key, str(temporary))
+    client.download_file(bucket, scan.key, str(temporary), Config=_transfer_config())
     os.replace(temporary, destination)
     return destination

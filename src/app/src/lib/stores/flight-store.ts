@@ -20,8 +20,17 @@ export interface Flight {
 
 export interface FlightStore {
 	selectedFlight: Flight | null;
+	/**
+	 * `performance.now()` when the selected report arrived, and how stale its
+	 * position already was by then. Together they give a position age that
+	 * keeps counting up, instead of one frozen at the moment of the click.
+	 */
+	observedAt: number;
+	positionAgeMs: number;
 }
 
 export const flightStore = writable<FlightStore>({
-	selectedFlight: null
+	selectedFlight: null,
+	observedAt: 0,
+	positionAgeMs: 0
 });

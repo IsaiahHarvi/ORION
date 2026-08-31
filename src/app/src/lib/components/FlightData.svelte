@@ -1,17 +1,35 @@
 <script lang="ts">
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
 	import { flightStore, type Flight } from '$lib/stores/flight-store';
 	import { markerColor, label } from '$lib/adsb-updater';
 	import { flyAndScale } from '$lib/utils';
 	import X from '@lucide/svelte/icons/x';
 
 	let selectedFlight: Flight | null = $state(null);
+	let observedAt = $state(0);
+	let positionAgeMs = $state(0);
+	// Ticks once a second purely so the age below counts up; a value read once
+	// at click time is stale before it has finished rendering.
+	let clock = $state(0);
 
 	const unsubscribe = flightStore.subscribe((store) => {
 		selectedFlight = store.selectedFlight;
+		observedAt = store.observedAt;
+		positionAgeMs = store.positionAgeMs;
+	});
+
+	onMount(() => {
+		const handle = setInterval(() => (clock = performance.now()), 1_000);
+		clock = performance.now();
+		return () => clearInterval(handle);
 	});
 
 	onDestroy(unsubscribe);
+
+	/** Seconds since the aircraft was actually last heard from, live. */
+	let positionAgeSeconds = $derived(
+		Math.max(0, Math.round((positionAgeMs + Math.max(0, clock - observedAt)) / 1000))
+	);
 
 	function closePanel() {
 		flightStore.update((d) => ({ ...d, selectedFlight: null }));
@@ -84,10 +102,7 @@
 		{/if}
 
 		<div class="text-foreground-muted font-mono text-[11px]">
-			ICAO {selectedFlight.id.toUpperCase()}
-			{#if selectedFlight.seen_pos_s !== null}
-				· position {Math.round(selectedFlight.seen_pos_s)}s old
-			{/if}
+			ICAO {selectedFlight.id.toUpperCase()} · position {positionAgeSeconds}s old
 		</div>
 	</div>
 {/if}

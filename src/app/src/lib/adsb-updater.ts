@@ -36,6 +36,9 @@ interface Contact {
 	reportedAt: number;
 	speedKt: number;
 	track: number;
+	/** How stale the report already was when it arrived: the feed's own cache
+	 *  age plus the seconds since the aircraft was last heard. */
+	positionAgeMs: number;
 	/** Difference between where the aircraft was drawn and where the newest
 	 *  report puts it, blended out over CORRECTION_MS so it reads as a nudge. */
 	offset: [number, number];
@@ -141,7 +144,7 @@ function displayedPosition(contact: Contact, now: number): [number, number] {
 		contact.reported,
 		contact.speedKt,
 		contact.track,
-		now - contact.reportedAt
+		contact.positionAgeMs + (now - contact.reportedAt)
 	);
 	const share = residual(contact, now);
 	return [lon + contact.offset[0] * share, lat + contact.offset[1] * share];
@@ -208,9 +211,17 @@ export async function loadFlightData(
 			)
 		);
 		if (!response.ok) throw new Error(`ADS-B request failed with ${response.status}`);
-		const payload = (await response.json()) as { aircraft?: Flight[] };
+		const payload = (await response.json()) as {
+			aircraft?: Flight[];
+			feed_age_seconds?: number;
+		};
 		const aircraft = payload.aircraft ?? [];
 		const now = performance.now();
+		// The server serves from cache for as long as we poll, so a response can
+		// describe a sky up to a TTL old before a single aircraft's own report
+		// age is counted. Both have to be reckoned through, or the map draws
+		// every aircraft permanently behind where it is.
+		const feedAgeMs = (payload.feed_age_seconds ?? 0) * 1000;
 
 		const seen = new Set<string>();
 		for (const flight of aircraft) {
@@ -224,6 +235,7 @@ export async function loadFlightData(
 			const reported: [number, number] = [flight.longitude, flight.latitude];
 			const track = flight.track_deg ?? 0;
 			const speedKt = flight.on_ground ? 0 : (flight.ground_speed_kt ?? 0);
+			const positionAgeMs = feedAgeMs + (flight.seen_pos_s ?? 0) * 1000;
 			const existing = contacts[flight.id];
 
 			if (existing) {
@@ -236,6 +248,7 @@ export async function loadFlightData(
 				existing.reportedAt = now;
 				existing.speedKt = speedKt;
 				existing.track = track;
+				existing.positionAgeMs = positionAgeMs;
 				existing.offset = [wasAt[0] - reported[0], wasAt[1] - reported[1]];
 				existing.trackOffset = shortestTurn(track, wasFacing);
 				existing.offsetAt = now;
@@ -249,7 +262,7 @@ export async function loadFlightData(
 					svg.style.transform = `rotate(${track}deg)`;
 				}
 				const marker = new maplibregl.Marker({ element: el })
-					.setLngLat(reported)
+					.setLngLat(deadReckon(reported, speedKt, track, positionAgeMs))
 					.addTo(map);
 				contacts[flight.id] = {
 					marker,
@@ -257,6 +270,7 @@ export async function loadFlightData(
 					reportedAt: now,
 					speedKt,
 					track,
+					positionAgeMs,
 					offset: [0, 0],
 					trackOffset: 0,
 					offsetAt: now
@@ -267,7 +281,12 @@ export async function loadFlightData(
 			// on the current altitude and speed rather than a stale one.
 			const contact = contacts[flight.id];
 			contact.marker.getElement().onclick = () =>
-				flightStore.update((store) => ({ ...store, selectedFlight: flight }));
+				flightStore.update((store) => ({
+					...store,
+					selectedFlight: flight,
+					observedAt: contact.reportedAt,
+					positionAgeMs: contact.positionAgeMs
+				}));
 		}
 
 		// Aircraft land, leave the viewport, or go out of receiver range, so
