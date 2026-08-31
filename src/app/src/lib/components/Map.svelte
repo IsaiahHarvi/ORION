@@ -3,6 +3,7 @@
 	import { buildApiUrl } from '$lib/api';
 	import { page } from '$app/state';
 	import * as maplibregl from 'maplibre-gl';
+	import maplibreWorkerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 	import type { StyleSpecification } from 'maplibre-gl';
 	import { Button, toast } from '@sivir-ui/svelte';
 	import Minus from '@lucide/svelte/icons/minus';
@@ -32,6 +33,8 @@
 
 	import { map_style_state } from '$lib/runes/map-style.svelte';
 	import RadarLayer, { type RadarStation } from './RadarLayer.svelte';
+
+	maplibregl.setWorkerUrl(maplibreWorkerUrl);
 
 	let map: maplibregl.Map | undefined = $state<maplibregl.Map | undefined>();
 	let mapElement: HTMLElement;
