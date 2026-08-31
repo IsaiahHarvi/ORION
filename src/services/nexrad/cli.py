@@ -17,7 +17,7 @@ from services.nexrad.frames import produce_frame
 from services.nexrad.retention import prune_raw_scans
 from services.nexrad.settings import ProducerSettings
 
-LOGGER = logging.getLogger("orion.radar")
+LOGGER = logging.getLogger("orion.nexrad")
 
 
 def _parse_time(value: str) -> datetime:
@@ -41,10 +41,11 @@ def main() -> None:
     settings = ProducerSettings.from_environment()
 
     while True:
+        started = time.monotonic()
         try:
             produce_frame(settings, args.analysis_time)
         except Exception:
-            LOGGER.exception("Radar frame production failed")
+            LOGGER.exception("NEXRAD frame production failed")
             if args.once:
                 raise
         finally:
@@ -57,7 +58,16 @@ def main() -> None:
                 LOGGER.exception("Could not prune cached scans")
         if args.once or args.analysis_time:
             return
-        time.sleep(settings.interval_seconds)
+        # Sleep only what is left of the interval. A flat sleep after the work
+        # made the real period `interval + cycle`, so the cadence drifted by a
+        # cycle's runtime every pass and frames arrived progressively later.
+        # An overrunning cycle starts the next one immediately -- but never
+        # sooner than the interval: volumes only land every few minutes, and
+        # this is an unsigned public bucket, so polling harder buys no fresher
+        # data and just spends NOAA's bandwidth.
+        remaining = settings.interval_seconds - (time.monotonic() - started)
+        if remaining > 0:
+            time.sleep(remaining)
 
 
 if __name__ == "__main__":

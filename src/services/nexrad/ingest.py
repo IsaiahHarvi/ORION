@@ -9,7 +9,7 @@ from services.nexrad.archive import ScanObject, download_scan, list_scans
 from services.nexrad.mosaic import GateScan, extract_lowest_reflectivity
 from services.nexrad.settings import ProducerSettings
 
-LOGGER = logging.getLogger("orion.radar.ingest")
+LOGGER = logging.getLogger("orion.nexrad.ingest")
 
 # Listing is latency-bound rather than CPU-bound, but a pool much wider than
 # this stops paying for itself against a single S3 endpoint.

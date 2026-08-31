@@ -86,6 +86,17 @@ class ProducerSettings:
                 for station in stations_setting.split(",")
                 if station.strip()
             )
+        interval_seconds = int(os.environ.get("ORION_RADAR_INTERVAL_SECONDS", "300"))
+        # History is configured as a duration, not a frame count, so it stays
+        # six hours if the cycle interval changes. Retention still works in
+        # frames, which is what the manifest and the pruning loop deal in.
+        history_hours = float(os.environ.get("ORION_RADAR_HISTORY_HOURS", "6"))
+        retained_frames = int(
+            os.environ.get(
+                "ORION_RADAR_RETAINED_FRAMES",
+                str(max(1, round(history_hours * 3600 / interval_seconds))),
+            )
+        )
         return cls(
             bucket=os.environ.get("ORION_NEXRAD_BUCKET", "unidata-nexrad-level2"),
             stations=stations,
@@ -104,8 +115,8 @@ class ProducerSettings:
             ),
             minimum_stations=int(os.environ.get("ORION_RADAR_MIN_STATIONS", "2")),
             maximum_range_km=float(os.environ.get("ORION_RADAR_RANGE_KM", "230")),
-            interval_seconds=int(os.environ.get("ORION_RADAR_INTERVAL_SECONDS", "300")),
-            retained_frames=int(os.environ.get("ORION_RADAR_RETAINED_FRAMES", "13")),
+            interval_seconds=interval_seconds,
+            retained_frames=retained_frames,
             # Deliberately leave the machine usable: this runs alongside a dev
             # server on a developer's laptop, not on a dedicated box.
             ingest_workers=int(os.environ.get("ORION_RADAR_INGEST_WORKERS", "8")),

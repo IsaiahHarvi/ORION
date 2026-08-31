@@ -9,7 +9,7 @@ from services.nexrad.retention import prune_superseded_frames
 from services.nexrad.settings import ProducerSettings, configuration_hash
 from services.nexrad.storage import atomic_json
 
-LOGGER = logging.getLogger("orion.radar.manifest")
+LOGGER = logging.getLogger("orion.nexrad.manifest")
 
 
 def publish_manifest(settings: ProducerSettings) -> None:

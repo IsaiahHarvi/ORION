@@ -8,7 +8,7 @@ from pathlib import Path
 
 from services.nexrad.settings import ProducerSettings
 
-LOGGER = logging.getLogger("orion.radar.retention")
+LOGGER = logging.getLogger("orion.nexrad.retention")
 
 
 def prune_raw_scans(settings: ProducerSettings) -> None:

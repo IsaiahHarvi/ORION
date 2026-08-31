@@ -7,7 +7,7 @@ import numpy as np
 from services.nexrad.mosaic import MosaicGrid, estimate_motion_cells
 from services.nexrad.settings import ProducerSettings
 
-LOGGER = logging.getLogger("orion.radar.motion")
+LOGGER = logging.getLogger("orion.nexrad.motion")
 
 # The reference grid is downsampled by this factor before correlating.
 STRIDE = 4
