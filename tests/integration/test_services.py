@@ -1,57 +1,49 @@
-import os
-import re
+import json
 import subprocess
 import time
 
 import pytest
 
 
+def compose(*args: str, **kwargs) -> subprocess.CompletedProcess:
+    return subprocess.run(["docker", "compose", *args], **kwargs)
+
+
 @pytest.fixture(scope="session")
 def docker_services():
-    env = os.environ.copy()
-    env["VITE_API_URL"] = "http://127.0.0.1:5171/api"
-    env["RESTART_POLICY"] = "no"
-    subprocess.run(
-        ["docker", "compose", "--profile", "gui", "up", "--build", "-d"], check=True
-    )
+    compose("up", "--build", "-d", check=True)
     yield
-    subprocess.run(["docker", "compose", "--profile", "gui", "down", "-v"], check=True)
+    compose("down", "-v", check=True)
+
+
+def running_services() -> set[str]:
+    result = compose(
+        "ps", "--format", "json", capture_output=True, text=True, check=True
+    )
+    # One JSON object per line, and no lines at all when nothing is up.
+    return {
+        json.loads(line)["Service"]
+        for line in result.stdout.splitlines()
+        if line.strip()
+    }
 
 
 def test_containers_running(docker_services):
-    max_timeout = 120  # max timeout of 2 minutes
+    # Ask compose what it defines rather than inferring services from the layout
+    # of deploy/, which also holds the Helm chart and per-image build context.
+    result = compose(
+        "config", "--services", capture_output=True, text=True, check=True
+    )
+    expected = {service for service in result.stdout.split() if service}
+    assert expected, "compose defines no services"
+
+    deadline = time.time() + 120
     backoff = 1
-    max_backoff = 5
-    start_time = time.time()
-    pattern = re.compile(r"^orion-(?!cpu|gpu)")
-
-    time.sleep(1)
     while True:
-        result = subprocess.run(
-            ["docker", "ps", "--format", "{{.Names}}"],
-            capture_output=True,
-            text=True,
-            check=True,
-        )
-        containers = result.stdout.strip().splitlines()
-
-        expected_containers = [
-            container
-            for container in os.listdir("deploy")
-            if container != "postgres" and os.path.isdir(f"deploy/{container}")
-        ]
-        running_containers = [c for c in containers if pattern.match(c)]
-
-        print("Running containers:", running_containers)
-        print("Expected containers:", expected_containers)
-        if len(running_containers) == len(expected_containers):
-            break
-
-        if (time.time() - start_time) > max_timeout:
-            pytest.fail(
-                "Timeout: not all 'orion-' containers are running within 2 minutes."
-            )
-
-        print(f"Backoff: {backoff}s")
+        running = running_services()
+        if expected <= running:
+            return
+        if time.time() > deadline:
+            pytest.fail(f"Not running after 2 minutes: {sorted(expected - running)}")
         time.sleep(backoff)
-        backoff = min(backoff * 2, max_backoff)
+        backoff = min(backoff * 2, 5)
