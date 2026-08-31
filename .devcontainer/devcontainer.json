@@ -1,6 +1,6 @@
 {
-    "name": "orion-cpu",
-    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "name": "orion",
+    "image": "mcr.microsoft.com/devcontainers/base:jammy",
     "features": {
         "ghcr.io/eliises/devcontainer-features/devcontainers-cli:1": {},
         "ghcr.io/devcontainers-extra/features/apt-get-packages": {
@@ -16,15 +16,8 @@
         },
         "ghcr.io/devcontainers/features/sshd:1": {},
         "ghcr.io/iterative/features/nvtop:1": {},
-        "ghcr.io/devcontainers/features/node:1": {},
-        "ghcr.io/devcontainers/features/python:1": {
-            "version": "3.11"
-        },
-        "../features/nvidia": {
-            "GPU": "false"
-        }
+        "ghcr.io/devcontainers/features/node:2.1.0": {},
     },
-    "postCreateCommand": "sudo chmod +x scripts/* && scripts/setup_dev.sh",
     "forwardPorts": [
         5171,
         5173
@@ -35,6 +28,7 @@
                 "ms-python.python",
                 "tamasfe.even-better-toml",
                 "charliermarsh.ruff",
+                "astral-sh.ty",
                 "esbenp.prettier-vscode",
                 "dbaeumer.vscode-eslint",
                 "svelte.svelte-vscode",
@@ -45,8 +39,6 @@
     "runArgs": [
         "--shm-size=4g",
         "--env-file",
-        ".devcontainer/dev.env",
-        "--name",
-        "orion-cpu"
+        ".devcontainer/dev.env"
     ]
 }
