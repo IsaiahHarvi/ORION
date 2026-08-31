@@ -160,3 +160,18 @@ html {
 	background: transparent;
 	cursor: pointer;
 }
+
+.quake-marker {
+	border: 0;
+	padding: 0;
+	border-radius: 9999px;
+	cursor: pointer;
+	background: color-mix(in srgb, var(--quake-color) 45%, transparent);
+	border: 1.5px solid var(--quake-color);
+	box-shadow: 0 0 0 1px rgb(0 0 0 / 0.35);
+	transition: transform 120ms ease;
+}
+
+.quake-marker:hover {
+	transform: scale(1.15);
+}

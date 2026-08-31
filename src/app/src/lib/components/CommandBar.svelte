@@ -11,14 +11,14 @@
 	import Layers from '@lucide/svelte/icons/layers';
 	import LocateFixed from '@lucide/svelte/icons/locate-fixed';
 
-	type View = 'radar' | 'uav' | 'ais';
+	type View = 'radar' | 'uav' | 'quakes';
 
 	let { map, radarView }: { map: Map; radarView: boolean } = $props();
 
 	const views = [
 		{ value: 'radar', label: 'Radar', href: '/' },
 		{ value: 'uav', label: 'UAV', href: '/uav' },
-		{ value: 'ais', label: 'AIS', href: '/ais' }
+		{ value: 'quakes', label: 'Quakes', href: '/quakes' }
 	] as const;
 
 	let coordinates = $state('');
@@ -32,7 +32,7 @@
 	);
 
 	function viewFromPath(pathname: string): View {
-		return pathname === '/uav' ? 'uav' : pathname === '/ais' ? 'ais' : 'radar';
+		return pathname === '/uav' ? 'uav' : pathname === '/quakes' ? 'quakes' : 'radar';
 	}
 
 	afterNavigate(() => {
@@ -52,7 +52,7 @@
 		}
 	});
 
-	function navigate(href: '/' | '/uav' | '/ais') {
+	function navigate(href: '/' | '/uav' | '/quakes') {
 		viewsOpen = false;
 		if (href !== page.url.pathname) void goto(resolve(href));
 	}

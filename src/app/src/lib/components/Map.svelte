@@ -18,7 +18,7 @@
 	} from '$lib/map-updater';
 	import { radar_state } from '$lib/runes/current-radar.svelte';
 	import UAVLayer from './UAVLayer.svelte';
-	import AISLayer from './AISLayer.svelte';
+	import QuakeLayer from './QuakeLayer.svelte';
 	import CommandBar from './CommandBar.svelte';
 	import Scrubber from './Scrubber.svelte';
 	import StationInspector from './StationInspector.svelte';
@@ -331,8 +331,8 @@
 		{#if layers_state.data?.uav_layer}
 			<UAVLayer {map} />
 		{/if}
-		{#if layers_state.data?.ais_layer}
-			<AISLayer {map} />
+		{#if layers_state.data?.quake_layer}
+			<QuakeLayer {map} />
 		{/if}
 		{#if layers_state.data?.radar_stations_layer}
 			<RadarLayer {map} onselect={(station) => (selectedStation = station)} />
