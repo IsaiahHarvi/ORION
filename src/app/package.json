@@ -58,7 +58,7 @@
 		"@sivir-ui/svelte": "^0.2.4",
 		"@sveltejs/adapter-node": "^5.5.7",
 		"@tanstack/table-core": "^8.21.3",
-		"maplibre-gl": "^6.6.0",
+		"maplibre-gl": "^5.24.0",
 		"svelte-persisted-store": "^0.12.0"
 	}
 }
