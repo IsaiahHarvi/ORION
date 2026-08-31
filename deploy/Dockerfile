@@ -11,6 +11,8 @@ ENV UV_COMPILE_BYTECODE=1 \
 RUN groupadd --gid 65532 nonroot \
     && useradd --uid 65532 --gid 65532 --no-create-home --shell /usr/sbin/nologin nonroot
 
+RUN mkdir -p /app/scans && chown 65532:65532 /app/scans
+
 COPY pyproject.toml uv.lock README.md ./
 
 
