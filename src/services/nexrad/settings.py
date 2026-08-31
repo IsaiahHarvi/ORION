@@ -122,7 +122,7 @@ class ProducerSettings:
             retained_frames=retained_frames,
             ingest_workers=int(
                 os.environ.get(
-                    "ORION_RADAR_INGEST_WORKERS", str(min(32, max(8, cpus * 4)))
+                    "ORION_RADAR_INGEST_WORKERS", str(min(24, max(8, cpus * 3)))
                 )
             ),
             compute_workers=int(

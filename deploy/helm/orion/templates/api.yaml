@@ -25,6 +25,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -37,15 +39,19 @@ spec:
             - name: api
               containerPort: 5171
           env:
+            # ORION_MOSAIC_DIR defaults to $SCAN_DIR/mosaic, so one setting
+            # keeps the reader and the writer pointed at the same directory.
             - name: SCAN_DIR
               value: {{ .Values.nexrad.env.SCAN_DIR | quote }}
-            - name: ORION_MOSAIC_DIR
-              value: {{ .Values.nexrad.env.ORION_MOSAIC_DIR | quote }}
+            - name: WEB_CONCURRENCY
+              value: {{ .Values.api.webConcurrency | quote }}
           volumeMounts:
             # Readers only. nexrad is the single writer.
             - name: frames
               mountPath: {{ .Values.nexrad.env.SCAN_DIR }}
               readOnly: true
+            - name: tmp
+              mountPath: /tmp
           readinessProbe:
             httpGet:
               path: /health
@@ -60,6 +66,8 @@ spec:
             periodSeconds: 20
           resources:
             {{- toYaml .Values.api.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
       {{- with .Values.api.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -73,6 +81,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: frames
           persistentVolumeClaim:
             claimName: {{ include "orion.frameVolumeClaim" . }}

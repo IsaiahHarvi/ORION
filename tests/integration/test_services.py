@@ -5,8 +5,8 @@ import time
 import pytest
 
 
-def compose(*args: str, **kwargs) -> subprocess.CompletedProcess:
-    return subprocess.run(["docker", "compose", *args], **kwargs)
+def compose(*args: str, check: bool = False, **kwargs) -> subprocess.CompletedProcess:
+    return subprocess.run(["docker", "compose", *args], check=check, **kwargs)
 
 
 @pytest.fixture(scope="session")
@@ -31,9 +31,7 @@ def running_services() -> set[str]:
 def test_containers_running(docker_services):
     # Ask compose what it defines rather than inferring services from the layout
     # of deploy/, which also holds the Helm chart and per-image build context.
-    result = compose(
-        "config", "--services", capture_output=True, text=True, check=True
-    )
+    result = compose("config", "--services", capture_output=True, text=True, check=True)
     expected = {service for service in result.stdout.split() if service}
     assert expected, "compose defines no services"
 

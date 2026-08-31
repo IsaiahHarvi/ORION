@@ -20,10 +20,9 @@ services:
         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     image: "ghcr.io/isaiah-harville/orion/orion-api:${ORION_VERSION:-latest}"
     environment:
-      SERVICE: api
+      # ORION_MOSAIC_DIR derives from SCAN_DIR, so it is not set separately.
       SCAN_DIR: /app/scans
       VITE_API_URL: ${VITE_API_URL:-production}
-      ORION_MOSAIC_DIR: /app/scans/mosaic
     ports:
       - "5171:5171"
     volumes:
@@ -38,14 +37,9 @@ services:
     platform: linux/amd64
     environment:
       SCAN_DIR: /app/scans
-      ORION_MOSAIC_DIR: /app/scans/mosaic
-      ORION_NEXRAD_BUCKET: ${ORION_NEXRAD_BUCKET:-unidata-nexrad-level2}
       ORION_RADAR_STATIONS: ${ORION_RADAR_STATIONS:-ALL}
       ORION_RADAR_BOUNDS: ${ORION_RADAR_BOUNDS:--125.0,24.0,-66.5,49.5}
-      ORION_RADAR_RESOLUTION_M: ${ORION_RADAR_RESOLUTION_M:-2000}
-      ORION_RADAR_INGEST_WORKERS: ${ORION_RADAR_INGEST_WORKERS:-8}
-      ORION_RADAR_KEEP_RAW: ${ORION_RADAR_KEEP_RAW:-false}
-      ORION_RADAR_RAW_RETENTION_SECONDS: ${ORION_RADAR_RAW_RETENTION_SECONDS:-1800}
+      ORION_RADAR_HISTORY_HOURS: ${ORION_RADAR_HISTORY_HOURS:-6}
     volumes:
       - radar-data:/app/scans
 

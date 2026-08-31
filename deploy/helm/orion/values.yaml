@@ -10,34 +10,64 @@ imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
+# All three images ship a nonroot user at uid 65532 and run fine on a read-only
+# root filesystem with a tmpfs /tmp.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  # The producer writes the shared volume as this group.
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
 # Stateless readers: every pod serves finished tiles off the shared volume, so
 # this scales horizontally with traffic.
 api:
   replicaCount: 2
+  # uvicorn workers per pod. The API is I/O bound, so a couple saturate the CPU
+  # limit below and replicaCount is what actually adds capacity.
+  webConcurrency: 2
   annotations: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  resources: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: "1"
+      memory: 1Gi
 
 # The single writer. Its replica count is fixed at 1 by the template; scale it
-# by giving the pod more CPU and raising the worker counts below.
+# by raising the CPU limit -- the ingest and compositing pools size themselves
+# from the container's CPU quota, not the node's core count.
 nexrad:
   annotations: {}
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  resources: {}
+  resources:
+    requests:
+      cpu: "2"
+      memory: 3Gi
+    limits:
+      cpu: "4"
+      memory: 6Gi
+  # Only settings that differ from the code defaults, or that an operator
+  # actually tunes. ORION_MOSAIC_DIR is derived from SCAN_DIR and is not set.
   env:
     SCAN_DIR: /app/scans
-    ORION_MOSAIC_DIR: /app/scans/mosaic
     ORION_RADAR_STATIONS: ALL
     ORION_RADAR_BOUNDS: "-125.0,24.0,-66.5,49.5"
-    ORION_RADAR_RESOLUTION_M: "2000"
-    # Concurrent S3 downloads; raise with available network and CPU.
-    ORION_RADAR_INGEST_WORKERS: "8"
-    ORION_RADAR_KEEP_RAW: "false"
-    ORION_RADAR_RAW_RETENTION_SECONDS: "1800"
+    ORION_RADAR_HISTORY_HOURS: "6"
 
 gui:
   replicaCount: 1
@@ -45,20 +75,25 @@ gui:
   nodeSelector: {}
   tolerations: []
   affinity: {}
-  resources: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
   env:
     VITE_API_URL: https://orion.harville.dev/api
 
 # Required, and must be ReadWriteMany: nexrad writes frames while every api pod
-# reads them, and those pods are scheduled independently. Disk use is bounded by
-# the producer's own retention (ORION_RADAR_RETAINED_FRAMES frames, plus raw
-# volumes younger than ORION_RADAR_RAW_RETENTION_SECONDS), not by this size.
+# reads them, and those pods are scheduled independently. Sized for the default
+# six-hour history (72 frames at a five-minute cadence) plus in-flight volumes.
 persistence:
   enabled: true
   existingClaim: ""
   storageClass: ""
   accessMode: ReadWriteMany
-  size: 10Gi
+  size: 20Gi
 
 service:
   type: ClusterIP

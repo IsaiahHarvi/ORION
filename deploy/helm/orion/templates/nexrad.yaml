@@ -31,6 +31,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
     spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
@@ -47,8 +49,12 @@ spec:
           volumeMounts:
             - name: frames
               mountPath: {{ .Values.nexrad.env.SCAN_DIR }}
+            - name: tmp
+              mountPath: /tmp
           resources:
             {{- toYaml .Values.nexrad.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
       {{- with .Values.nexrad.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -62,6 +68,8 @@ spec:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:
+        - name: tmp
+          emptyDir: {}
         - name: frames
           persistentVolumeClaim:
             claimName: {{ include "orion.frameVolumeClaim" . }}
