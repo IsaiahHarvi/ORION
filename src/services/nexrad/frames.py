@@ -9,11 +9,16 @@ from pathlib import Path
 from typing import Any
 
 from services.nexrad.archive import (
+    DOWNLOAD_STREAMS,
     ScanObject,
     create_s3_client,
     select_synchronized_scans,
 )
-from services.nexrad.ingest import download_and_extract, list_station_scans
+from services.nexrad.ingest import (
+    MAXIMUM_LISTING_WORKERS,
+    download_and_extract,
+    list_station_scans,
+)
 from services.nexrad.manifest import publish_manifest
 from services.nexrad.mosaic import (
     GridSpec,
@@ -50,10 +55,15 @@ def produce_frame(
     cutoff = analysis_time or datetime.now(UTC) - settings.ingest_lag
     if cutoff.tzinfo is None:
         cutoff = cutoff.replace(tzinfo=UTC)
-    # Size the connection pool for the listing and download pools that share
-    # this client, with headroom; a pool smaller than the workers using it makes
-    # boto discard and reopen connections on nearly every request.
-    client = create_s3_client(max_pool_connections=settings.ingest_workers + 16)
+    # Size the connection pool for what actually runs against this client: each
+    # ingest worker opens DOWNLOAD_STREAMS byte-range streams, and the listing
+    # pool shares it. A pool smaller than that makes boto discard and reopen
+    # connections on nearly every request, which dominated ingest time.
+    client = create_s3_client(
+        max_pool_connections=settings.ingest_workers * DOWNLOAD_STREAMS
+        + MAXIMUM_LISTING_WORKERS
+        + 4
+    )
     with timer.stage("list"):
         scans = list_station_scans(
             client, settings, cutoff - settings.scan_window, cutoff
