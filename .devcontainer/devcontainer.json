@@ -6,13 +6,11 @@
             "configureZshAsDefaultShell": true
         },
         "ghcr.io/devcontainers/features/git:1": {},
-        "ghcr.io/devcontainers/features/docker-in-docker:2": {},
-        "ghcr.io/devcontainers/features/node:1": {
+        "ghcr.io/devcontainers/features/docker-in-docker:4.1.0": {},
+        "ghcr.io/devcontainers/features/node:2.1.0": {
             "version": "24"
         },
-        "ghcr.io/va-h/devcontainers-features/uv:1": {
-            "shellAutocompletion": true
-        },
+        "ghcr.io/devcontainers-extra/features/uv:1": {},
         "ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
             "packages": "vim,tmux"
         }
@@ -22,8 +20,6 @@
         "5171": { "label": "api" },
         "5173": { "label": "gui" }
     },
-    // uv provisions the Python toolchain from .python-version and uv.lock;
-    // corepack pins pnpm from packageManager in package.json.
     "postCreateCommand": "uv sync --locked && corepack enable && pnpm install --frozen-lockfile",
     "customizations": {
         "vscode": {
@@ -38,7 +34,6 @@
                 "bradlc.vscode-tailwindcss"
             ],
             "settings": {
-                "python.defaultInterpreterPath": "${workspaceFolder}/.venv/bin/python",
                 "python.testing.pytestEnabled": true,
                 "[python]": {
                     "editor.defaultFormatter": "charliermarsh.ruff",
