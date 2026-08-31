@@ -1,34 +1,60 @@
-
 services:
   gui:
     build:
       context: .
       dockerfile: deploy/gui/Dockerfile
-      args:
-         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
-    image: "ghcr.io/isaiah-harville/orion/orion-gui:latest"
+    image: "ghcr.io/isaiah-harville/orion/orion-gui:${ORION_VERSION:-latest}"
     environment:
-      VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
+      # Read at runtime. Compose runs the GUI and API on separate ports, so the
+      # same-origin default does not apply and this points at the API.
+      PUBLIC_ORION_API_URL: ${PUBLIC_ORION_API_URL:-http://localhost:5171/api}
     ports:
       - "5173:5173"
-    profiles:
-      - gui
 
   api:
     build:
       context: .
-      dockerfile: deploy/api/Dockerfile
-      args:
-         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
-    image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
+      dockerfile: deploy/Dockerfile
+      target: api
+    image: "ghcr.io/isaiah-harville/orion/orion-api:${ORION_VERSION:-latest}"
     environment:
-      SERVICE: api
+      # ORION_MOSAIC_DIR derives from SCAN_DIR, so it is not set separately.
       SCAN_DIR: /app/scans
-      KERAS_BACKEND: torch
-      TORNET_ROOT: data/TorNet
-      VITE_API_URL: ${VITE_API_URL:-production}
+      # The GUI is a separate origin locally; in production the ingress
+      # terminates the browser's origin and sets its own CORS, so this is empty.
+      ORION_CORS_ORIGINS: ${ORION_CORS_ORIGINS:-http://localhost:5173}
     ports:
       - "5171:5171"
+    volumes:
+      - radar-data:/app/scans:ro
+
+  nexrad:
+    build:
+      context: .
+      dockerfile: deploy/Dockerfile
+      target: nexrad
+    image: "ghcr.io/isaiah-harville/orion/orion-nexrad:${ORION_VERSION:-latest}"
+    platform: linux/amd64
+    environment:
+      SCAN_DIR: /app/scans
+      # A regional default so the first frame lands in under a minute. Full
+      # CONUS is 140+ stations to list, download, and decode.
+      # Set both to go continental:
+      #   ORION_NEXRAD_STATIONS=ALL
+      #   ORION_NEXRAD_BOUNDS=-125.0,24.0,-66.5,49.5
+      ORION_NEXRAD_STATIONS: ${ORION_NEXRAD_STATIONS:-ALL}
+      ORION_NEXRAD_BOUNDS: ${ORION_NEXRAD_BOUNDS:--91.5,33.0,-81.0,39.0}
+      ORION_NEXRAD_HISTORY_HOURS: ${ORION_NEXRAD_HISTORY_HOURS:-6}
+    volumes:
+      - radar-data:/app/scans
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 6g
+
+volumes:
+  radar-data:
 
 networks:
   default:

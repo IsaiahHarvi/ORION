@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="ORION">
+	<title>ORION</title>
+	<!-- Deliberately three bold shapes and no fine detail: a favicon is read at
+	     16px, where thin strokes and small features collapse into a smudge. -->
+	<circle cx="32" cy="32" r="32" fill="#0b1017" />
+	<circle cx="32" cy="32" r="23" fill="none" stroke="#1f9be6" stroke-opacity="0.32" stroke-width="4" />
+	<path d="M32 32 L32 9 A23 23 0 0 1 55 32 Z" fill="#1f9be6" />
+</svg>

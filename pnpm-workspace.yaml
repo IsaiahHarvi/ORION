@@ -1,0 +1,9 @@
+packages:
+  - deploy/api
+  - src/app
+  - src/services/nexrad
+
+# These direct upgrades were reviewed while setting up the workspace.
+minimumReleaseAgeExclude:
+  - '@lucide/svelte@1.37.0'
+  - zod@4.5.4

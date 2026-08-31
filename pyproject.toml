@@ -1,10 +1,53 @@
 [project]
 name = "orion"
-version = "0.1.1"
+version = "0.2.0"
 description = "Observation, Reconnaissance, Intelligence, and Operations Network"
 readme = "README.md"
-requires-python = ">=3.11"
-dependencies = []
+requires-python = ">=3.12"
+dependencies = [
+    "pillow>=12.3",
+]
+
+[dependency-groups]
+dev = [
+    {include-group = "api"},
+    {include-group = "nexrad"},
+    # starlette's TestClient needs it; nothing at runtime does.
+    "httpx2",
+    "pytest",
+    "ruff",
+    "ty",
+]
+
+api = [
+    "fastapi>=0.141",
+    "geopy>=2.5",
+    "pandas>=3.0",
+    "uvicorn[standard]>=0.52",
+]
+nexrad = [
+    "arm-pyart>=2.2",
+    "boto3>=1.43",
+    "mercantile>=1.2",
+    "numpy>=2.5",
+    "pyproj>=3.7",
+    "rasterio>=1.5",
+    "scipy>=1.18",
+]
+
+[project.scripts]
+orion-nexrad = "services.nexrad.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
+
+[tool.uv.build-backend]
+module-root = "src"
+module-name = "services"
 
 [tool.ruff]
-exclude = ["src/tornet"]
+src = ["src"]
+
+[tool.ruff.lint]
+extend-select = ["I"]

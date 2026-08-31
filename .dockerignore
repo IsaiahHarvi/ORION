@@ -1,0 +1,10 @@
+.git
+**/node_modules
+**/.svelte-kit
+**/build
+.turbo
+coverage
+*.log
+
+.venv
+.python-version

@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "orion.fullname" . }}-nexrad
+  labels:
+    {{- include "orion.labels" . | nindent 4 }}
+    app.kubernetes.io/component: nexrad
+spec:
+  # Deliberately not configurable. Each replica independently selects the same
+  # anchor scan, downloads every station's volume, and renders the same global
+  # tile pyramid -- a second one doubles NOAA egress and CPU to produce a frame
+  # that the first one's atomic rename already published. Give this pod more
+  # CPU and raise ORION_NEXRAD_*_WORKERS to make frames faster; sharding across
+  # pods would need the producer to split the grid, which it does not do.
+  replicas: 1
+  strategy:
+    # One writer at a time: a rolling update would briefly run two producers.
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "orion.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: nexrad
+  template:
+    metadata:
+      labels:
+        {{- include "orion.labels" . | nindent 8 }}
+        app.kubernetes.io/component: nexrad
+      {{- with .Values.nexrad.annotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    spec:
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: nexrad
+          image: {{ include "orion.image" (dict "root" . "name" "nexrad") }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+            {{- range $key, $value := .Values.nexrad.env }}
+            - name: {{ $key }}
+              value: {{ $value | quote }}
+            {{- end }}
+            {{- include "orion.cpuEnv" (dict "name" "nexrad" "resources" .Values.nexrad.resources) | nindent 12 }}
+          volumeMounts:
+            - name: frames
+              mountPath: {{ .Values.nexrad.env.SCAN_DIR }}
+            - name: tmp
+              mountPath: /tmp
+          resources:
+            {{- toYaml .Values.nexrad.resources | nindent 12 }}
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+      {{- with .Values.nexrad.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nexrad.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nexrad.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        - name: frames
+          persistentVolumeClaim:
+            claimName: {{ include "orion.frameVolumeClaim" . }}

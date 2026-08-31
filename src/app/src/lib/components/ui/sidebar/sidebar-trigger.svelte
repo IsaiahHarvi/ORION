@@ -18,6 +18,7 @@
 </script>
 
 <Button
+	bind:ref
 	type="button"
 	onclick={(e) => {
 		onclick?.(e);

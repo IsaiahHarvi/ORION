@@ -1,9 +1,10 @@
 .DS_Store
 *.png
 !src/app/src/lib/icons/*.png
-data/TorNet
 sample_data.json
 deploy/api/scans/
+data/scans/
+data/dev-scans/
 
 # Python stuff
 __pycache__/
@@ -53,6 +54,7 @@ build/Release
 # Dependency directories
 node_modules/
 jspm_packages/
+.turbo/
 
 # Snowpack dependency directory (https://snowpack.dev/)
 web_modules/

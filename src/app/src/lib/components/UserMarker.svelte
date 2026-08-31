@@ -1,6 +1,6 @@
 <div
 	id="user-marker"
-	class="flex h-9 w-9 items-center justify-center rounded-full border bg-background font-mono text-xs text-muted-foreground"
+	class="bg-background text-muted-foreground flex h-9 w-9 items-center justify-center rounded-full border font-mono text-xs"
 >
 	YOU
 </div>

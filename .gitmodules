@@ -1,3 +1,0 @@
-[submodule "src/tornet"]
-	path = src/tornet
-	url = https://github.com/isaiah-harville/tornet

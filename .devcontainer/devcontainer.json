@@ -1,0 +1,47 @@
+{
+    "name": "orion",
+    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "features": {
+        "ghcr.io/devcontainers/features/common-utils:2": {
+            "configureZshAsDefaultShell": true
+        },
+        "ghcr.io/devcontainers/features/git:1": {},
+        "ghcr.io/devcontainers/features/docker-in-docker:4.1.0": {},
+        "ghcr.io/devcontainers/features/node:2.1.0": {
+            "version": "24"
+        },
+        "ghcr.io/devcontainers-extra/features/uv:1": {},
+        "ghcr.io/devcontainers-extra/features/apt-get-packages:1": {
+            "packages": "vim,tmux"
+        }
+    },
+    "forwardPorts": [5171, 5173],
+    "portsAttributes": {
+        "5171": { "label": "api" },
+        "5173": { "label": "gui" }
+    },
+    "postCreateCommand": "uv sync --locked && corepack enable && pnpm install --frozen-lockfile",
+    "customizations": {
+        "vscode": {
+            "extensions": [
+                "ms-python.python",
+                "charliermarsh.ruff",
+                "astral-sh.ty",
+                "tamasfe.even-better-toml",
+                "esbenp.prettier-vscode",
+                "dbaeumer.vscode-eslint",
+                "svelte.svelte-vscode",
+                "bradlc.vscode-tailwindcss"
+            ],
+            "settings": {
+                "python.testing.pytestEnabled": true,
+                "[python]": {
+                    "editor.defaultFormatter": "charliermarsh.ruff",
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": { "source.organizeImports.ruff": "explicit" }
+                }
+            }
+        }
+    },
+    "runArgs": ["--env-file", ".devcontainer/dev.env"]
+}

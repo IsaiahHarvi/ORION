@@ -16,20 +16,19 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: "3.11"
+          enable-cache: true
 
-      - name: Install Docker Compose v2
-        run: |
-          mkdir -p ~/.docker/cli-plugins/
-          curl -SL https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-linux-x86_64 -o ~/.docker/cli-plugins/docker-compose
-          chmod +x ~/.docker/cli-plugins/docker-compose
+      - name: Install Python dependencies
+        run: uv sync --locked
 
-      - name: Install dependencies
-        run: |
-          pip install pytest
-
-      - name: Run
-        run: pytest tests/integration
+      # The nexrad image would otherwise spend the run downloading a full
+      # CONUS cycle from NOAA. One station keeps the stack honest without
+      # leaning on a third party for volume.
+      - name: Run integration tests
+        env:
+          ORION_NEXRAD_STATIONS: KOHX
+          ORION_NEXRAD_BOUNDS: "-91.5,33.0,-81.0,39.0"
+        run: uv run pytest tests/integration

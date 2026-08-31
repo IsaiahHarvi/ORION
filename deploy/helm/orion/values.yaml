@@ -1,0 +1,115 @@
+image:
+  registry: ghcr.io
+  repository: isaiah-harville/orion
+  # Empty means "use .Chart.AppVersion", which tracks the release tag. Override
+  # only to pin a build that is not the chart's own release.
+  tag: ""
+  pullPolicy: IfNotPresent
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+# All three images ship a nonroot user at uid 65532 and run fine on a read-only
+# root filesystem with a tmpfs /tmp.
+podSecurityContext:
+  runAsNonRoot: true
+  runAsUser: 65532
+  runAsGroup: 65532
+  # The producer writes the shared volume as this group.
+  fsGroup: 65532
+  seccompProfile:
+    type: RuntimeDefault
+
+securityContext:
+  allowPrivilegeEscalation: false
+  readOnlyRootFilesystem: true
+  capabilities:
+    drop: ["ALL"]
+
+# Stateless readers: every pod serves finished tiles off the shared volume, so
+# this scales horizontally with traffic.
+api:
+  replicaCount: 2
+  # uvicorn workers per pod. The API is I/O bound, so a couple saturate the CPU
+  # limit below and replicaCount is what actually adds capacity.
+  webConcurrency: 2
+  # Empty in production: the ingress terminates the browser's origin and sets
+  # its own CORS. Only needed when the GUI is served from another origin.
+  corsOrigins: []
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      memory: 1Gi
+
+# The single writer. Its replica count is fixed at 1 by the template; scale it
+# by raising the CPU limit -- the ingest and compositing pools size themselves
+# from the container's CPU quota, not the node's core count.
+nexrad:
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # nexrad keeps a CPU limit: it is a periodic batch job, so throttling only
+  # makes a cycle slower -- and the cycle timing log says when that starts to
+  # matter. The worker pools size themselves from this via the Downward API.
+  resources:
+    requests:
+      cpu: "2"
+      memory: 3Gi
+    limits:
+      cpu: "4"
+      memory: 6Gi
+  # Only settings that differ from the code defaults, or that an operator
+  # actually tunes. ORION_MOSAIC_DIR is derived from SCAN_DIR and is not set.
+  env:
+    SCAN_DIR: /app/scans
+    ORION_NEXRAD_STATIONS: ALL
+    ORION_NEXRAD_BOUNDS: "-125.0,24.0,-66.5,49.5"
+    ORION_NEXRAD_HISTORY_HOURS: "6"
+
+gui:
+  replicaCount: 1
+  annotations: {}
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  resources:
+    requests:
+      cpu: 50m
+      memory: 128Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
+  # Empty is correct for the documented topology: one ingress serving the GUI
+  # at / and the API at /api, so the GUI's same-origin default just works. Set
+  # PUBLIC_ORION_API_URL only when the API lives on another origin.
+  env: {}
+
+# Required, and must be ReadWriteMany: nexrad writes frames while every api pod
+# reads them, and those pods are scheduled independently. Sized for the default
+# six-hour history (72 frames at a five-minute cadence) plus in-flight volumes.
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  accessMode: ReadWriteMany
+  size: 20Gi
+
+service:
+  type: ClusterIP
+  guiPort: 80
+  apiPort: 5171
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  host: orion.harville.dev
+  tls: []

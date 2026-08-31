@@ -1,35 +1,34 @@
-## Development Build (ignores TS errors)
-# FROM node:20
+FROM node:24-bookworm-slim AS builder
 
-# WORKDIR /app/src/app
+ENV PNPM_HOME=/pnpm \
+    PATH=/pnpm:$PATH \
+    CI=true
 
-# COPY src/app/ .
-# RUN npm i
+RUN corepack enable
+WORKDIR /app
 
-# EXPOSE 5173
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml .npmrc ./
+COPY src/app/package.json ./src/app/package.json
+RUN --mount=type=cache,id=pnpm,target=/pnpm/store \
+    pnpm install --frozen-lockfile
 
-# CMD ["sh", "-c", "npm i && npm run dev -- --host 0.0.0.0 --port 5173"]
+COPY src/app ./src/app
+RUN pnpm --filter app build
 
-# Production Build
-FROM node:20 AS builder
-ENV PORT=5173
-ARG VITE_API_URL
-ENV VITE_API_URL=$VITE_API_URL
+RUN pnpm --filter app deploy --prod --legacy /out
 
-WORKDIR /app/src/app
-COPY src/app/package*.json ./
-RUN npm install
-COPY src/app/ .
-RUN npm run build
 
-# Runner stage: copy package.json, node_modules, and build output
-FROM node:20 AS runner
+FROM gcr.io/distroless/nodejs24-debian12:nonroot AS runner
 
-WORKDIR /app/src/app
-COPY --from=builder /app/src/app/package*.json ./
-COPY --from=builder /app/src/app/node_modules ./node_modules
+ENV NODE_ENV=production \
+    PORT=5173 \
+    HOST=0.0.0.0
+
+WORKDIR /app
+COPY --from=builder /out/node_modules ./node_modules
 COPY --from=builder /app/src/app/build ./build
+COPY --from=builder /app/src/app/package.json ./package.json
 
 EXPOSE 5173
-# CMD ["npm", "run", "preview", "--", "--host", "0.0.0.0", "--port", "5173"]
-CMD ["sh", "-c", "PORT=5173 node build"]
+
+CMD ["build"]

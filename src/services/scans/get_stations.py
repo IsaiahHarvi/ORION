@@ -1,3 +1,4 @@
+import sys
 from math import atan2, cos, radians, sin, sqrt
 
 import pandas as pd
@@ -60,7 +61,7 @@ if __name__ == "__main__":
         location = geolocator.geocode(city)
         if location is None:
             print(f"Could not geocode '{city}'. Please check the city name.")
-            exit(1)
+            sys.exit(1)
         target_lat = location.latitude
         target_lon = location.longitude
         print(f"Coordinates for {city}: {target_lat}, {target_lon}")
@@ -70,7 +71,7 @@ if __name__ == "__main__":
             target_lon = float(input("Enter longitude: "))
         except ValueError:
             print("Invalid coordinate input.")
-            exit(1)
+            sys.exit(1)
 
     radius_km = 200
     nearby_radars = get_radars(target_lat, target_lon, radius_km)

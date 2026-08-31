@@ -1,0 +1,20 @@
+{
+	"name": "orion",
+	"private": true,
+	"packageManager": "pnpm@11.20.0",
+	"engines": {
+		"node": ">=24.0.0"
+	},
+	"scripts": {
+		"dev": "SCAN_DIR=${SCAN_DIR:-data/dev-scans} PUBLIC_ORION_API_URL=${PUBLIC_ORION_API_URL:-http://localhost:5171/api} turbo run dev",
+		"dev:api": "pnpm --filter @orion/api dev",
+		"dev:nexrad": "pnpm --filter @orion/nexrad dev",
+		"build": "turbo run build",
+		"check": "turbo run check",
+		"lint": "turbo run lint",
+		"test": "turbo run test"
+	},
+	"devDependencies": {
+		"turbo": "^2.10.12"
+	}
+}

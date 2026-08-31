@@ -14,7 +14,7 @@ def api_service():
     env["VITE_API_URL"] = BASE_URL
     env["RESTART_POLICY"] = "no"
     subprocess.run(
-        "docker compose up api --build -d".split(" "),
+        ["docker", "compose", "up", "api", "--build", "-d"],
         check=True,
     )
     timeout = 30  # seconds
@@ -27,18 +27,20 @@ def api_service():
         except requests.exceptions.RequestException:
             pass
         if time.time() - start_time > timeout:
-            raise Exception("API container did not start in time or health endpoint is not reachable.")
+            raise TimeoutError(
+                "API container did not start in time or health endpoint is not reachable."
+            )
         time.sleep(2)
     yield
-    subprocess.run("docker compose down api -v".split(" "), check=True)
+    subprocess.run(["docker", "compose", "down", "api", "-v"], check=True)
 
 
 def get_endpoint_response(endpoint_url, assert_200=True):
     response = requests.get(f"{BASE_URL}{endpoint_url}")
     if assert_200:
-        assert (
-            response.status_code == 200
-        ), f"{endpoint_url} endpoint did not return 200 OK."
+        assert response.status_code == 200, (
+            f"{endpoint_url} endpoint did not return 200 OK."
+        )
     return response
 
 
@@ -47,9 +49,9 @@ def test_root_endpoint(api_service):
 
 
 def test_health_endpoint(api_service):
-    assert get_endpoint_response("/health").json() == {
-        "status": "healthy"
-    }, "Health endpoint did not return expected status."
+    assert get_endpoint_response("/health").json() == {"status": "healthy"}, (
+        "Health endpoint did not return expected status."
+    )
 
 
 def test_radars_nearby_endpoint(api_service):
@@ -63,9 +65,9 @@ def test_radars_nearby_endpoint(api_service):
         assert len(response_json) > 0, "Expected at least one radar in the response."
     else:
         json_data = response.json()
-        assert (
-            "Error" in json_data
-        ), "Expected an error message when no radars are found."
+        assert "Error" in json_data, (
+            "Expected an error message when no radars are found."
+        )
 
 
 def test_radars_endpoint(api_service):

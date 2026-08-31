@@ -1,0 +1,94 @@
+from __future__ import annotations
+
+import json
+import os
+import re
+from pathlib import Path
+
+from fastapi import APIRouter, HTTPException, Response
+from fastapi.responses import FileResponse
+
+from services.nexrad.placeholder import TRANSPARENT_PNG
+
+router = APIRouter(prefix="/nexrad", tags=["nexrad"])
+FRAME_ID = re.compile(r"^\d{10}-[0-9a-f]{8}$")
+
+
+def mosaic_directory() -> Path:
+    return Path(
+        os.environ.get(
+            "ORION_MOSAIC_DIR",
+            str(Path(os.environ.get("SCAN_DIR", "./data/dev-scans")) / "mosaic"),
+        )
+    )
+
+
+def manifest_path() -> Path:
+    root = mosaic_directory()
+    manifests = root / "manifests"
+    if manifests.is_dir():
+        candidates = list(manifests.glob("*.json"))
+        if candidates:
+            return max(candidates, key=lambda path: path.stat().st_mtime_ns)
+    return root / "manifest.json"
+
+
+@router.get("/frames")
+async def nexrad_frames() -> Response:
+    path = manifest_path()
+    if not path.is_file():
+        # The producer owns the manifest; until it publishes one there is
+        # genuinely nothing to serve. Synthesising a placeholder here meant
+        # duplicating the producer's stations, bounds and zoom range in the
+        # API's environment, where the two could silently disagree.
+        raise HTTPException(
+            status_code=503, detail="NEXRAD mosaic is not available yet"
+        )
+    return FileResponse(
+        path,
+        media_type="application/json",
+        headers={"Cache-Control": "no-cache, max-age=0"},
+    )
+
+
+@router.get("/tiles/{frame}/{z:int}/{x:int}/{y:int}.png")
+async def nexrad_tile(frame: str, z: int, x: int, y: int) -> Response:
+    if not FRAME_ID.fullmatch(frame) or not (
+        0 <= z <= 14 and 0 <= x < 2**z and 0 <= y < 2**z
+    ):
+        raise HTTPException(status_code=404, detail="Invalid tile coordinate")
+
+    root = mosaic_directory()
+    frame_directory = root / "frames" / str(frame)
+    if not frame_directory.is_dir():
+        raise HTTPException(status_code=404, detail="Radar frame not found")
+
+    path = frame_directory / str(z) / str(x) / f"{y}.png"
+    if not path.is_file():
+        return Response(
+            content=TRANSPARENT_PNG,
+            media_type="image/png",
+            headers={"Cache-Control": "public, max-age=31536000, immutable"},
+        )
+    return FileResponse(
+        path,
+        media_type="image/png",
+        headers={"Cache-Control": "public, max-age=31536000, immutable"},
+    )
+
+
+@router.get("/status")
+async def nexrad_status() -> dict[str, object]:
+    path = manifest_path()
+    if not path.is_file():
+        return {"status": "starting", "frames": 0}
+    manifest = json.loads(path.read_text())
+    frames = manifest.get("frames", [])
+    latest = frames[-1] if frames else {}
+    return {
+        "status": "healthy" if frames else "starting",
+        "generated_at": manifest.get("generated_at"),
+        "frames": len(frames),
+        "contributing_stations": len(latest.get("stations", [])),
+        "configured_stations": len(manifest.get("configured_stations", [])),
+    }
