@@ -1,7 +1,7 @@
 packages:
   - deploy/api
   - src/app
-  - src/services/radar
+  - src/services/nexrad
 
 # These direct upgrades were reviewed while setting up the workspace.
 minimumReleaseAgeExclude:

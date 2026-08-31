@@ -25,5 +25,5 @@ def enforce_dir_size_limit(directory, max_size_bytes=15 * 1024 * 1024 * 1024):
             print(
                 f"Deleted {oldest_file} of size {file_size} bytes to enforce size limit."
             )
-        except Exception as e:
+        except OSError as e:
             print(f"Error deleting {oldest_file}: {e}")

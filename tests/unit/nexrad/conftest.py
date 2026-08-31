@@ -4,7 +4,7 @@ from typing import Any
 
 import pytest
 
-from services.radar.settings import ProducerSettings
+from services.nexrad.settings import ProducerSettings
 
 DEFAULTS: dict[str, Any] = {
     "bucket": "unused",

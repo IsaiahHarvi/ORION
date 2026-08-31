@@ -2,7 +2,7 @@ from datetime import UTC, datetime
 
 import numpy as np
 
-from services.radar.mosaic import (
+from services.nexrad.mosaic import (
     GateScan,
     GridSpec,
     add_scan_to_grid,
@@ -10,7 +10,7 @@ from services.radar.mosaic import (
     despeckle_grid,
     dual_pol_gate_mask,
 )
-from services.radar.tiles import colorize_dbz
+from services.nexrad.tiles import colorize_dbz
 
 ANCHOR = datetime(2026, 8, 29, 12, tzinfo=UTC)
 

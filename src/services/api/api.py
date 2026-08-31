@@ -3,7 +3,7 @@ import os
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 
-from services.radar.api import router as radar_router
+from services.nexrad.api import router as radar_router
 from services.scans.get_stations import get_radars
 
 app = FastAPI(

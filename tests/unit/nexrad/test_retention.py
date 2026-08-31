@@ -4,10 +4,10 @@ from pathlib import Path
 
 import pytest
 
-from services.radar import ingest as ingest_module
-from services.radar.archive import ScanObject
-from services.radar.ingest import download_and_extract
-from services.radar.retention import prune_raw_scans, prune_superseded_frames
+from services.nexrad import ingest as ingest_module
+from services.nexrad.archive import ScanObject
+from services.nexrad.ingest import download_and_extract
+from services.nexrad.retention import prune_raw_scans, prune_superseded_frames
 
 
 def scan(root: Path, station: str, name: str, age_seconds: float) -> Path:

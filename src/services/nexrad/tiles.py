@@ -8,7 +8,7 @@ from PIL import Image
 from rasterio.transform import from_bounds, from_origin
 from rasterio.warp import Resampling, reproject
 
-from services.radar.mosaic import MosaicGrid
+from services.nexrad.mosaic import MosaicGrid
 
 DBZ_STOPS = np.asarray([20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70])
 # Alpha climbs with intensity so the map reads by weight as well as hue. The

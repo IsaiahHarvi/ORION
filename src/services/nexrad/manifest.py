@@ -5,9 +5,9 @@ import logging
 import shutil
 from datetime import UTC, datetime
 
-from services.radar.retention import prune_superseded_frames
-from services.radar.settings import ProducerSettings, configuration_hash
-from services.radar.storage import atomic_json
+from services.nexrad.retention import prune_superseded_frames
+from services.nexrad.settings import ProducerSettings, configuration_hash
+from services.nexrad.storage import atomic_json
 
 LOGGER = logging.getLogger("orion.radar.manifest")
 

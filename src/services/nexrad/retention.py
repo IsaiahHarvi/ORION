@@ -6,7 +6,7 @@ import time
 from datetime import timedelta
 from pathlib import Path
 
-from services.radar.settings import ProducerSettings
+from services.nexrad.settings import ProducerSettings
 
 LOGGER = logging.getLogger("orion.radar.retention")
 

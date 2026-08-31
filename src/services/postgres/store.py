@@ -13,7 +13,7 @@ def store_scan_in_postgres(scan, radar, radar_id):
     reflectivity_data = radar.fields["reflectivity"]["data"][0]
     reflectivity_list = reflectivity_data.tolist()
 
-    lats, lons, alts = radar.get_gate_lat_lon_alt(sweep=0)
+    lats, lons, _alts = radar.get_gate_lat_lon_alt(sweep=0)
 
     lats_sweep = lats[0]
     lons_sweep = lons[0]

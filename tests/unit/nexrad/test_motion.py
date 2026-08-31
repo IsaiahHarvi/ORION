@@ -1,7 +1,7 @@
 import numpy as np
 
-from services.radar.mosaic import GridSpec, create_grid
-from services.radar.motion import STRIDE, estimate_frame_motion
+from services.nexrad.mosaic import GridSpec, create_grid
+from services.nexrad.motion import STRIDE, estimate_frame_motion
 
 RESOLUTION_M = 2000.0
 

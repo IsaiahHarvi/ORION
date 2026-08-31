@@ -5,9 +5,9 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 from datetime import datetime
 from typing import Any
 
-from services.radar.archive import ScanObject, download_scan, list_scans
-from services.radar.mosaic import GateScan, extract_lowest_reflectivity
-from services.radar.settings import ProducerSettings
+from services.nexrad.archive import ScanObject, download_scan, list_scans
+from services.nexrad.mosaic import GateScan, extract_lowest_reflectivity
+from services.nexrad.settings import ProducerSettings
 
 LOGGER = logging.getLogger("orion.radar.ingest")
 

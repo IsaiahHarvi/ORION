@@ -1,6 +1,6 @@
 from datetime import UTC, datetime, timedelta
 
-from services.radar.archive import (
+from services.nexrad.archive import (
     ScanObject,
     parse_scan_object,
     select_synchronized_scans,

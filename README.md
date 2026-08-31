@@ -34,10 +34,13 @@ pnpm install
 pnpm run dev
 ```
 
-Turborepo starts the SvelteKit app, FastAPI service, and Level II radar producer. The
-app is available at `http://localhost:5173`, and the API is available at
-`http://localhost:5171`. The first radar frame may take several minutes while NOAA
-volumes are downloaded and processed.
+Turborepo starts the SvelteKit app, the FastAPI service, and the `nexrad` mosaic
+service. The app is available at `http://localhost:5173`, and the API is available
+at `http://localhost:5171`. The first radar frame may take several minutes while
+NOAA volumes are downloaded and processed.
+
+Python dependencies are locked in `uv.lock`; `uv sync` provisions the interpreter
+from `.python-version` and installs both service groups plus the test tooling.
 
 Local runtime artifacts are written to `data/dev-scans`. Do not run the development
 stack with `sudo`; root-owned Vite caches and radar artifacts prevent normal hot
@@ -47,7 +50,7 @@ Run the backend services individually when needed:
 
 ```bash
 pnpm run dev:api
-pnpm run dev:radar
+pnpm run dev:nexrad
 ```
 
 1. **Start the Project:**
@@ -82,7 +85,7 @@ Our API is available at: https://orion.harville.dev/api/docs
 ## NEXRAD Mosaic
 
 ORION produces its own animated base-reflectivity mosaic from synchronized NOAA
-NEXRAD Level II volumes. The `radar-producer` service downloads unsigned archive
+NEXRAD Level II volumes. The `nexrad` service downloads unsigned archive
 objects, selects the lowest usable elevation sweep, resolves radar overlap by beam
 altitude/range/scan age, and atomically publishes immutable XYZ PNG tiles. FastAPI
 serves the resulting frame manifest and tiles without performing radar processing
@@ -93,17 +96,19 @@ Change `ORION_RADAR_STATIONS` and `ORION_RADAR_BOUNDS` together when expanding t
 coverage area. Higher resolution and larger bounds increase memory, download,
 processing, and tile-storage requirements substantially.
 
-Start the API and producer together:
+The two services ship as separate images built from `deploy/Dockerfile`: the `api`
+target installs only the serving stack, while the `nexrad` target carries the ingest
+chain (pyart, rasterio, scipy). Start them together:
 
 ```bash
-docker compose up --build api radar-producer
+docker compose up --build api nexrad
 ```
 
 Produce one reproducible frame instead of running the polling loop:
 
 ```bash
-docker compose run --rm radar-producer \
-  python -m services.radar.producer --once --analysis-time 2026-08-29T18:00:00Z
+docker compose run --rm nexrad \
+  orion-nexrad --once --analysis-time 2026-08-29T18:00:00Z
 ```
 
 Radar endpoints:

@@ -1,6 +1,6 @@
 import pytest
 
-from services.radar.settings import load_all_stations
+from services.nexrad.settings import load_all_stations
 
 CONUS = (-125.0, 24.0, -66.5, 49.5)
 

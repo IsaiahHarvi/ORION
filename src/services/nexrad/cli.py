@@ -13,9 +13,9 @@ import os
 import time
 from datetime import UTC, datetime
 
-from services.radar.frames import produce_frame
-from services.radar.retention import prune_raw_scans
-from services.radar.settings import ProducerSettings
+from services.nexrad.frames import produce_frame
+from services.nexrad.retention import prune_raw_scans
+from services.nexrad.settings import ProducerSettings
 
 LOGGER = logging.getLogger("orion.radar")
 

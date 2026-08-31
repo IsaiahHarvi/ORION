@@ -4,8 +4,8 @@ import logging
 
 import numpy as np
 
-from services.radar.mosaic import MosaicGrid, estimate_motion_cells
-from services.radar.settings import ProducerSettings
+from services.nexrad.mosaic import MosaicGrid, estimate_motion_cells
+from services.nexrad.settings import ProducerSettings
 
 LOGGER = logging.getLogger("orion.radar.motion")
 

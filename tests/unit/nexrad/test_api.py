@@ -5,7 +5,7 @@ from fastapi import FastAPI
 from fastapi.testclient import TestClient
 from PIL import Image
 
-from services.radar.api import router
+from services.nexrad.api import router
 
 
 def test_manifest_and_transparent_tile(tmp_path, monkeypatch) -> None:

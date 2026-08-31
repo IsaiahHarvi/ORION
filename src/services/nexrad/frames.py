@@ -8,29 +8,29 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-from services.radar.archive import (
+from services.nexrad.archive import (
     ScanObject,
     create_s3_client,
     select_synchronized_scans,
 )
-from services.radar.ingest import download_and_extract, list_station_scans
-from services.radar.manifest import publish_manifest
-from services.radar.mosaic import (
+from services.nexrad.ingest import download_and_extract, list_station_scans
+from services.nexrad.manifest import publish_manifest
+from services.nexrad.mosaic import (
     GridSpec,
     MosaicGrid,
     add_scan_to_grid,
     create_grid,
     despeckle_grid,
 )
-from services.radar.motion import estimate_frame_motion
-from services.radar.placeholder import TRANSPARENT_PNG
-from services.radar.settings import (
+from services.nexrad.motion import estimate_frame_motion
+from services.nexrad.placeholder import TRANSPARENT_PNG
+from services.nexrad.settings import (
     ALGORITHM_VERSION,
     ProducerSettings,
     configuration_hash,
 )
-from services.radar.storage import atomic_json
-from services.radar.tiles import render_tile_pyramid
+from services.nexrad.storage import atomic_json
+from services.nexrad.tiles import render_tile_pyramid
 
 LOGGER = logging.getLogger("orion.radar.frames")
 
