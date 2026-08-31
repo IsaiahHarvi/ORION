@@ -40,14 +40,14 @@
 	</button>
 
 	<button
-		class="flex h-10 w-10 items-center justify-center border bg-background duration-100 hover:bg-neutral-800"
+		class="bg-background flex h-10 w-10 items-center justify-center border duration-100 hover:bg-neutral-800"
 		onclick={undoCanvas}
 	>
 		<Undo size={20} />
 	</button>
 
 	<button
-		class="flex h-10 w-10 items-center justify-center border bg-background duration-100 hover:bg-neutral-800"
+		class="bg-background flex h-10 w-10 items-center justify-center border duration-100 hover:bg-neutral-800"
 		onclick={redoCanvas}
 	>
 		<Redo size={20} />
@@ -59,7 +59,7 @@
 		<input
 			type="color"
 			bind:value={color}
-			class="absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
+			class="absolute top-0 left-0 h-full w-full cursor-pointer opacity-0"
 		/>
 	</div>
 </div>

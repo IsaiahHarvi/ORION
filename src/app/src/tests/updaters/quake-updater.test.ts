@@ -75,7 +75,10 @@ describe('quake markers', () => {
 	});
 
 	it('selects the quake when its marker is clicked', async () => {
-		await loadQuakeData({} as maplibregl.Map, respondWith([quake('a')]) as unknown as typeof fetch);
+		await loadQuakeData(
+			{} as maplibregl.Map,
+			respondWith([quake('a')]) as unknown as typeof fetch
+		);
 		const el = vi.mocked(maplibregl.Marker).mock.calls[0][0]?.element as HTMLElement;
 		el.click();
 		expect(quakeStore.update).toHaveBeenCalled();

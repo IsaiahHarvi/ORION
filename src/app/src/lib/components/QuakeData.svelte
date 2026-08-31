@@ -39,7 +39,9 @@
 				{selectedQuake.magnitude.toFixed(1)}
 			</span>
 			<div class="min-w-0">
-				<h2 class="truncate text-lg font-bold">{selectedQuake.place ?? 'Unknown location'}</h2>
+				<h2 class="truncate text-lg font-bold">
+					{selectedQuake.place ?? 'Unknown location'}
+				</h2>
 				<div class="text-foreground-muted font-mono text-xs">
 					{formatTime(selectedQuake.time)}
 				</div>
@@ -51,7 +53,9 @@
 			<div><strong>Longitude:</strong> {selectedQuake.longitude.toFixed(4)}</div>
 			<div>
 				<strong>Depth:</strong>
-				{selectedQuake.depth_km !== null ? `${selectedQuake.depth_km.toFixed(1)} km` : 'N/A'}
+				{selectedQuake.depth_km !== null
+					? `${selectedQuake.depth_km.toFixed(1)} km`
+					: 'N/A'}
 			</div>
 			<div><strong>Felt reports:</strong> {selectedQuake.felt ?? '0'}</div>
 		</div>

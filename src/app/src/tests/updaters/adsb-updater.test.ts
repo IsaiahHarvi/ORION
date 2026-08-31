@@ -130,7 +130,9 @@ describe('adsb markers', () => {
 		await loadFlightData(map, respondWith([flight('a')]) as unknown as typeof fetch);
 		await loadFlightData(
 			map,
-			respondWith([flight('a', { latitude: 37.0, longitude: -88.0 })]) as unknown as typeof fetch
+			respondWith([
+				flight('a', { latitude: 37.0, longitude: -88.0 })
+			]) as unknown as typeof fetch
 		);
 		expect(maplibregl.Marker).toHaveBeenCalledOnce();
 		const marker = vi.mocked(maplibregl.Marker).mock.results[0].value;
@@ -139,7 +141,10 @@ describe('adsb markers', () => {
 
 	it('removes aircraft the feed no longer reports', async () => {
 		const map = fakeMap();
-		await loadFlightData(map, respondWith([flight('a'), flight('b')]) as unknown as typeof fetch);
+		await loadFlightData(
+			map,
+			respondWith([flight('a'), flight('b')]) as unknown as typeof fetch
+		);
 		const first = vi.mocked(maplibregl.Marker).mock.results[0].value;
 		await loadFlightData(map, respondWith([flight('b')]) as unknown as typeof fetch);
 		expect(first.removed).toBe(true);

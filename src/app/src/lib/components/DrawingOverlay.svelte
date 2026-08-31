@@ -116,7 +116,7 @@
 
 <canvas
 	bind:this={canvas}
-	class="absolute left-0 top-0 z-[35] h-screen w-screen touch-none"
+	class="absolute top-0 left-0 z-[35] h-screen w-screen touch-none"
 	onmousedown={startDraw}
 	onmousemove={draw}
 	onmouseup={stopDraw}
