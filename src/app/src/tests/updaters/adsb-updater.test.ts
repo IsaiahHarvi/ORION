@@ -6,8 +6,8 @@ import {
 	markerColor,
 	label,
 	shortestTurn,
-	stepAnimation,
-	REFRESH_MS
+	deadReckon,
+	stepAnimation
 } from '$lib/adsb-updater';
 import { flightStore, type Flight } from '$lib/stores/flight-store';
 import type { Mock } from 'vitest';
@@ -144,17 +144,58 @@ describe('adsb markers', () => {
 		expect(maplibregl.Marker).toHaveBeenCalledOnce();
 
 		const marker = vi.mocked(maplibregl.Marker).mock.results[0].value;
-		// Mid-glide the aircraft sits between the two reports, not at either --
-		// this is what makes it read as flying rather than teleporting.
-		stepAnimation(start + REFRESH_MS / 2);
-		const [lng, lat] = marker._lngLat as [number, number];
-		expect(lng).toBeGreaterThan(-88.362);
-		expect(lng).toBeLessThan(-88.0);
-		expect(lat).toBeGreaterThan(36.674);
-		expect(lat).toBeLessThan(37.0);
+		// The correction from the old drawn position to the new report eases in
+		// rather than snapping, so mid-correction it is at neither.
+		stepAnimation(start + 500);
+		expect(marker._lngLat).not.toEqual([-88.0, 37.0]);
+	});
 
-		stepAnimation(start + REFRESH_MS * 2);
-		expect(marker._lngLat).toEqual([-88.0, 37.0]);
+	it('keeps flying between reports instead of standing still', async () => {
+		// The server caches for as long as the client polls, so consecutive
+		// reports are often identical. Dead reckoning is what keeps the marker
+		// moving through them.
+		const map = fakeMap();
+		await loadFlightData(map, respondWith([flight('a')]) as unknown as typeof fetch);
+		const marker = vi.mocked(maplibregl.Marker).mock.results[0].value;
+		const start = performance.now();
+
+		stepAnimation(start + 4_000);
+		const first = marker._lngLat as [number, number];
+		stepAnimation(start + 8_000);
+		const second = marker._lngLat as [number, number];
+
+		expect(second[0]).not.toBe(first[0]);
+		expect(second[1]).not.toBe(first[1]);
+		// Track 243 is south-west, so it must be going that way and no other.
+		expect(second[0]).toBeLessThan(first[0]);
+		expect(second[1]).toBeLessThan(first[1]);
+	});
+
+	it('leaves a parked aircraft where it is', async () => {
+		const map = fakeMap();
+		await loadFlightData(
+			map,
+			respondWith([
+				flight('a', { on_ground: true, ground_speed_kt: 0, altitude_ft: null })
+			]) as unknown as typeof fetch
+		);
+		const marker = vi.mocked(maplibregl.Marker).mock.results[0].value;
+		stepAnimation(performance.now() + 30_000);
+		expect(marker._lngLat).toEqual([-88.362, 36.674]);
+	});
+
+	it('stops extrapolating when the feed goes quiet', () => {
+		// A minute of coasting is a plausible position; ten minutes is fiction.
+		const oneMinute = deadReckon([-88.0, 36.0], 480, 90, 60_000);
+		const tenMinutes = deadReckon([-88.0, 36.0], 480, 90, 600_000);
+		expect(tenMinutes).toEqual(oneMinute);
+	});
+
+	it('shortens a degree of longitude with latitude', () => {
+		// Flying due east at the same speed covers more degrees further north.
+		const [equator] = deadReckon([0, 0], 480, 90, 60_000);
+		const [arctic] = deadReckon([0, 70], 480, 90, 60_000);
+		expect(arctic).toBeGreaterThan(equator);
 	});
 
 	it('takes the short way round when a heading crosses north', () => {

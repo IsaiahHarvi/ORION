@@ -10,7 +10,7 @@ _Observation, Reconnaissance, Intelligence, and Operations Network_
 
 ---
 
-A versatile software platform designed for use across missions in public safety, security, environmental monitoring, and defense. Leveraging machine learning, ORION filters and transforms data from diverse sources—including UAVs and NEXRAD—into actionable insights for effective decision-making.
+A versatile software platform designed for use across missions in public safety, security, environmental monitoring, and defense. Leveraging machine learning, ORION filters and transforms data from diverse sources—including NEXRAD, ADS-B, and seismic feeds—into actionable insights for effective decision-making.
 
 **A presentation is available [here](docs/PROJECT_ORION.pdf)**
 
@@ -101,7 +101,7 @@ The chart lives in `deploy/helm/orion`. Image tags default to the chart's
 
 ```bash
 helm install orion oci://ghcr.io/isaiah-harville/orion/charts/orion \
-  --namespace apps --version 0.2.0
+  --namespace apps --version 0.2.1
 ```
 
 The GUI reads its API origin at runtime from `PUBLIC_ORION_API_URL`, and defaults
@@ -167,6 +167,23 @@ GET /nexrad/frames
 GET /nexrad/status
 GET /nexrad/tiles/{frame}/{z}/{x}/{y}.png
 ```
+
+Live feed endpoints. Both are read-through caches over a public upstream, so
+many browsers cost the same upstream traffic as one:
+
+```text
+GET /quakes?window=day&min_magnitude=2.5
+GET /adsb?lat=36.0&lon=-86.7&radius_nm=150
+```
+
+`/quakes` serves the USGS summary feeds (`ORION_QUAKES_CACHE_SECONDS`, default
+60). `/adsb` serves the adsb.lol community receiver network
+(`ORION_ADSB_CACHE_SECONDS`, default 15; `ORION_ADSB_BASE_URL` to point at
+airplanes.live or your own readsb). ADS-B is queried around a point rather than
+globally, so the client passes its viewport centre; requests are snapped to a
+quarter-degree grid server-side so nearby clients share one upstream fetch.
+Attribution must be preserved: `Earthquake data: USGS Earthquake Hazards
+Program` and `Flight data: adsb.lol community receiver network`.
 
 Tiles are derived, colorized ORION products. Attribution must read: `Weather
 radar: NOAA/NWS NEXRAD processed by ORION`. The mosaic remains observational
