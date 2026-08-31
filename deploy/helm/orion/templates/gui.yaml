@@ -35,11 +35,13 @@ spec:
           ports:
             - name: gui
               containerPort: 5173
+          {{- with .Values.gui.env }}
           env:
-            {{- range $key, $value := .Values.gui.env }}
+            {{- range $key, $value := . }}
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+          {{- end }}
           readinessProbe:
             httpGet:
               path: /
