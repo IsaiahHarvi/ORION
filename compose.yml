@@ -5,7 +5,7 @@ services:
       dockerfile: deploy/gui/Dockerfile
       args:
         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
-    image: "ghcr.io/isaiah-harville/orion/orion-gui:latest"
+    image: "ghcr.io/isaiah-harville/orion/orion-gui:${ORION_VERSION:-latest}"
     environment:
       VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     ports:
@@ -18,7 +18,7 @@ services:
       target: api
       args:
         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
-    image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
+    image: "ghcr.io/isaiah-harville/orion/orion-api:${ORION_VERSION:-latest}"
     environment:
       SERVICE: api
       SCAN_DIR: /app/scans
@@ -34,7 +34,7 @@ services:
       context: .
       dockerfile: deploy/Dockerfile
       target: nexrad
-    image: "ghcr.io/isaiah-harville/orion/orion-nexrad:latest"
+    image: "ghcr.io/isaiah-harville/orion/orion-nexrad:${ORION_VERSION:-latest}"
     platform: linux/amd64
     environment:
       SCAN_DIR: /app/scans
