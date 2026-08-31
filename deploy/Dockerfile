@@ -4,7 +4,9 @@ WORKDIR /app
 
 ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
-    PATH="/app/.venv/bin:$PATH"
+    PATH="/app/.venv/bin:$PATH" \
+    HOME=/tmp \
+    MPLCONFIGDIR=/tmp/matplotlib
 
 # Both images run as this unprivileged user; uid 65532 matches the distroless
 # convention the GUI image uses, so every ORION pod shares one securityContext.

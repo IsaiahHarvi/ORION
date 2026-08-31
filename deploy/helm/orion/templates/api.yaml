@@ -45,6 +45,10 @@ spec:
               value: {{ .Values.nexrad.env.SCAN_DIR | quote }}
             - name: WEB_CONCURRENCY
               value: {{ .Values.api.webConcurrency | quote }}
+            - name: ORION_RADAR_STATIONS
+              value: {{ .Values.nexrad.env.ORION_RADAR_STATIONS | quote }}
+            - name: ORION_RADAR_BOUNDS
+              value: {{ .Values.nexrad.env.ORION_RADAR_BOUNDS | quote }}
             {{- include "orion.cpuEnv" (dict "name" "api" "resources" .Values.api.resources) | nindent 12 }}
           volumeMounts:
             # Readers only. nexrad is the single writer.
