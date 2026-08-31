@@ -103,10 +103,19 @@ helm install orion oci://ghcr.io/isaiah-harville/orion/charts/orion \
   --namespace apps --version 0.2.0
 ```
 
-The `api` and `nexrad` containers share the frame directory over a volume, so the
-chart runs them as one single-replica pod; the GUI scales independently. Frames
-land in an `emptyDir` by default and rebuild from NOAA after a restart — set
-`persistence.enabled=true` to keep the animation history across restarts.
+`api`, `nexrad`, and `gui` are separate Deployments. `api` is stateless and scales
+horizontally (`api.replicaCount`); `nexrad` is pinned to one replica because each
+producer independently downloads every station's volume and renders the same
+global pyramid — a second one doubles NOAA egress for a frame the first already
+published. Make frames faster by giving that pod more CPU and raising
+`ORION_RADAR_INGEST_WORKERS` / `ORION_RADAR_COMPUTE_WORKERS`.
+
+Because `nexrad` writes the frame directory that every `api` pod reads, the chart
+requires a **ReadWriteMany** volume and refuses to render without one. Disk use is
+bounded by the producer's own retention, not by the volume size: it keeps
+`ORION_RADAR_RETAINED_FRAMES` frames (13 by default), deletes each Level II volume
+as soon as it is decoded, and prunes anything older than
+`ORION_RADAR_RAW_RETENTION_SECONDS`.
 
 ## NEXRAD Mosaic
 
