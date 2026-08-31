@@ -4,7 +4,10 @@ import {
 	resetAdsbUpdater,
 	viewportRadiusNm,
 	markerColor,
-	label
+	label,
+	shortestTurn,
+	stepAnimation,
+	REFRESH_MS
 } from '$lib/adsb-updater';
 import { flightStore, type Flight } from '$lib/stores/flight-store';
 import type { Mock } from 'vitest';
@@ -22,6 +25,9 @@ vi.mock('maplibre-gl', () => {
 		setLngLat(lngLat: [number, number]) {
 			this._lngLat = lngLat;
 			return this;
+		}
+		getLngLat() {
+			return { lng: this._lngLat?.[0] ?? 0, lat: this._lngLat?.[1] ?? 0 };
 		}
 		getElement() {
 			return this._element;
@@ -128,6 +134,7 @@ describe('adsb markers', () => {
 	it('moves an aircraft already on the map instead of recreating it', async () => {
 		const map = fakeMap();
 		await loadFlightData(map, respondWith([flight('a')]) as unknown as typeof fetch);
+		const start = performance.now();
 		await loadFlightData(
 			map,
 			respondWith([
@@ -135,8 +142,25 @@ describe('adsb markers', () => {
 			]) as unknown as typeof fetch
 		);
 		expect(maplibregl.Marker).toHaveBeenCalledOnce();
+
 		const marker = vi.mocked(maplibregl.Marker).mock.results[0].value;
+		// Mid-glide the aircraft sits between the two reports, not at either --
+		// this is what makes it read as flying rather than teleporting.
+		stepAnimation(start + REFRESH_MS / 2);
+		const [lng, lat] = marker._lngLat as [number, number];
+		expect(lng).toBeGreaterThan(-88.362);
+		expect(lng).toBeLessThan(-88.0);
+		expect(lat).toBeGreaterThan(36.674);
+		expect(lat).toBeLessThan(37.0);
+
+		stepAnimation(start + REFRESH_MS * 2);
 		expect(marker._lngLat).toEqual([-88.0, 37.0]);
+	});
+
+	it('takes the short way round when a heading crosses north', () => {
+		// 350 to 010 is a 20 degree right turn, not a 340 degree left one.
+		expect(shortestTurn(350, 10)).toBe(20);
+		expect(shortestTurn(10, 350)).toBe(-20);
 	});
 
 	it('removes aircraft the feed no longer reports', async () => {
@@ -161,7 +185,9 @@ describe('adsb markers', () => {
 		await loadFlightData(fakeMap(), respondWith([flight('a')]) as unknown as typeof fetch);
 		const el = vi.mocked(maplibregl.Marker).mock.calls[0][0]?.element as HTMLElement;
 		const glyph = el.firstElementChild as SVGElement;
-		// On the glyph, not the marker element, which MapLibre transforms itself.
+		// On the glyph, not the marker element: MapLibre writes the element's own
+		// transform to position it, so a rotation there is lost on the next map
+		// move and the marker drifts off its coordinates.
 		expect(glyph.style.transform).toBe('rotate(243deg)');
 		expect(el.style.transform).toBe('');
 	});

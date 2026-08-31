@@ -186,11 +186,10 @@ html {
 }
 
 /* The rotation lives on the glyph because MapLibre owns the marker element's
-   own transform for positioning. */
+   own transform for positioning. It is written every animation frame, so a CSS
+   transition on it would fight the interpolation rather than smooth it. */
 .adsb-marker svg {
-	transition:
-		transform 200ms linear,
-		color 200ms ease;
+	transition: color 200ms ease;
 }
 
 .adsb-marker:hover svg {
