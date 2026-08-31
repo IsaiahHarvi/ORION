@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from io import BytesIO
 from pathlib import Path
 
 import mercantile
@@ -31,17 +30,6 @@ DBZ_COLORS = np.asarray(
     ],
     dtype=np.uint8,
 )
-
-
-def _transparent_png() -> bytes:
-    buffer = BytesIO()
-    Image.new("RGBA", (256, 256), (0, 0, 0, 0)).save(
-        buffer, format="PNG", optimize=True
-    )
-    return buffer.getvalue()
-
-
-TRANSPARENT_PNG = _transparent_png()
 
 
 def colorize_dbz(dbz: np.ndarray) -> np.ndarray:

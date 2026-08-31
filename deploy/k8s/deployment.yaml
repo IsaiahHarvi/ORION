@@ -41,10 +41,9 @@ spec:
               port: 5171
             initialDelaySeconds: 10
             periodSeconds: 20
-        - name: radar-producer
-          image: ghcr.io/isaiah-harville/orion/orion-api:latest
+        - name: nexrad
+          image: ghcr.io/isaiah-harville/orion/orion-nexrad:latest
           imagePullPolicy: Always
-          command: ["python", "-m", "services.radar.producer"]
           env:
             - name: SCAN_DIR
               value: /app/scans

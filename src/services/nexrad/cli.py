@@ -1,7 +1,7 @@
-"""Entrypoint for the ORION NEXRAD mosaic producer.
+"""Command line entrypoint for the ORION NEXRAD mosaic service.
 
-Run continuously (``python -m services.radar.producer``) it publishes a frame
-every ``ORION_RADAR_INTERVAL_SECONDS``; ``--once`` produces a single frame, and
+Installed as ``orion-nexrad``. Run with no arguments it publishes a frame every
+``ORION_RADAR_INTERVAL_SECONDS``; ``--once`` produces a single frame, and
 ``--analysis-time`` rebuilds a frame for a past moment.
 """
 
@@ -26,7 +26,9 @@ def _parse_time(value: str) -> datetime:
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="Produce ORION NEXRAD mosaic frames")
+    parser = argparse.ArgumentParser(
+        prog="orion-nexrad", description="Publish ORION NEXRAD mosaic frames"
+    )
     parser.add_argument(
         "--once", action="store_true", help="Produce one frame and exit"
     )

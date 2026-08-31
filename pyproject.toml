@@ -5,27 +5,38 @@ description = "Observation, Reconnaissance, Intelligence, and Operations Network
 readme = "README.md"
 requires-python = ">=3.12"
 dependencies = [
-    "arm-pyart>=2.2",
-    "boto3>=1.43",
-    "fastapi>=0.141",
-    "geopy>=2.5",
-    "mercantile>=1.2",
-    "numpy>=2.5",
-    "pandas>=3.0",
     "pillow>=12.3",
-    "pyproj>=3.7",
-    "rasterio>=1.5",
-    "scipy>=1.18",
-    "uvicorn[standard]>=0.52",
 ]
 
 [dependency-groups]
 dev = [
-    "httpx2>=2.12.0",
+    {include-group = "api"},
+    {include-group = "nexrad"},
+    # starlette's TestClient needs it; nothing at runtime does.
+    "httpx2",
     "pytest",
     "ruff",
     "ty",
 ]
+
+api = [
+    "fastapi>=0.141",
+    "geopy>=2.5",
+    "pandas>=3.0",
+    "uvicorn[standard]>=0.52",
+]
+nexrad = [
+    "arm-pyart>=2.2",
+    "boto3>=1.43",
+    "mercantile>=1.2",
+    "numpy>=2.5",
+    "pyproj>=3.7",
+    "rasterio>=1.5",
+    "scipy>=1.18",
+]
+
+[project.scripts]
+orion-nexrad = "services.radar.cli:main"
 
 [build-system]
 requires = ["uv_build>=0.12,<0.13"]

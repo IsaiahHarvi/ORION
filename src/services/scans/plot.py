@@ -1,11 +1,8 @@
-#!/usr/bin/env python3
-
 import json
 
 import cartopy.crs as ccrs
 import matplotlib.pyplot as plt
 import numpy as np
-
 from src.services.postgres.utils import get_postgres_connection
 
 
@@ -35,7 +32,7 @@ def plot_scan_from_db(scan):
         refl_array = refl_array.reshape(1, -1)
 
     projection = ccrs.PlateCarree()
-    fig, ax = plt.subplots(figsize=(10, 8), subplot_kw={"projection": projection})
+    _fig, ax = plt.subplots(figsize=(10, 8), subplot_kw={"projection": projection})
     ax.set_extent([min_lon, max_lon, min_lat, max_lat])
 
     im = ax.imshow(

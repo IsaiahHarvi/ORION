@@ -8,6 +8,8 @@ on:
     types: [opened, synchronize]
     paths:
       - 'src/**'
+      - 'pyproject.toml'
+      - 'uv.lock'
       - '!src/app/**'
 
 jobs:
@@ -22,16 +24,8 @@ jobs:
         with:
           enable-cache: true
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: "3.11"
-
       - name: Install Python dependencies
-        run: |
-          uv pip install --system --index-strategy unsafe-best-match \
-            --extra-index-url https://download.pytorch.org/whl/cpu \
-            -r .devcontainer/requirements-cpu.txt
+        run: uv sync --locked
 
       - name: Run Python unit tests
-        run: pytest tests/unit || (code=$?; [ $code -eq 5 ] && echo "No tests collected; passing" && exit 0 || exit $code)
+        run: uv run pytest tests/unit

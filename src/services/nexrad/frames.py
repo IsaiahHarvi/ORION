@@ -23,13 +23,14 @@ from services.radar.mosaic import (
     despeckle_grid,
 )
 from services.radar.motion import estimate_frame_motion
+from services.radar.placeholder import TRANSPARENT_PNG
 from services.radar.settings import (
     ALGORITHM_VERSION,
     ProducerSettings,
     configuration_hash,
 )
 from services.radar.storage import atomic_json
-from services.radar.tiles import TRANSPARENT_PNG, render_tile_pyramid
+from services.radar.tiles import render_tile_pyramid
 
 LOGGER = logging.getLogger("orion.radar.frames")
 

@@ -1395,50 +1395,78 @@ name = "orion"
 version = "0.1.1"
 source = { editable = "." }
 dependencies = [
+    { name = "pillow" },
+]
+
+[package.dev-dependencies]
+api = [
+    { name = "fastapi" },
+    { name = "geopy" },
+    { name = "pandas" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+dev = [
     { name = "arm-pyart" },
     { name = "boto3" },
     { name = "fastapi" },
     { name = "geopy" },
+    { name = "httpx2" },
     { name = "mercantile" },
     { name = "numpy" },
     { name = "pandas" },
-    { name = "pillow" },
+    { name = "pyproj" },
+    { name = "pytest" },
+    { name = "rasterio" },
+    { name = "ruff" },
+    { name = "scipy" },
+    { name = "ty" },
+    { name = "uvicorn", extra = ["standard"] },
+]
+nexrad = [
+    { name = "arm-pyart" },
+    { name = "boto3" },
+    { name = "mercantile" },
+    { name = "numpy" },
     { name = "pyproj" },
     { name = "rasterio" },
     { name = "scipy" },
-    { name = "uvicorn", extra = ["standard"] },
-]
-
-[package.dev-dependencies]
-dev = [
-    { name = "httpx2" },
-    { name = "pytest" },
-    { name = "ruff" },
-    { name = "ty" },
 ]
 
 [package.metadata]
-requires-dist = [
+requires-dist = [{ name = "pillow", specifier = ">=12.3" }]
+
+[package.metadata.requires-dev]
+api = [
+    { name = "fastapi", specifier = ">=0.141" },
+    { name = "geopy", specifier = ">=2.5" },
+    { name = "pandas", specifier = ">=3.0" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.52" },
+]
+dev = [
     { name = "arm-pyart", specifier = ">=2.2" },
     { name = "boto3", specifier = ">=1.43" },
     { name = "fastapi", specifier = ">=0.141" },
     { name = "geopy", specifier = ">=2.5" },
+    { name = "httpx2" },
     { name = "mercantile", specifier = ">=1.2" },
     { name = "numpy", specifier = ">=2.5" },
     { name = "pandas", specifier = ">=3.0" },
-    { name = "pillow", specifier = ">=12.3" },
+    { name = "pyproj", specifier = ">=3.7" },
+    { name = "pytest" },
+    { name = "rasterio", specifier = ">=1.5" },
+    { name = "ruff" },
+    { name = "scipy", specifier = ">=1.18" },
+    { name = "ty" },
+    { name = "uvicorn", extras = ["standard"], specifier = ">=0.52" },
+]
+nexrad = [
+    { name = "arm-pyart", specifier = ">=2.2" },
+    { name = "boto3", specifier = ">=1.43" },
+    { name = "mercantile", specifier = ">=1.2" },
+    { name = "numpy", specifier = ">=2.5" },
     { name = "pyproj", specifier = ">=3.7" },
     { name = "rasterio", specifier = ">=1.5" },
     { name = "scipy", specifier = ">=1.18" },
-    { name = "uvicorn", extras = ["standard"], specifier = ">=0.52" },
-]
-
-[package.metadata.requires-dev]
-dev = [
-    { name = "httpx2", specifier = ">=2.12.0" },
-    { name = "pytest" },
-    { name = "ruff" },
-    { name = "ty" },
 ]
 
 [[package]]

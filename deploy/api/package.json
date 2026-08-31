@@ -2,6 +2,6 @@
 	"name": "@orion/api",
 	"private": true,
 	"scripts": {
-		"dev": "SCAN_DIR=${SCAN_DIR:-data/dev-scans} UV_CACHE_DIR=.cache/uv uv run --directory ../.. --python 3.11 --no-project --with-requirements deploy/api/requirements.in uvicorn services.api.api:app --app-dir src --host 0.0.0.0 --port 5171 --reload --reload-dir src/services"
+		"dev": "SCAN_DIR=${SCAN_DIR:-data/dev-scans} uv run --directory ../.. uvicorn services.api.api:app --host 0.0.0.0 --port 5171 --reload --reload-dir src/services"
 	}
 }

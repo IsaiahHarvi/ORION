@@ -1,0 +1,7 @@
+{
+	"name": "@orion/nexrad",
+	"private": true,
+	"scripts": {
+		"dev": "SCAN_DIR=${SCAN_DIR:-data/dev-scans} uv run --directory ../../.. orion-nexrad"
+	}
+}

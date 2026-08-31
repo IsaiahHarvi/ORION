@@ -14,16 +14,14 @@ services:
   api:
     build:
       context: .
-      dockerfile: deploy/api/Dockerfile
+      dockerfile: deploy/Dockerfile
+      target: api
       args:
         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
-    # cartopy (via arm-pyart) publishes x86_64 wheels only
-    platform: linux/amd64
     environment:
       SERVICE: api
       SCAN_DIR: /app/scans
-      KERAS_BACKEND: torch
       VITE_API_URL: ${VITE_API_URL:-production}
       ORION_MOSAIC_DIR: /app/scans/mosaic
     ports:
@@ -31,13 +29,13 @@ services:
     volumes:
       - radar-data:/app/scans:ro
 
-  radar-producer:
+  nexrad:
     build:
       context: .
-      dockerfile: deploy/api/Dockerfile
-    image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
+      dockerfile: deploy/Dockerfile
+      target: nexrad
+    image: "ghcr.io/isaiah-harville/orion/orion-nexrad:latest"
     platform: linux/amd64
-    command: ["python", "-m", "services.radar.producer"]
     environment:
       SCAN_DIR: /app/scans
       ORION_MOSAIC_DIR: /app/scans/mosaic

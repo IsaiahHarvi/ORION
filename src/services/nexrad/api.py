@@ -8,7 +8,7 @@ from pathlib import Path
 from fastapi import APIRouter, HTTPException, Response
 from fastapi.responses import FileResponse, JSONResponse
 
-from services.radar.tiles import TRANSPARENT_PNG
+from services.radar.placeholder import TRANSPARENT_PNG
 
 router = APIRouter(prefix="/radar", tags=["radar"])
 FRAME_ID = re.compile(r"^\d{10}-[0-9a-f]{8}$")
