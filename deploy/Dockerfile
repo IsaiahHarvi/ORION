@@ -6,6 +6,11 @@ ENV UV_COMPILE_BYTECODE=1 \
     UV_LINK_MODE=copy \
     PATH="/app/.venv/bin:$PATH"
 
+# Both images run as this unprivileged user; uid 65532 matches the distroless
+# convention the GUI image uses, so every ORION pod shares one securityContext.
+RUN groupadd --gid 65532 nonroot \
+    && useradd --uid 65532 --gid 65532 --no-create-home --shell /usr/sbin/nologin nonroot
+
 COPY pyproject.toml uv.lock README.md ./
 
 
@@ -19,9 +24,12 @@ COPY src/services/ src/services/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-default-groups --group api
 
+ENV WEB_CONCURRENCY=2
+
+USER nonroot
 EXPOSE 5171
 
-CMD ["uvicorn", "services.api.api:app", "--host", "0.0.0.0", "--port", "5171", "--workers", "2"]
+CMD ["uvicorn", "services.api.api:app", "--host", "0.0.0.0", "--port", "5171"]
 
 
 FROM base AS nexrad
@@ -38,5 +46,7 @@ COPY data/nexrad_stations.csv data/nexrad_stations.csv
 COPY src/services/ src/services/
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --locked --no-default-groups --group nexrad
+
+USER nonroot
 
 CMD ["orion-nexrad"]

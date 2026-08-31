@@ -8,6 +8,8 @@ from dataclasses import dataclass
 from datetime import timedelta
 from pathlib import Path
 
+from services.nexrad.cpu import available_cpus
+
 ALGORITHM_VERSION = "level2-despeckle-v10"
 
 # Stations this far outside the bounds still cover area inside them (230 km
@@ -86,6 +88,7 @@ class ProducerSettings:
                 for station in stations_setting.split(",")
                 if station.strip()
             )
+        cpus = available_cpus()
         interval_seconds = int(os.environ.get("ORION_RADAR_INTERVAL_SECONDS", "300"))
         # History is configured as a duration, not a frame count, so it stays
         # six hours if the cycle interval changes. Retention still works in
@@ -117,14 +120,13 @@ class ProducerSettings:
             maximum_range_km=float(os.environ.get("ORION_RADAR_RANGE_KM", "230")),
             interval_seconds=interval_seconds,
             retained_frames=retained_frames,
-            # Deliberately leave the machine usable: this runs alongside a dev
-            # server on a developer's laptop, not on a dedicated box.
-            ingest_workers=int(os.environ.get("ORION_RADAR_INGEST_WORKERS", "8")),
-            compute_workers=int(
+            ingest_workers=int(
                 os.environ.get(
-                    "ORION_RADAR_COMPUTE_WORKERS",
-                    str(max(1, (os.cpu_count() or 4) // 2)),
+                    "ORION_RADAR_INGEST_WORKERS", str(min(32, max(8, cpus * 4)))
                 )
+            ),
+            compute_workers=int(
+                os.environ.get("ORION_RADAR_COMPUTE_WORKERS", str(cpus))
             ),
             # Volumes are discarded as soon as they are decoded. Set this to
             # keep them for backfills or offline debugging, at the cost of
