@@ -42,6 +42,11 @@ services:
       ORION_NEXRAD_HISTORY_HOURS: ${ORION_NEXRAD_HISTORY_HOURS:-6}
     volumes:
       - radar-data:/app/scans
+    deploy:
+      resources:
+        limits:
+          cpus: "4"
+          memory: 6g
 
 volumes:
   radar-data:
