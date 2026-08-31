@@ -4,10 +4,8 @@ services:
       context: .
       dockerfile: deploy/gui/Dockerfile
       args:
-        VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
+        VITE_API_URL: ${VITE_API_URL:-http://localhost:5171/api}
     image: "ghcr.io/isaiah-harville/orion/orion-gui:${ORION_VERSION:-latest}"
-    environment:
-      VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     ports:
       - "5173:5173"
 
