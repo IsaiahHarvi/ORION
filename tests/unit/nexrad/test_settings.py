@@ -26,11 +26,11 @@ def test_all_station_mode_rejects_uncovered_bounds() -> None:
 
 
 def _minimal_env(monkeypatch) -> None:
-    monkeypatch.setenv("ORION_RADAR_STATIONS", "KOHX,KHTX")
+    monkeypatch.setenv("ORION_NEXRAD_STATIONS", "KOHX,KHTX")
     for name in (
-        "ORION_RADAR_INTERVAL_SECONDS",
-        "ORION_RADAR_HISTORY_HOURS",
-        "ORION_RADAR_RETAINED_FRAMES",
+        "ORION_NEXRAD_INTERVAL_SECONDS",
+        "ORION_NEXRAD_HISTORY_HOURS",
+        "ORION_NEXRAD_RETAINED_FRAMES",
         "ORION_CPU_LIMIT",
         "ORION_CPU_REQUEST",
     ):
@@ -45,14 +45,14 @@ def test_history_defaults_to_six_hours_of_frames(monkeypatch) -> None:
 
 def test_history_holds_when_the_interval_changes(monkeypatch) -> None:
     _minimal_env(monkeypatch)
-    monkeypatch.setenv("ORION_RADAR_INTERVAL_SECONDS", "600")
+    monkeypatch.setenv("ORION_NEXRAD_INTERVAL_SECONDS", "600")
     settings = ProducerSettings.from_environment()
     assert settings.retained_frames == 36
 
 
 def test_explicit_frame_count_still_wins(monkeypatch) -> None:
     _minimal_env(monkeypatch)
-    monkeypatch.setenv("ORION_RADAR_RETAINED_FRAMES", "13")
+    monkeypatch.setenv("ORION_NEXRAD_RETAINED_FRAMES", "13")
     assert ProducerSettings.from_environment().retained_frames == 13
 
 

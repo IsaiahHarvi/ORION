@@ -51,8 +51,8 @@ class CycleTimer:
             # the animation falls behind real time and keeps drifting.
             LOGGER.warning(
                 "Cycle took %.1fs, longer than the %ss interval: frames are "
-                "falling behind. Raise CPU and ORION_RADAR_*_WORKERS, or widen "
-                "ORION_RADAR_INTERVAL_SECONDS.",
+                "falling behind. Raise CPU and ORION_NEXRAD_*_WORKERS, or widen "
+                "ORION_NEXRAD_INTERVAL_SECONDS.",
                 total,
                 interval_seconds,
             )

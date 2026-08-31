@@ -10,6 +10,7 @@
 
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { buildApiUrl } from '$lib/api';
 	import * as maplibregl from 'maplibre-gl';
 	import { current_lat_long } from '$lib/stores/current-location';
 	import radarIcon from '$lib/icons/radar-icon.png';
@@ -24,15 +25,15 @@
 	onMount(async () => {
 		try {
 			const key = `radars_${$current_lat_long.lat ?? 0}_${$current_lat_long.long ?? 0}`;
-			const apiUrl = import.meta.env.VITE_API_URL;
-			if (!apiUrl) throw new Error('VITE_API_URL is not configured');
 			const cached = sessionStorage.getItem(key);
 
 			if (cached) {
 				radars = JSON.parse(cached) as RadarStation[];
 			} else {
 				const response = await fetch(
-					`${apiUrl}/radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`
+					buildApiUrl(
+						`radars/${$current_lat_long.lat ?? 0}/${$current_lat_long.long ?? 0}`
+					)
 				);
 				if (!response.ok)
 					throw new Error(`Radar station request failed with ${response.status}`);

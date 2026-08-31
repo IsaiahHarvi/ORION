@@ -21,8 +21,8 @@ spec:
     - host: {{ .Values.ingress.host | quote }}
       http:
         paths:
-          # The API is mounted under /api, matching the FastAPI root_path and the
-          # VITE_API_URL the GUI is built with.
+          # The API is mounted under /api, matching the FastAPI root_path and
+          # the GUI's same-origin default.
           - path: /api
             pathType: Prefix
             backend:

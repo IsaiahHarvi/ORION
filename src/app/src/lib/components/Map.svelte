@@ -1,5 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
+	import { buildApiUrl } from '$lib/api';
 	import { page } from '$app/state';
 	import * as maplibregl from 'maplibre-gl';
 	import type { StyleSpecification } from 'maplibre-gl';
@@ -85,9 +86,7 @@
 
 	async function checkApiReachability() {
 		try {
-			const apiUrl = import.meta.env.VITE_API_URL;
-			if (!apiUrl) throw new Error('VITE_API_URL is not configured');
-			const response = await fetch(`${apiUrl.replace(/\/$/, '')}/health`);
+			const response = await fetch(buildApiUrl('health'));
 			if (!response.ok) throw new Error(`Health request failed with ${response.status}`);
 			apiOnline = true;
 			apiFailureCount = 0;

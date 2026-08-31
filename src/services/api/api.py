@@ -11,13 +11,15 @@ app = FastAPI(
 )
 app.include_router(radar_router)
 
-print("INFO:\t API URL:", os.environ.get("VITE_API_URL"))
-if os.environ.get("VITE_API_URL") != "https://orion.harville.dev/api":
-    # Production sets CORS in nginx, so we wouldnt set it here again.
-    print("\nConfiguring CORS\n")
+_cors_origins = [
+    origin.strip()
+    for origin in os.environ.get("ORION_CORS_ORIGINS", "").split(",")
+    if origin.strip()
+]
+if _cors_origins:
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],
+        allow_origins=_cors_origins,
         allow_credentials=True,
         allow_methods=["*"],
         allow_headers=["*"],

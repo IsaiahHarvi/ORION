@@ -76,8 +76,6 @@ jobs:
           tags: |
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/orion-${{ matrix.name }}:${{ needs.version.outputs.version }}
             ${{ env.REGISTRY }}/${{ env.NAMESPACE }}/orion-${{ matrix.name }}:latest
-          build-args: |
-            VITE_API_URL=https://orion.harville.dev/api
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,scope=${{ matrix.name }},mode=max
 

@@ -61,8 +61,9 @@ pnpm run dev:nexrad
     git clone git@github.com:isaiah-harville/ORION.git
     cd ORION
     docker compose up --build
-    # Optionally, to target the developmentAPI rather than a locally hosted API export the following env var
-    export VITE_API_URL=http://localhost:5171
+    # Optionally, point the GUI at an API other than this stack's own. It is read
+    # at runtime, so this needs a restart, not a rebuild.
+    export PUBLIC_ORION_API_URL=https://orion.harville.dev/api
     ```
 
 2. **Access the Application:**
@@ -103,19 +104,24 @@ helm install orion oci://ghcr.io/isaiah-harville/orion/charts/orion \
   --namespace apps --version 0.2.0
 ```
 
+The GUI reads its API origin at runtime from `PUBLIC_ORION_API_URL`, and defaults
+to a same-origin `/api`. Nothing about the deployment is baked into the image, so
+the published GUI works for anyone hosting it: put the GUI at `/` and the API at
+`/api` behind one ingress and no configuration is needed at all.
+
 `api`, `nexrad`, and `gui` are separate Deployments. `api` is stateless and scales
 horizontally (`api.replicaCount`); `nexrad` is pinned to one replica because each
 producer independently downloads every station's volume and renders the same
 global pyramid — a second one doubles NOAA egress for a frame the first already
 published. Make frames faster by giving that pod more CPU and raising
-`ORION_RADAR_INGEST_WORKERS` / `ORION_RADAR_COMPUTE_WORKERS`.
+`ORION_NEXRAD_INGEST_WORKERS` / `ORION_NEXRAD_COMPUTE_WORKERS`.
 
 Because `nexrad` writes the frame directory that every `api` pod reads, the chart
 requires a **ReadWriteMany** volume and refuses to render without one. Disk use is
 bounded by the producer's own retention, not by the volume size: it keeps
-`ORION_RADAR_HISTORY_HOURS` of frames (6 hours, so 72 at the default cadence),
+`ORION_NEXRAD_HISTORY_HOURS` of frames (6 hours, so 72 at the default cadence),
 deletes each Level II volume as soon as it is decoded, and prunes anything older
-than `ORION_RADAR_RAW_RETENTION_SECONDS`.
+than `ORION_NEXRAD_RAW_RETENTION_SECONDS`.
 
 Ingest and compositing pool sizes are derived, not configured. The chart injects
 the container's CPU allocation with the Downward API (`ORION_CPU_REQUEST`, plus
@@ -135,7 +141,7 @@ serves the resulting frame manifest and tiles without performing radar processin
 inside request workers.
 
 The default configuration in `.env.example` is a 2 km Tennessee Valley mosaic.
-Change `ORION_RADAR_STATIONS` and `ORION_RADAR_BOUNDS` together when expanding the
+Change `ORION_NEXRAD_STATIONS` and `ORION_NEXRAD_BOUNDS` together when expanding the
 coverage area. Higher resolution and larger bounds increase memory, download,
 processing, and tile-storage requirements substantially.
 

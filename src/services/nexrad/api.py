@@ -6,7 +6,7 @@ import re
 from pathlib import Path
 
 from fastapi import APIRouter, HTTPException, Response
-from fastapi.responses import FileResponse, JSONResponse
+from fastapi.responses import FileResponse
 
 from services.nexrad.placeholder import TRANSPARENT_PNG
 
@@ -34,37 +34,15 @@ def manifest_path() -> Path:
 
 
 @router.get("/frames")
-async def radar_frames() -> Response:
+async def nexrad_frames() -> Response:
     path = manifest_path()
     if not path.is_file():
-        bounds = [
-            float(value)
-            for value in os.environ.get(
-                "ORION_RADAR_BOUNDS", "-125.0,24.0,-66.5,49.5"
-            ).split(",")
-        ]
-        return JSONResponse(
-            {
-                "version": 1,
-                "generated_at": None,
-                "default_frame_id": "",
-                "latest_observed_frame_id": "",
-                "tile_size": 256,
-                "min_zoom": int(os.environ.get("ORION_RADAR_MIN_ZOOM", "4")),
-                "max_zoom": int(os.environ.get("ORION_RADAR_MAX_ZOOM", "9")),
-                "bounds": bounds,
-                "configured_stations": [
-                    station.strip()
-                    for station in os.environ.get("ORION_RADAR_STATIONS", "").split(",")
-                    if station.strip()
-                ],
-                "attribution": {
-                    "text": "Weather radar: NOAA/NWS NEXRAD processed by ORION",
-                    "url": "https://www.weather.gov/",
-                },
-                "frames": [],
-            },
-            headers={"Cache-Control": "no-cache, max-age=0"},
+        # The producer owns the manifest; until it publishes one there is
+        # genuinely nothing to serve. Synthesising a placeholder here meant
+        # duplicating the producer's stations, bounds and zoom range in the
+        # API's environment, where the two could silently disagree.
+        raise HTTPException(
+            status_code=503, detail="NEXRAD mosaic is not available yet"
         )
     return FileResponse(
         path,
@@ -74,7 +52,7 @@ async def radar_frames() -> Response:
 
 
 @router.get("/tiles/{frame}/{z:int}/{x:int}/{y:int}.png")
-async def radar_tile(frame: str, z: int, x: int, y: int) -> Response:
+async def nexrad_tile(frame: str, z: int, x: int, y: int) -> Response:
     if not FRAME_ID.fullmatch(frame) or not (
         0 <= z <= 14 and 0 <= x < 2**z and 0 <= y < 2**z
     ):
@@ -100,7 +78,7 @@ async def radar_tile(frame: str, z: int, x: int, y: int) -> Response:
 
 
 @router.get("/status")
-async def radar_status() -> dict[str, object]:
+async def nexrad_status() -> dict[str, object]:
     path = manifest_path()
     if not path.is_file():
         return {"status": "starting", "frames": 0}

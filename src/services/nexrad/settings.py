@@ -71,12 +71,12 @@ class ProducerSettings:
         bounds = tuple(
             float(value)
             for value in os.environ.get(
-                "ORION_RADAR_BOUNDS", "-125.0,24.0,-66.5,49.5"
+                "ORION_NEXRAD_BOUNDS", "-125.0,24.0,-66.5,49.5"
             ).split(",")
         )
         if len(bounds) != 4:
-            raise ValueError("ORION_RADAR_BOUNDS must contain west,south,east,north")
-        stations_setting = os.environ.get("ORION_RADAR_STATIONS", "ALL")
+            raise ValueError("ORION_NEXRAD_BOUNDS must contain west,south,east,north")
+        stations_setting = os.environ.get("ORION_NEXRAD_STATIONS", "ALL")
         if stations_setting.strip().upper() == "ALL":
             stations = load_all_stations(
                 bounds,  # type: ignore[arg-type]
@@ -89,14 +89,14 @@ class ProducerSettings:
                 if station.strip()
             )
         cpus = available_cpus()
-        interval_seconds = int(os.environ.get("ORION_RADAR_INTERVAL_SECONDS", "300"))
+        interval_seconds = int(os.environ.get("ORION_NEXRAD_INTERVAL_SECONDS", "300"))
         # History is configured as a duration, not a frame count, so it stays
         # six hours if the cycle interval changes. Retention still works in
         # frames, which is what the manifest and the pruning loop deal in.
-        history_hours = float(os.environ.get("ORION_RADAR_HISTORY_HOURS", "6"))
+        history_hours = float(os.environ.get("ORION_NEXRAD_HISTORY_HOURS", "6"))
         retained_frames = int(
             os.environ.get(
-                "ORION_RADAR_RETAINED_FRAMES",
+                "ORION_NEXRAD_RETAINED_FRAMES",
                 str(max(1, round(history_hours * 3600 / interval_seconds))),
             )
         )
@@ -104,47 +104,49 @@ class ProducerSettings:
             bucket=os.environ.get("ORION_NEXRAD_BUCKET", "unidata-nexrad-level2"),
             stations=stations,
             bounds=bounds,  # type: ignore[arg-type]
-            resolution_m=float(os.environ.get("ORION_RADAR_RESOLUTION_M", "2000")),
-            minimum_zoom=int(os.environ.get("ORION_RADAR_MIN_ZOOM", "4")),
-            maximum_zoom=int(os.environ.get("ORION_RADAR_MAX_ZOOM", "9")),
+            resolution_m=float(os.environ.get("ORION_NEXRAD_RESOLUTION_M", "2000")),
+            minimum_zoom=int(os.environ.get("ORION_NEXRAD_MIN_ZOOM", "4")),
+            maximum_zoom=int(os.environ.get("ORION_NEXRAD_MAX_ZOOM", "9")),
             ingest_lag=timedelta(
-                seconds=int(os.environ.get("ORION_RADAR_INGEST_LAG_SECONDS", "600"))
+                seconds=int(os.environ.get("ORION_NEXRAD_INGEST_LAG_SECONDS", "600"))
             ),
             scan_window=timedelta(
-                seconds=int(os.environ.get("ORION_RADAR_SCAN_WINDOW_SECONDS", "1800"))
+                seconds=int(os.environ.get("ORION_NEXRAD_SCAN_WINDOW_SECONDS", "1800"))
             ),
             scan_tolerance=timedelta(
-                seconds=int(os.environ.get("ORION_RADAR_SCAN_TOLERANCE_SECONDS", "240"))
+                seconds=int(
+                    os.environ.get("ORION_NEXRAD_SCAN_TOLERANCE_SECONDS", "240")
+                )
             ),
-            minimum_stations=int(os.environ.get("ORION_RADAR_MIN_STATIONS", "2")),
-            maximum_range_km=float(os.environ.get("ORION_RADAR_RANGE_KM", "230")),
+            minimum_stations=int(os.environ.get("ORION_NEXRAD_MIN_STATIONS", "2")),
+            maximum_range_km=float(os.environ.get("ORION_NEXRAD_RANGE_KM", "230")),
             interval_seconds=interval_seconds,
             retained_frames=retained_frames,
             ingest_workers=int(
                 os.environ.get(
-                    "ORION_RADAR_INGEST_WORKERS", str(min(24, max(8, cpus * 3)))
+                    "ORION_NEXRAD_INGEST_WORKERS", str(min(24, max(8, cpus * 3)))
                 )
             ),
             compute_workers=int(
-                os.environ.get("ORION_RADAR_COMPUTE_WORKERS", str(cpus))
+                os.environ.get("ORION_NEXRAD_COMPUTE_WORKERS", str(cpus))
             ),
             # Volumes are discarded as soon as they are decoded. Set this to
             # keep them for backfills or offline debugging, at the cost of
             # several gigabytes of cache.
-            keep_raw_scans=os.environ.get("ORION_RADAR_KEEP_RAW", "").strip().lower()
+            keep_raw_scans=os.environ.get("ORION_NEXRAD_KEEP_RAW", "").strip().lower()
             in {"1", "true", "yes"},
             # Backstop for volumes left behind by a failed decode, and the real
             # bound when raw scans are being kept.
             raw_retention=timedelta(
                 seconds=int(
                     os.environ.get(
-                        "ORION_RADAR_RAW_RETENTION_SECONDS",
-                        os.environ.get("ORION_RADAR_SCAN_WINDOW_SECONDS", "1800"),
+                        "ORION_NEXRAD_RAW_RETENTION_SECONDS",
+                        os.environ.get("ORION_NEXRAD_SCAN_WINDOW_SECONDS", "1800"),
                     )
                 )
             ),
             raw_directory=Path(
-                os.environ.get("ORION_RADAR_RAW_DIR", str(scan_root / "raw"))
+                os.environ.get("ORION_NEXRAD_RAW_DIR", str(scan_root / "raw"))
             ),
             mosaic_directory=Path(
                 os.environ.get("ORION_MOSAIC_DIR", str(scan_root / "mosaic"))

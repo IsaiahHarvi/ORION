@@ -1,7 +1,7 @@
 """Command line entrypoint for the ORION NEXRAD mosaic service.
 
 Installed as ``orion-nexrad``. Run with no arguments it publishes a frame every
-``ORION_RADAR_INTERVAL_SECONDS``; ``--once`` produces a single frame, and
+``ORION_NEXRAD_INTERVAL_SECONDS``; ``--once`` produces a single frame, and
 ``--analysis-time`` rebuilds a frame for a past moment.
 """
 

@@ -34,6 +34,9 @@ api:
   # uvicorn workers per pod. The API is I/O bound, so a couple saturate the CPU
   # limit below and replicaCount is what actually adds capacity.
   webConcurrency: 2
+  # Empty in production: the ingress terminates the browser's origin and sets
+  # its own CORS. Only needed when the GUI is served from another origin.
+  corsOrigins: []
   annotations: {}
   nodeSelector: {}
   tolerations: []
@@ -67,9 +70,9 @@ nexrad:
   # actually tunes. ORION_MOSAIC_DIR is derived from SCAN_DIR and is not set.
   env:
     SCAN_DIR: /app/scans
-    ORION_RADAR_STATIONS: ALL
-    ORION_RADAR_BOUNDS: "-125.0,24.0,-66.5,49.5"
-    ORION_RADAR_HISTORY_HOURS: "6"
+    ORION_NEXRAD_STATIONS: ALL
+    ORION_NEXRAD_BOUNDS: "-125.0,24.0,-66.5,49.5"
+    ORION_NEXRAD_HISTORY_HOURS: "6"
 
 gui:
   replicaCount: 1
@@ -84,8 +87,10 @@ gui:
     limits:
       cpu: 500m
       memory: 512Mi
-  env:
-    VITE_API_URL: https://orion.harville.dev/api
+  # Empty is correct for the documented topology: one ingress serving the GUI
+  # at / and the API at /api, so the GUI's same-origin default just works. Set
+  # PUBLIC_ORION_API_URL only when the API lives on another origin.
+  env: {}
 
 # Required, and must be ReadWriteMany: nexrad writes frames while every api pod
 # reads them, and those pods are scheduled independently. Sized for the default

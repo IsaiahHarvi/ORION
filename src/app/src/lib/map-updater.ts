@@ -1,5 +1,5 @@
 import type * as maplibregl from 'maplibre-gl';
-import { buildApiUrl } from '$lib/api';
+import { apiBaseUrl, buildApiUrl } from '$lib/api';
 import { radar_state } from '$lib/runes/current-radar.svelte';
 import type { RadarManifest } from '$types';
 
@@ -77,7 +77,7 @@ export function resetRadarManifestCache(): void {
 
 export async function fetchRadarManifest(
 	fetchFn: typeof fetch = fetch,
-	apiBase = import.meta.env.VITE_API_URL,
+	apiBase = apiBaseUrl(),
 	force = false
 ): Promise<RadarManifest> {
 	const now = Date.now();
@@ -120,7 +120,7 @@ export async function loadRadarData(
 	map: maplibregl.Map,
 	options: LoadRadarOptions = {}
 ): Promise<void> {
-	const apiBase = options.apiBase ?? import.meta.env.VITE_API_URL;
+	const apiBase = options.apiBase ?? apiBaseUrl();
 	const manifest = await fetchRadarManifest(
 		options.fetchFn,
 		apiBase,

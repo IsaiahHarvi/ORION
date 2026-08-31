@@ -10,7 +10,7 @@ spec:
   # anchor scan, downloads every station's volume, and renders the same global
   # tile pyramid -- a second one doubles NOAA egress and CPU to produce a frame
   # that the first one's atomic rename already published. Give this pod more
-  # CPU and raise ORION_RADAR_*_WORKERS to make frames faster; sharding across
+  # CPU and raise ORION_NEXRAD_*_WORKERS to make frames faster; sharding across
   # pods would need the producer to split the grid, which it does not do.
   replicas: 1
   strategy:

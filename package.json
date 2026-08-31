@@ -6,7 +6,7 @@
 		"node": ">=24.0.0"
 	},
 	"scripts": {
-		"dev": "SCAN_DIR=${SCAN_DIR:-data/dev-scans} VITE_API_URL=${VITE_API_URL:-http://localhost:5171} turbo run dev",
+		"dev": "SCAN_DIR=${SCAN_DIR:-data/dev-scans} PUBLIC_ORION_API_URL=${PUBLIC_ORION_API_URL:-http://localhost:5171/api} turbo run dev",
 		"dev:api": "pnpm --filter @orion/api dev",
 		"dev:nexrad": "pnpm --filter @orion/nexrad dev",
 		"build": "turbo run build",
