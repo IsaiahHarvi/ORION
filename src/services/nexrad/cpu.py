@@ -29,10 +29,31 @@ def _quota_cpus() -> float | None:
     return None
 
 
+def _env_cpus() -> float | None:
+    """CPU allocation as injected by the Kubernetes Downward API."""
+    for name in ("ORION_CPU_LIMIT", "ORION_CPU_REQUEST"):
+        raw = os.environ.get(name, "").strip()
+        if not raw:
+            continue
+        try:
+            value = float(raw[:-1]) / 1000 if raw.endswith("m") else float(raw)
+        except ValueError:
+            continue
+        if value > 0:
+            return value
+    return None
+
+
 def available_cpus() -> int:
-    """CPUs this process may actually use, honouring a container quota."""
-    quota = _quota_cpus()
+    """CPUs this process may actually use.
+
+    Downward API first, then the container's CPU quota, then the host count --
+    which is only correct outside a container.
+    """
+    allocated = _env_cpus()
+    if allocated is None:
+        allocated = _quota_cpus()
     detected = os.cpu_count() or 4
-    if quota is None:
+    if allocated is None:
         return detected
-    return max(1, min(detected, round(quota)))
+    return max(1, round(allocated))

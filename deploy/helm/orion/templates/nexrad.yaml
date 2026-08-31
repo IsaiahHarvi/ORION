@@ -46,6 +46,7 @@ spec:
             - name: {{ $key }}
               value: {{ $value | quote }}
             {{- end }}
+            {{- include "orion.cpuEnv" (dict "name" "nexrad" "resources" .Values.nexrad.resources) | nindent 12 }}
           volumeMounts:
             - name: frames
               mountPath: {{ .Values.nexrad.env.SCAN_DIR }}

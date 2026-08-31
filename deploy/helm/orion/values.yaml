@@ -43,7 +43,6 @@ api:
       cpu: 100m
       memory: 256Mi
     limits:
-      cpu: "1"
       memory: 1Gi
 
 # The single writer. Its replica count is fixed at 1 by the template; scale it
@@ -54,6 +53,9 @@ nexrad:
   nodeSelector: {}
   tolerations: []
   affinity: {}
+  # nexrad keeps a CPU limit: it is a periodic batch job, so throttling only
+  # makes a cycle slower -- and the cycle timing log says when that starts to
+  # matter. The worker pools size themselves from this via the Downward API.
   resources:
     requests:
       cpu: "2"

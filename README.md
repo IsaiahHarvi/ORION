@@ -113,9 +113,17 @@ published. Make frames faster by giving that pod more CPU and raising
 Because `nexrad` writes the frame directory that every `api` pod reads, the chart
 requires a **ReadWriteMany** volume and refuses to render without one. Disk use is
 bounded by the producer's own retention, not by the volume size: it keeps
-`ORION_RADAR_RETAINED_FRAMES` frames (13 by default), deletes each Level II volume
-as soon as it is decoded, and prunes anything older than
-`ORION_RADAR_RAW_RETENTION_SECONDS`.
+`ORION_RADAR_HISTORY_HOURS` of frames (6 hours, so 72 at the default cadence),
+deletes each Level II volume as soon as it is decoded, and prunes anything older
+than `ORION_RADAR_RAW_RETENTION_SECONDS`.
+
+Ingest and compositing pool sizes are derived, not configured. The chart injects
+the container's CPU allocation with the Downward API (`ORION_CPU_REQUEST`, plus
+`ORION_CPU_LIMIT` when a limit is set) and the producer sizes its pools from that,
+falling back to the cgroup quota outside Kubernetes. `os.cpu_count()` is only
+correct outside a container — it reports the node's cores, not the pod's share.
+Each cycle logs its stage timings and warns when it overruns the interval, which is
+the signal that the pod needs more CPU.
 
 ## NEXRAD Mosaic
 

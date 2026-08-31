@@ -45,6 +45,7 @@ spec:
               value: {{ .Values.nexrad.env.SCAN_DIR | quote }}
             - name: WEB_CONCURRENCY
               value: {{ .Values.api.webConcurrency | quote }}
+            {{- include "orion.cpuEnv" (dict "name" "api" "resources" .Values.api.resources) | nindent 12 }}
           volumeMounts:
             # Readers only. nexrad is the single writer.
             - name: frames
