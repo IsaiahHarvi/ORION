@@ -3,6 +3,7 @@ import os
 from fastapi import FastAPI, status
 from fastapi.middleware.cors import CORSMiddleware
 
+from services.adsb.api import router as adsb_router
 from services.nexrad.api import router as radar_router
 from services.quakes.api import router as quakes_router
 from services.scans.get_stations import get_radars
@@ -12,6 +13,7 @@ app = FastAPI(
 )
 app.include_router(radar_router)
 app.include_router(quakes_router)
+app.include_router(adsb_router)
 
 _cors_origins = [
     origin.strip()
