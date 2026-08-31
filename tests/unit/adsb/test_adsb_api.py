@@ -131,3 +131,18 @@ def test_requested_area_is_the_one_fetched(client, monkeypatch) -> None:
     client.get("/adsb?lat=36.01&lon=-86.76&radius_nm=100")
     # Snapped to the shared grid, not passed through verbatim.
     assert calls == ["https://api.adsb.lol/v2/lat/36.0/lon/-86.75/dist/100"]
+
+
+def test_a_cached_answer_says_how_old_it_is(client, monkeypatch) -> None:
+    stub_feed(monkeypatch, [AIRCRAFT])
+    fresh = client.get("/adsb?lat=36.0&lon=-86.7").json()
+    # A fetch just made is current; the client needs this to be told, not
+    # assumed, or every cached position it draws is silently a TTL behind.
+    assert fresh["feed_age_seconds"] < 1
+
+    clock = {"t": 100.0}
+    monkeypatch.setattr(feed.time, "monotonic", lambda: clock["t"])
+    feed.reset_cache()
+    client.get("/adsb?lat=36.0&lon=-86.7")
+    clock["t"] = 105.0
+    assert client.get("/adsb?lat=36.0&lon=-86.7").json()["feed_age_seconds"] == 5.0

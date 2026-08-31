@@ -8,5 +8,5 @@ sources:
 # version is the chart's own revision; appVersion tracks the release tag and is
 # the default tag for every ORION image. Release tooling rewrites appVersion
 # from the git tag, so a chart install pins one coherent set of images.
-version: 0.2.0
-appVersion: "0.2.0"
+version: 0.2.1
+appVersion: "0.2.1"

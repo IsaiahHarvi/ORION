@@ -144,6 +144,16 @@ def _normalise(document: dict[str, Any]) -> list[dict[str, Any]]:
     return aircraft
 
 
+def _with_age(entry: _Entry, now: float) -> dict[str, Any]:
+    """Stamp how stale this answer is at the moment it is served.
+
+    Without it a client cannot tell a fresh fetch from one served from cache,
+    and every position it draws is silently up to a TTL behind. The client adds
+    this to each aircraft's own seen_pos to get the real age of a position.
+    """
+    return {**entry.payload, "feed_age_seconds": round(now - entry.fetched_at, 1)}
+
+
 def fetch_aircraft(key: FeedKey, timeout: float = 10.0) -> dict[str, Any]:
     """Aircraft near a point, cached for the TTL.
 
@@ -154,7 +164,7 @@ def fetch_aircraft(key: FeedKey, timeout: float = 10.0) -> dict[str, Any]:
     with _LOCK:
         entry = _CACHE.get(key)
         if entry and now - entry.fetched_at < cache_ttl_seconds():
-            return entry.payload
+            return _with_age(entry, now)
 
     url = f"{BASE_URL}/lat/{key.lat}/lon/{key.lon}/dist/{key.radius_nm}"
     try:
@@ -164,7 +174,7 @@ def fetch_aircraft(key: FeedKey, timeout: float = 10.0) -> dict[str, Any]:
             stale = _CACHE.get(key)
         if stale is not None:
             LOGGER.warning("ADS-B fetch failed (%s); serving cached feed", error)
-            return stale.payload
+            return _with_age(stale, time.monotonic())
         raise FeedError(str(error)) from error
 
     payload = {
@@ -181,9 +191,10 @@ def fetch_aircraft(key: FeedKey, timeout: float = 10.0) -> dict[str, Any]:
     }
     payload["count"] = len(payload["aircraft"])
 
+    entry = _Entry(payload, time.monotonic())
     with _LOCK:
-        _CACHE[key] = _Entry(payload, time.monotonic())
-    return payload
+        _CACHE[key] = entry
+    return _with_age(entry, entry.fetched_at)
 
 
 def reset_cache() -> None:
