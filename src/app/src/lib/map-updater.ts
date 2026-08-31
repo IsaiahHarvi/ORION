@@ -89,7 +89,7 @@ export async function fetchRadarManifest(
 	cachedApiBase = apiBase;
 	const generation = ++manifestGeneration;
 	const request = (async () => {
-		const response = await fetchFn(buildApiUrl('radar/frames', apiBase), {
+		const response = await fetchFn(buildApiUrl('nexrad/frames', apiBase), {
 			headers: { Accept: 'application/json' }
 		});
 		if (response.status === 503)

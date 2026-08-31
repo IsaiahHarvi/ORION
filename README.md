@@ -114,9 +114,9 @@ docker compose run --rm nexrad \
 Radar endpoints:
 
 ```text
-GET /radar/frames
-GET /radar/status
-GET /radar/tiles/{frame}/{z}/{x}/{y}.png
+GET /nexrad/frames
+GET /nexrad/status
+GET /nexrad/tiles/{frame}/{z}/{x}/{y}.png
 ```
 
 Tiles are derived, colorized ORION products. Attribution must read: `Weather

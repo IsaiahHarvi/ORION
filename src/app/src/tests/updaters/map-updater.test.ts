@@ -77,7 +77,7 @@ describe('loadRadarData', () => {
 					id: '1743219600',
 					time: 1743219600,
 					kind: 'observed',
-					tiles: 'radar/tiles/1743219600/{z}/{x}/{y}.png',
+					tiles: 'nexrad/tiles/1743219600/{z}/{x}/{y}.png',
 					stations: ['KOHX', 'KHTX'],
 					max_skew_seconds: 90
 				},
@@ -85,7 +85,7 @@ describe('loadRadarData', () => {
 					id: '1743220200',
 					time: 1743220200,
 					kind: 'observed',
-					tiles: 'radar/tiles/1743220200/{z}/{x}/{y}.png',
+					tiles: 'nexrad/tiles/1743220200/{z}/{x}/{y}.png',
 					stations: ['KOHX', 'KHTX'],
 					max_skew_seconds: 75
 				}
@@ -103,7 +103,7 @@ describe('loadRadarData', () => {
 			apiBase: 'https://orion.example/api'
 		});
 
-		expect(mockFetch).toHaveBeenCalledWith('https://orion.example/api/radar/frames', {
+		expect(mockFetch).toHaveBeenCalledWith('https://orion.example/api/nexrad/frames', {
 			headers: { Accept: 'application/json' }
 		});
 
@@ -115,14 +115,14 @@ describe('loadRadarData', () => {
 			expect.objectContaining({
 				type: 'raster',
 				tileSize: 256,
-				tiles: ['https://orion.example/api/radar/tiles/1743220200/{z}/{x}/{y}.png'],
+				tiles: ['https://orion.example/api/nexrad/tiles/1743220200/{z}/{x}/{y}.png'],
 				attribution: 'NOAA/NWS NEXRAD processed by ORION'
 			})
 		);
 		expect(mockMap.addSource).toHaveBeenCalledWith(
 			'radar-layer-1743219600',
 			expect.objectContaining({
-				tiles: ['https://orion.example/api/radar/tiles/1743219600/{z}/{x}/{y}.png']
+				tiles: ['https://orion.example/api/nexrad/tiles/1743219600/{z}/{x}/{y}.png']
 			})
 		);
 

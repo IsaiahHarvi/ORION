@@ -1,4 +1,0 @@
-include:
-  # - postgres/compose.yml
-  - api/compose.yml
-  # - gui/compose.yml

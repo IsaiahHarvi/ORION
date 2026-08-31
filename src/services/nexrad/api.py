@@ -10,7 +10,7 @@ from fastapi.responses import FileResponse, JSONResponse
 
 from services.nexrad.placeholder import TRANSPARENT_PNG
 
-router = APIRouter(prefix="/radar", tags=["radar"])
+router = APIRouter(prefix="/nexrad", tags=["nexrad"])
 FRAME_ID = re.compile(r"^\d{10}-[0-9a-f]{8}$")
 
 

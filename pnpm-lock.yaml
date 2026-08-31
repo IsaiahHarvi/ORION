@@ -138,7 +138,7 @@ importers:
         specifier: ^4.5.4
         version: 4.5.4
 
-  src/services/radar: {}
+  src/services/nexrad: {}
 
 packages:
 

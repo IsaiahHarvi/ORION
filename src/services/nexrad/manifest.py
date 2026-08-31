@@ -42,7 +42,7 @@ def publish_manifest(settings: ProducerSettings) -> None:
             "id": frame["id"],
             "time": frame["time"],
             "kind": "observed",
-            "tiles": f"radar/tiles/{frame['id']}/{{z}}/{{x}}/{{y}}.png",
+            "tiles": f"nexrad/tiles/{frame['id']}/{{z}}/{{x}}/{{y}}.png",
             "stations": frame["stations"],
             "max_skew_seconds": frame["max_skew_seconds"],
             "motion_mps": frame.get("motion_mps", {"x": 0.0, "y": 0.0}),

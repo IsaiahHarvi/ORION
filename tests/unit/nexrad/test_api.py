@@ -26,11 +26,11 @@ def test_manifest_and_transparent_tile(tmp_path, monkeypatch) -> None:
     app.include_router(router)
     client = TestClient(app)
 
-    manifest = client.get("/radar/frames")
+    manifest = client.get("/nexrad/frames")
     assert manifest.status_code == 200
     assert manifest.headers["cache-control"] == "no-cache, max-age=0"
 
-    tile = client.get(f"/radar/tiles/{frame}/5/8/12.png")
+    tile = client.get(f"/nexrad/tiles/{frame}/5/8/12.png")
     assert tile.status_code == 200
     assert tile.headers["content-type"] == "image/png"
     assert tile.headers["cache-control"] == "public, max-age=31536000, immutable"
@@ -43,7 +43,7 @@ def test_missing_manifest_reports_starting(tmp_path, monkeypatch) -> None:
     monkeypatch.setenv("ORION_MOSAIC_DIR", str(tmp_path))
     app = FastAPI()
     app.include_router(router)
-    response = TestClient(app).get("/radar/frames")
+    response = TestClient(app).get("/nexrad/frames")
     assert response.status_code == 200
     assert response.json()["frames"] == []
     assert response.headers["cache-control"] == "no-cache, max-age=0"
