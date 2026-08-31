@@ -5,3 +5,6 @@
 .turbo
 coverage
 *.log
+
+.venv
+.python-version

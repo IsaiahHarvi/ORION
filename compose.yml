@@ -20,6 +20,8 @@ services:
       args:
         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
+    # cartopy (via arm-pyart) publishes x86_64 wheels only
+    platform: linux/amd64
     environment:
       SERVICE: api
       SCAN_DIR: /app/scans
@@ -37,6 +39,7 @@ services:
       context: .
       dockerfile: deploy/api/Dockerfile
     image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
+    platform: linux/amd64
     command: ["python", "-m", "services.radar.producer"]
     environment:
       SCAN_DIR: /app/scans
