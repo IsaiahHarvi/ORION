@@ -37,8 +37,13 @@ services:
     platform: linux/amd64
     environment:
       SCAN_DIR: /app/scans
+      # A regional default so the first frame lands in under a minute. Full
+      # CONUS is 140+ stations to list, download, and decode.
+      # Set both to go continental:
+      #   ORION_NEXRAD_STATIONS=ALL
+      #   ORION_NEXRAD_BOUNDS=-125.0,24.0,-66.5,49.5
       ORION_NEXRAD_STATIONS: ${ORION_NEXRAD_STATIONS:-ALL}
-      ORION_NEXRAD_BOUNDS: ${ORION_NEXRAD_BOUNDS:--125.0,24.0,-66.5,49.5}
+      ORION_NEXRAD_BOUNDS: ${ORION_NEXRAD_BOUNDS:--91.5,33.0,-81.0,39.0}
       ORION_NEXRAD_HISTORY_HOURS: ${ORION_NEXRAD_HISTORY_HOURS:-6}
     volumes:
       - radar-data:/app/scans
