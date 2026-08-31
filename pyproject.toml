@@ -28,11 +28,12 @@ dev = [
 ]
 
 [build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+requires = ["uv_build>=0.12,<0.13"]
+build-backend = "uv_build"
 
-[tool.hatch.build.targets.wheel]
-packages = ["src/services"]
+[tool.uv.build-backend]
+module-root = "src"
+module-name = "services"
 
 [tool.ruff]
 src = ["src"]
