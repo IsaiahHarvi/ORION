@@ -17,7 +17,7 @@
 		setRadarFramePosition
 	} from '$lib/map-updater';
 	import { radar_state } from '$lib/runes/current-radar.svelte';
-	import UAVLayer from './UAVLayer.svelte';
+	import ADSBLayer from './ADSBLayer.svelte';
 	import QuakeLayer from './QuakeLayer.svelte';
 	import CommandBar from './CommandBar.svelte';
 	import Scrubber from './Scrubber.svelte';
@@ -328,8 +328,8 @@
 			{/if}
 		{/if}
 
-		{#if layers_state.data?.uav_layer}
-			<UAVLayer {map} />
+		{#if layers_state.data?.adsb_layer}
+			<ADSBLayer {map} />
 		{/if}
 		{#if layers_state.data?.quake_layer}
 			<QuakeLayer {map} />

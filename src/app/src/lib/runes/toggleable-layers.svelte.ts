@@ -2,12 +2,12 @@ export function create_layers_state() {
 	let data = $state<{
 		radar_layer: boolean;
 		radar_stations_layer: boolean;
-		uav_layer: boolean;
+		adsb_layer: boolean;
 		quake_layer: boolean;
 	}>({
 		radar_layer: true,
 		radar_stations_layer: false,
-		uav_layer: false,
+		adsb_layer: false,
 		quake_layer: false
 	});
 
