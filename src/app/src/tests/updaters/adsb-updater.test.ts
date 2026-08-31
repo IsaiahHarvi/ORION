@@ -107,8 +107,32 @@ describe('adsb markers', () => {
 		await loadFlightData(fakeMap(), respondWith([flight('a')]) as unknown as typeof fetch);
 		expect(maplibregl.Marker).toHaveBeenCalledOnce();
 		const marker = vi.mocked(maplibregl.Marker).mock.results[0].value;
+		const [lng, lat] = marker._lngLat as [number, number];
 		// The feed reports lat and lon separately; MapLibre wants [lon, lat].
-		expect(marker._lngLat).toEqual([-88.362, 36.674]);
+		expect(lng).toBeCloseTo(-88.362, 2);
+		expect(lat).toBeCloseTo(36.674, 2);
+	});
+
+	it('draws an aircraft where it is now, not where the report found it', async () => {
+		// A report is already stale on arrival: the server may have served it
+		// from cache, and the receiver heard it before that. Both are reckoned
+		// through, so a plane is not drawn permanently trailing itself.
+		const map = fakeMap();
+		const stale = vi.fn().mockResolvedValue({
+			ok: true,
+			json: () =>
+				Promise.resolve({
+					feed_age_seconds: 14,
+					aircraft: [flight('a', { seen_pos_s: 6 })]
+				})
+		});
+		await loadFlightData(map, stale as unknown as typeof fetch);
+
+		const marker = vi.mocked(maplibregl.Marker).mock.results[0].value;
+		const [lng, lat] = marker._lngLat as [number, number];
+		// Twenty seconds of track 243 at 478 kt: south and west of the report.
+		expect(lng).toBeLessThan(-88.362);
+		expect(lat).toBeLessThan(36.674);
 	});
 
 	it('queries the viewport the user is looking at', async () => {
