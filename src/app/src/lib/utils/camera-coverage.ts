@@ -1,6 +1,6 @@
 // src/lib/utils/cameraCoverage.ts
 import type { Feature, Polygon, FeatureCollection, Feature as GeoJSONFeature } from 'geojson';
-import type maplibregl from 'maplibre-gl';
+import type * as maplibregl from 'maplibre-gl';
 
 /**
  * Compute a ground coverage polygon from:

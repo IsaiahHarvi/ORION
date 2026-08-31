@@ -1,4 +1,4 @@
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import { updateTrackData } from '$lib/track-data-updater';
 import uavIcon from '$lib/icons/uav-icon.png';
 

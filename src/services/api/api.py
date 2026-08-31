@@ -12,6 +12,8 @@ from fastapi.middleware.cors import CORSMiddleware
 
 # from services.model.main import Model
 # from services.model.utils import get_pretrained
+from services.radar.api import router as radar_router
+
 # from services.scans.get_scans import download_scans
 from services.scans.get_stations import get_radars
 
@@ -26,9 +28,10 @@ from services.scans.get_stations import get_radars
 app = FastAPI(
     root_path="/api",
 )
+app.include_router(radar_router)
 
 print("INFO:\t API URL:", os.environ.get("VITE_API_URL"))
-if not (os.environ.get("VITE_API_URL") == "https://orion.harville.dev/api"):
+if os.environ.get("VITE_API_URL") != "https://orion.harville.dev/api":
     # Production sets CORS in nginx, so we wouldnt set it here again.
     print("\nConfiguring CORS\n")
     app.add_middleware(

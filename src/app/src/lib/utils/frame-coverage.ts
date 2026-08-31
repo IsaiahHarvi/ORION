@@ -1,5 +1,5 @@
 import type { Feature, Polygon, FeatureCollection } from 'geojson';
-import type maplibregl from 'maplibre-gl';
+import type * as maplibregl from 'maplibre-gl';
 
 export interface LatLon {
 	lat: number;

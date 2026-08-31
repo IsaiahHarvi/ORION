@@ -1,0 +1,20 @@
+{
+	"name": "orion",
+	"private": true,
+	"packageManager": "pnpm@11.20.0",
+	"engines": {
+		"node": ">=24.0.0"
+	},
+	"scripts": {
+		"dev": "SCAN_DIR=${SCAN_DIR:-data/dev-scans} VITE_API_URL=${VITE_API_URL:-http://localhost:5171} turbo run dev",
+		"dev:api": "pnpm --filter @orion/api dev",
+		"dev:radar": "pnpm --filter @orion/radar dev",
+		"build": "turbo run build",
+		"check": "turbo run check",
+		"lint": "turbo run lint",
+		"test": "turbo run test"
+	},
+	"devDependencies": {
+		"turbo": "^2.10.12"
+	}
+}

@@ -7,7 +7,7 @@
 	let drawing = $state(false);
 	let color = $state('#ffffff');
 
-	let overlayRef: HTMLCanvasElement = $state();
+	let overlayRef: { undo: () => void; redo: () => void } | undefined = $state();
 
 	function toggleDrawing() {
 		drawing = !drawing;
@@ -60,9 +60,6 @@
 			type="color"
 			bind:value={color}
 			class="absolute left-0 top-0 h-full w-full cursor-pointer opacity-0"
-			oninput={(e) => {
-				if (overlayRef) overlayRef.color = (e.target as HTMLInputElement).value;
-			}}
 		/>
 	</div>
 </div>

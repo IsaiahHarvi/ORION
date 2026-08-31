@@ -1,6 +1,6 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
-	import maplibregl from 'maplibre-gl';
+	import * as maplibregl from 'maplibre-gl';
 	import { resetUAVUpdater, loadRouteData, createUAVMarkerElement } from '$lib/uav-updater';
 	import { updateTrackData } from '$lib/track-data-updater';
 	import { trackDataStore } from '$lib/stores/track-data';

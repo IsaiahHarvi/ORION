@@ -1,128 +1,230 @@
-import maplibregl from 'maplibre-gl';
+import type * as maplibregl from 'maplibre-gl';
+import { buildApiUrl } from '$lib/api';
 import { radar_state } from '$lib/runes/current-radar.svelte';
-import type { RainViewerResponse, RadarLayer } from '$types';
+import type { RadarManifest } from '$types';
 
-export let radarLayers: RadarLayer[] = [];
-export let animationPosition = 0;
-export const animationTimer: number | null = null;
+export const RADAR_LAYER_ID = 'radar-layer';
+/** Frames kept resident so playback crossfades instead of re-fetching tiles. */
+export const RADAR_BUFFER_SIZE = 6;
+const RADAR_MAX_OPACITY = 0.55;
+const MANIFEST_TTL_MS = 60_000;
 
-export const FRAME_COUNT = 1;
-export const FRAME_DELAY = 1500;
-export const RESTART_DELAY = 1000;
-export const COLOR_SCHEME = 7;
-
-export const isPlaying = true;
-
-export function formatTimestamp(timestamp: number): string {
-	const date = new Date(timestamp);
-
-	const weekday = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-	const month = [
-		'Jan',
-		'Feb',
-		'Mar',
-		'Apr',
-		'May',
-		'Jun',
-		'Jul',
-		'Aug',
-		'Sep',
-		'Oct',
-		'Nov',
-		'Dec'
-	];
-
-	return `${weekday[date.getDay()]} ${month[date.getMonth()]} ${date
-		.getDate()
-		.toString()
-		.padStart(2, '0')} ${date.getHours().toString().padStart(2, '0')}:${date
-		.getMinutes()
-		.toString()
-		.padStart(2, '0')}`;
+function frameLayerId(frameId: string): string {
+	return `${RADAR_LAYER_ID}-${frameId}`;
 }
 
-export async function loadRainViewerData(
-	map: maplibregl.Map,
-	timestamp?: number,
-	givenFetchFn?: typeof fetch
-): Promise<void> {
-	const fetchFn = givenFetchFn ?? fetch;
+export function isRadarLayerId(layerId: string): boolean {
+	return layerId === RADAR_LAYER_ID || layerId.startsWith(`${RADAR_LAYER_ID}-`);
+}
 
-	const res = await fetchFn('https://api.rainviewer.com/public/weather-maps.json');
-	const data: RainViewerResponse = await res.json();
+let cachedManifest: RadarManifest | undefined;
+let cachedApiBase = '';
+let cachedAt = 0;
+let pendingManifest: Promise<RadarManifest> | undefined;
+let manifestGeneration = 0;
 
-	const valid_timestamps = [
-		...data.radar.nowcast.map((radar) => ({
-			time: radar.time,
-			isNowcast: true,
-			path: radar.path
-		})),
-		...data.radar.past.map((radar) => ({
-			time: radar.time,
-			isNowcast: false,
-			path: radar.path
-		}))
-	].sort((a, b) => a.time - b.time);
-    
-	radar_state.radar_state.valid_timestamps = valid_timestamps;
+type LoadRadarOptions = {
+	timestamp?: number;
+	fetchFn?: typeof fetch;
+	apiBase?: string;
+	forceManifest?: boolean;
+};
 
-	const targetTimestamp = timestamp ?? radar_state.radar_state.timestamp;
-	const matchedFrame = valid_timestamps.find((f) => f.time === targetTimestamp);
-	if (!matchedFrame) return;
+export class RadarUnavailableError extends Error {}
 
-	const oldLayers = [...radarLayers];
-	const newRadarLayers: RadarLayer[] = [];
-
-	const layerId = `radar-layer-${Date.now()}`;
-	let tileUrl = `https://tilecache.rainviewer.com/v2/radar/${matchedFrame.time}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`;
-
-	if (matchedFrame.isNowcast) {
-		tileUrl = `https://tilecache.rainviewer.com${matchedFrame.path}/256/{z}/{x}/{y}/${COLOR_SCHEME}/1_0.png`;
+function validateManifest(value: unknown): RadarManifest {
+	if (!value || typeof value !== 'object') throw new Error('Radar manifest is not an object');
+	const manifest = value as RadarManifest;
+	if (
+		manifest.version !== 1 ||
+		!Array.isArray(manifest.frames) ||
+		!Array.isArray(manifest.configured_stations)
+	) {
+		throw new Error('Unsupported radar manifest');
+	}
+	if (!manifest.frames.length)
+		throw new RadarUnavailableError('Radar mosaic is not available yet');
+	if (!manifest.frames.some((frame) => frame.id === manifest.default_frame_id)) {
+		throw new Error('Radar manifest default frame is missing');
 	}
 
-	map.addSource(layerId, {
-		type: 'raster',
-		tiles: [tileUrl],
-		tileSize: 256
-	});
-
-	map.addLayer({
-		id: layerId,
-		type: 'raster',
-		source: layerId,
-		layout: { visibility: 'visible' },
-		paint: { 'raster-opacity': 0 }
-	});
-
-	map.setPaintProperty(layerId, 'raster-opacity-transition', { duration: 800 });
-
-	setTimeout(() => {
-		map.setPaintProperty(layerId, 'raster-opacity', 0.7);
-	}, 50);
-
-	newRadarLayers.push({ id: layerId, time: matchedFrame.time });
-
-	oldLayers.forEach((oldLayer) => {
-		if (map.getLayer(oldLayer.id)) {
-			map.setPaintProperty(oldLayer.id, 'raster-opacity-transition', { duration: 500 });
-			map.setPaintProperty(oldLayer.id, 'raster-opacity', 0);
-
-			setTimeout(() => {
-				if (map.getLayer(oldLayer.id)) map.removeLayer(oldLayer.id);
-				if (map.getSource(oldLayer.id)) map.removeSource(oldLayer.id);
-			}, 500);
+	const timestamps = new Set<number>();
+	for (const frame of manifest.frames) {
+		if (
+			typeof frame.id !== 'string' ||
+			!Number.isFinite(frame.time) ||
+			!['observed', 'forecast'].includes(frame.kind) ||
+			typeof frame.tiles !== 'string' ||
+			!Array.isArray(frame.stations) ||
+			!Number.isFinite(frame.max_skew_seconds) ||
+			!['{z}', '{x}', '{y}'].every((token) => frame.tiles.includes(token)) ||
+			timestamps.has(frame.time)
+		) {
+			throw new Error('Radar manifest contains an invalid frame');
 		}
-	});
+		timestamps.add(frame.time);
+	}
+	return manifest;
+}
 
-	radarLayers = newRadarLayers;
-	animationPosition = 0;
+export function resetRadarManifestCache(): void {
+	cachedManifest = undefined;
+	cachedApiBase = '';
+	cachedAt = 0;
+	pendingManifest = undefined;
+	manifestGeneration = 0;
+}
 
-	const timestampEl = document.getElementById('radar-timestamp');
-	if (timestampEl && radarLayers[0]) {
-		timestampEl.textContent = formatTimestamp(radarLayers[0].time * 1000);
+export async function fetchRadarManifest(
+	fetchFn: typeof fetch = fetch,
+	apiBase = import.meta.env.VITE_API_URL,
+	force = false
+): Promise<RadarManifest> {
+	const now = Date.now();
+	if (!force && cachedManifest && cachedApiBase === apiBase && now - cachedAt < MANIFEST_TTL_MS) {
+		return cachedManifest;
+	}
+	if (!force && pendingManifest && cachedApiBase === apiBase) return pendingManifest;
+
+	cachedApiBase = apiBase;
+	const generation = ++manifestGeneration;
+	const request = (async () => {
+		const response = await fetchFn(buildApiUrl('radar/frames', apiBase), {
+			headers: { Accept: 'application/json' }
+		});
+		if (response.status === 503)
+			throw new RadarUnavailableError('Radar mosaic is not available yet');
+		if (!response.ok) throw new Error(`Radar manifest request failed with ${response.status}`);
+		const manifest = validateManifest(await response.json());
+		manifest.frames.sort((a, b) => a.time - b.time);
+		if (generation === manifestGeneration) {
+			cachedManifest = manifest;
+			cachedAt = Date.now();
+		}
+		return manifest;
+	})();
+	pendingManifest = request;
+
+	try {
+		const manifest = await request;
+		if (generation !== manifestGeneration) {
+			throw new DOMException('Superseded radar manifest request', 'AbortError');
+		}
+		return manifest;
+	} finally {
+		if (pendingManifest === request) pendingManifest = undefined;
+	}
+}
+
+export async function loadRadarData(
+	map: maplibregl.Map,
+	options: LoadRadarOptions = {}
+): Promise<void> {
+	const apiBase = options.apiBase ?? import.meta.env.VITE_API_URL;
+	const manifest = await fetchRadarManifest(
+		options.fetchFn,
+		apiBase,
+		options.forceManifest ?? false
+	);
+	const timestamps = manifest.frames.map((frame) => ({
+		id: frame.id,
+		time: frame.time,
+		isNowcast: frame.kind === 'forecast',
+		tileUrl: buildApiUrl(frame.tiles, apiBase),
+		stations: frame.stations,
+		configuredStationCount: manifest.configured_stations.length,
+		maxSkewSeconds: frame.max_skew_seconds,
+		motion: frame.motion_mps ?? { x: 0, y: 0 }
+	}));
+	// Only the most recent frames are kept warm; older ones stay in the manifest
+	// for the scrubber but are not worth the tile requests.
+	const buffered = timestamps.slice(-RADAR_BUFFER_SIZE);
+	radar_state.radar_state.valid_timestamps = buffered;
+
+	const defaultFrame = manifest.frames.find((frame) => frame.id === manifest.default_frame_id)!;
+	const targetTimestamp =
+		options.timestamp ?? radar_state.radar_state.timestamp ?? defaultFrame.time;
+	const selected =
+		buffered.find((frame) => frame.time === targetTimestamp) ?? buffered[buffered.length - 1];
+	radar_state.radar_state.timestamp = selected.time;
+	if (options.timestamp !== undefined || radar_state.radar_state.position === 0) {
+		radar_state.radar_state.position = buffered.indexOf(selected);
 	}
 
-	if (isPlaying) {
-		clearInterval(animationTimer!);
+	// Touching sources or layers before the style finishes loading throws; this
+	// happens on first paint and whenever the base style is being swapped.
+	while (!map.isStyleLoaded()) {
+		await new Promise((resolve) => map.once('styledata', resolve));
+	}
+
+	// Every buffered frame gets its own source and layer so playback only has to
+	// change opacity. Swapping tiles on one shared source re-fetches on every
+	// step, which is what made the loop stutter.
+	const firstLabel = map.getStyle().layers.find((layer) => layer.type === 'symbol')?.id;
+	for (const frame of buffered) {
+		const layerId = frameLayerId(frame.id);
+		if (!map.getSource(layerId)) {
+			map.addSource(layerId, {
+				type: 'raster',
+				tiles: [frame.tileUrl],
+				tileSize: manifest.tile_size,
+				minzoom: manifest.min_zoom,
+				maxzoom: manifest.max_zoom,
+				bounds: manifest.bounds,
+				attribution: manifest.attribution.text
+			});
+		}
+		if (!map.getLayer(layerId)) {
+			map.addLayer(
+				{
+					id: layerId,
+					type: 'raster',
+					source: layerId,
+					layout: { visibility: 'visible' },
+					paint: {
+						'raster-opacity': 0,
+						'raster-resampling': 'linear',
+						// Frames are swapped by opacity, so MapLibre's own
+						// cross-source fade would double-fade every step.
+						'raster-fade-duration': 0
+					}
+				},
+				firstLabel
+			);
+		}
+	}
+
+	const keep = new Set(buffered.map((frame) => frameLayerId(frame.id)));
+	for (const layer of map.getStyle().layers) {
+		if (isRadarLayerId(layer.id) && !keep.has(layer.id)) {
+			if (map.getLayer(layer.id)) map.removeLayer(layer.id);
+			if (map.getSource(layer.id)) map.removeSource(layer.id);
+		}
+	}
+
+	setRadarFramePosition(map, radar_state.radar_state.position);
+}
+
+/**
+ * Show a fractional position in the buffer, blending the two frames it falls
+ * between. Callers drive this every animation frame, so it must stay cheap:
+ * setting paint properties only, never touching sources.
+ */
+export function setRadarFramePosition(map: maplibregl.Map, position: number): void {
+	const frames = radar_state.radar_state.valid_timestamps;
+	if (!frames.length || !map.getLayer(frameLayerId(frames[0].id))) return;
+
+	const clamped = Math.max(0, Math.min(position, frames.length - 1));
+	const lower = Math.floor(clamped);
+	const upper = Math.min(lower + 1, frames.length - 1);
+	const blend = clamped - lower;
+
+	for (const [index, frame] of frames.entries()) {
+		const layerId = frameLayerId(frame.id);
+		if (!map.getLayer(layerId)) continue;
+		let opacity = 0;
+		if (index === lower) opacity = (1 - blend) * RADAR_MAX_OPACITY;
+		if (index === upper) opacity += blend * RADAR_MAX_OPACITY;
+		map.setPaintProperty(layerId, 'raster-opacity', opacity);
 	}
 }

@@ -24,6 +24,32 @@ A production version of this project is available at [orion.harville.dev](https:
 
 Interested users can build the project themselves.
 
+For local development, install pnpm through Corepack and
+[uv](https://docs.astral.sh/uv/getting-started/installation/), then run ORION from
+the repository root:
+
+```bash
+corepack enable
+pnpm install
+pnpm run dev
+```
+
+Turborepo starts the SvelteKit app, FastAPI service, and Level II radar producer. The
+app is available at `http://localhost:5173`, and the API is available at
+`http://localhost:5171`. The first radar frame may take several minutes while NOAA
+volumes are downloaded and processed.
+
+Local runtime artifacts are written to `data/dev-scans`. Do not run the development
+stack with `sudo`; root-owned Vite caches and radar artifacts prevent normal hot
+reloads and frame replacement.
+
+Run the backend services individually when needed:
+
+```bash
+pnpm run dev:api
+pnpm run dev:radar
+```
+
 1. **Start the Project:**
 
     Open your terminal in the project directory and start the Docker containers.
@@ -61,6 +87,46 @@ Interested users can build the project themselves.
 
 ## API
 Our API is available at: https://orion.harville.dev/api/docs
+
+## NEXRAD Mosaic
+
+ORION produces its own animated base-reflectivity mosaic from synchronized NOAA
+NEXRAD Level II volumes. The `radar-producer` service downloads unsigned archive
+objects, selects the lowest usable elevation sweep, resolves radar overlap by beam
+altitude/range/scan age, and atomically publishes immutable XYZ PNG tiles. FastAPI
+serves the resulting frame manifest and tiles without performing radar processing
+inside request workers.
+
+The default configuration in `.env.example` is a 2 km Tennessee Valley mosaic.
+Change `ORION_RADAR_STATIONS` and `ORION_RADAR_BOUNDS` together when expanding the
+coverage area. Higher resolution and larger bounds increase memory, download,
+processing, and tile-storage requirements substantially.
+
+Start the API and producer together:
+
+```bash
+docker compose up --build api radar-producer
+```
+
+Produce one reproducible frame instead of running the polling loop:
+
+```bash
+docker compose run --rm radar-producer \
+  python -m services.radar.producer --once --analysis-time 2026-08-29T18:00:00Z
+```
+
+Radar endpoints:
+
+```text
+GET /radar/frames
+GET /radar/status
+GET /radar/tiles/{frame}/{z}/{x}/{y}.png
+```
+
+Tiles are derived, colorized ORION products. Attribution must read: `Weather
+radar: NOAA/NWS NEXRAD processed by ORION`. The mosaic remains observational
+decision-support data and should expose stale or incomplete source coverage to
+operators rather than implying uninterrupted official NOAA delivery.
 
 
 ## [LICENSE](./LICENSE)

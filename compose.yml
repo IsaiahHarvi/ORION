@@ -1,11 +1,10 @@
-
 services:
   gui:
     build:
       context: .
       dockerfile: deploy/gui/Dockerfile
       args:
-         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
+        VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     image: "ghcr.io/isaiah-harville/orion/orion-gui:latest"
     environment:
       VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
@@ -19,7 +18,7 @@ services:
       context: .
       dockerfile: deploy/api/Dockerfile
       args:
-         VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
+        VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
     environment:
       SERVICE: api
@@ -27,8 +26,33 @@ services:
       KERAS_BACKEND: torch
       TORNET_ROOT: data/TorNet
       VITE_API_URL: ${VITE_API_URL:-production}
+      ORION_MOSAIC_DIR: /app/scans/mosaic
     ports:
       - "5171:5171"
+    volumes:
+      - radar-data:/app/scans:ro
+
+  radar-producer:
+    build:
+      context: .
+      dockerfile: deploy/api/Dockerfile
+    image: "ghcr.io/isaiah-harville/orion/orion-api:latest"
+    command: ["python", "-m", "services.radar.producer"]
+    environment:
+      SCAN_DIR: /app/scans
+      ORION_MOSAIC_DIR: /app/scans/mosaic
+      ORION_NEXRAD_BUCKET: ${ORION_NEXRAD_BUCKET:-unidata-nexrad-level2}
+      ORION_RADAR_STATIONS: ${ORION_RADAR_STATIONS:-ALL}
+      ORION_RADAR_BOUNDS: ${ORION_RADAR_BOUNDS:--125.0,24.0,-66.5,49.5}
+      ORION_RADAR_RESOLUTION_M: ${ORION_RADAR_RESOLUTION_M:-2000}
+      ORION_RADAR_INGEST_WORKERS: ${ORION_RADAR_INGEST_WORKERS:-8}
+      ORION_RADAR_KEEP_RAW: ${ORION_RADAR_KEEP_RAW:-false}
+      ORION_RADAR_RAW_RETENTION_SECONDS: ${ORION_RADAR_RAW_RETENTION_SECONDS:-1800}
+    volumes:
+      - radar-data:/app/scans
+
+volumes:
+  radar-data:
 
 networks:
   default:

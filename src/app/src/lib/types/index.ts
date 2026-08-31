@@ -1,1 +1,1 @@
-export type { RadarLayer, RadarTimestamp, RainViewerFrame, RainViewerResponse } from './map';
+export type { RadarFrame, RadarManifest, RadarTimestamp } from './map';

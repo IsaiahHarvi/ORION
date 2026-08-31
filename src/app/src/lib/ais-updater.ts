@@ -1,4 +1,4 @@
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 import { aisStore, type AISShip } from '$lib/stores/ais-store';
 import shipIcon from '$lib/icons/ship-icon.png';
 

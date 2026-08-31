@@ -22,6 +22,13 @@ spec:
           ports:
             - name: api
               containerPort: 5171
+          env:
+            - name: ORION_MOSAIC_DIR
+              value: /app/scans/mosaic
+          volumeMounts:
+            - name: radar-data
+              mountPath: /app/scans
+              readOnly: true
           readinessProbe:
             httpGet:
               path: /health
@@ -34,6 +41,28 @@ spec:
               port: 5171
             initialDelaySeconds: 10
             periodSeconds: 20
+        - name: radar-producer
+          image: ghcr.io/isaiah-harville/orion/orion-api:latest
+          imagePullPolicy: Always
+          command: ["python", "-m", "services.radar.producer"]
+          env:
+            - name: SCAN_DIR
+              value: /app/scans
+            - name: ORION_MOSAIC_DIR
+              value: /app/scans/mosaic
+            - name: ORION_RADAR_STATIONS
+              value: ALL
+            - name: ORION_RADAR_BOUNDS
+              value: "-125.0,24.0,-66.5,49.5"
+            - name: ORION_RADAR_INGEST_WORKERS
+              value: "8"
+            - name: ORION_RADAR_KEEP_RAW
+              value: "false"
+            - name: ORION_RADAR_RAW_RETENTION_SECONDS
+              value: "1800"
+          volumeMounts:
+            - name: radar-data
+              mountPath: /app/scans
         - name: gui
           image: ghcr.io/isaiah-harville/orion/orion-gui:latest
           imagePullPolicy: Always
@@ -55,3 +84,6 @@ spec:
               port: 5173
             initialDelaySeconds: 10
             periodSeconds: 20
+      volumes:
+        - name: radar-data
+          emptyDir: {}

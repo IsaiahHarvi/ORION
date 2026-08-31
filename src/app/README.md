@@ -16,23 +16,28 @@ npx sv create my-app
 
 ## Developing
 
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
+Install dependencies and start the development server from the repository root:
 
 ```bash
-npm run dev
+pnpm install
+pnpm run dev
 
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
+# or start only the frontend and open it in a new browser tab
+pnpm --filter app dev -- --open
 ```
+
+The root command starts the frontend, FastAPI, and radar producer. The filtered
+command starts only the frontend and expects `VITE_API_URL` to point at an existing
+API.
 
 ## Building
 
 To create a production version of your app:
 
 ```bash
-npm run build
+pnpm run build
 ```
 
-You can preview the production build with `npm run preview`.
+You can preview the production build with `pnpm --filter app preview`.
 
 > To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

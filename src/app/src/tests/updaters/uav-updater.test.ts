@@ -1,8 +1,9 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
-import { loadRouteData } from '$lib/uav-updater';
+import { loadRouteData, type UAVUpdaterState } from '$lib/uav-updater';
+import type * as maplibregl from 'maplibre-gl';
 
 class MockMarker {
-	private _lngLat: [number, number];
+	private _lngLat!: [number, number];
 	private _element: HTMLElement;
 
 	constructor(options: { element: HTMLElement; draggable: boolean }) {
@@ -34,23 +35,7 @@ type ObservationItem = {
 	};
 };
 
-type State = {
-	lastUpdateTime: string | null;
-	accumulatedObservations: ObservationItem[];
-	accumulatedRoutePoints: Coordinate[];
-	routeGeoJSON: {
-		type: 'FeatureCollection';
-		features: {
-			type: 'Feature';
-			geometry: {
-				type: 'LineString';
-				coordinates: Coordinate[];
-			};
-		}[];
-	};
-};
-
-const mockInterpolateCoordinates = (points: Coordinate[], segments: number): Coordinate[] =>
+const mockInterpolateCoordinates = (points: Coordinate[], segments = 100): Coordinate[] =>
 	points.slice(0, Math.min(points.length, segments));
 
 const mockCreateUAVMarkerElement = (): HTMLElement => document.createElement('div');
@@ -96,7 +81,7 @@ describe('loadRouteData', () => {
 
 		const mockOnMarkerCreate = vi.fn();
 
-		const state: State = {
+		const state: UAVUpdaterState = {
 			lastUpdateTime: null,
 			accumulatedObservations: [],
 			accumulatedRoutePoints: [],
@@ -105,6 +90,7 @@ describe('loadRouteData', () => {
 				features: [
 					{
 						type: 'Feature',
+						properties: {},
 						geometry: {
 							type: 'LineString',
 							coordinates: []
@@ -119,7 +105,7 @@ describe('loadRouteData', () => {
 			interpolateFn: mockInterpolateCoordinates,
 			createMarkerElFn: mockCreateUAVMarkerElement,
 			updateTrackFn: mockUpdateTrackData,
-			MarkerClass: MockMarker,
+			MarkerClass: MockMarker as unknown as typeof maplibregl.Marker,
 			state
 		});
 

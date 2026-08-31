@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "sivir": {
+      "source": "aidan-neel/sivir-ui",
+      "sourceType": "github",
+      "skillPath": "skills/sivir/SKILL.md",
+      "computedHash": "ac8af305d04c5c056b322b6d1219d52ec3712dcc8fc3c4801df1a4f67cdb1e5f"
+    }
+  }
+}

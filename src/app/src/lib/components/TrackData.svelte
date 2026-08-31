@@ -118,7 +118,7 @@
 					<Select.Content class="bg-background text-white">
 						<Select.Group>
 							<Select.GroupHeading>Combat Status</Select.GroupHeading>
-							{#each statusOptions as option}
+							{#each statusOptions as option (option.value)}
 								<Select.Item value={option.value}>
 									<span class={option.color}>{option.label}</span>
 								</Select.Item>

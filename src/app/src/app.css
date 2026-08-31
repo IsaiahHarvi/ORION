@@ -1,77 +1,67 @@
-@import url('https://fonts.googleapis.com/css2?family=Geist:wght@100..900&family=Space+Mono:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import '@sivir-ui/svelte/ui.css';
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@plugin 'tailwindcss-animate';
 
-@layer base {
-	/* :root {
-		--background: 0 0% 100%;
-		--foreground: 0 0% 3.9%;
-		--muted: 0 0% 96.1%;
-		--muted-foreground: 0 0% 45.1%;
-		--popover: 0 0% 100%;
-		--popover-foreground: 0 0% 3.9%;
-		--card: 0 0% 100%;
-		--card-foreground: 0 0% 3.9%;
-		--border: 0 0% 89.8%;
-		--input: 0 0% 89.8%;
-		--primary: 0 0% 9%;
-		--primary-foreground: 0 0% 98%;
-		--secondary: 0 0% 96.1%;
-		--secondary-foreground: 0 0% 9%;
-		--accent: 0 0% 96.1%;
-		--accent-foreground: 0 0% 9%;
-		--destructive: 0 72.2% 50.6%;
-		--destructive-foreground: 0 0% 98%;
-		--ring: 0 0% 3.9%;
-		--radius: 0.5rem;
-		--sidebar-background: 0 0% 98%;
-		--sidebar-foreground: 240 5.3% 26.1%;
-		--sidebar-primary: 240 5.9% 10%;
-		--sidebar-primary-foreground: 0 0% 98%;
-		--sidebar-accent: 240 4.8% 95.9%;
-		--sidebar-accent-foreground: 240 5.9% 10%;
-		--sidebar-border: 220 13% 91%;
-		--sidebar-ring: 217.2 91.2% 59.8%;
-	} */
+@theme {
+	--font-sans: 'Inter', sans-serif;
+	--font-mono: 'JetBrains Mono', monospace;
+	--font-header: var(--font-sans);
 
-	:root {
-		--background: 0 0% 4%;
-		--foreground: 0 0% 98%;
-		--muted: 0 0% 7%;
-		--muted-foreground: 0 0% 55%;
-		--popover: 0 0% 3.9%;
-		--popover-foreground: 0 0% 98%;
-		--card: 0 0% 3.9%;
-		--card-foreground: 0 0% 98%;
-		--border: 0 0% 11%;
-		--input: 0 0% 14.9%;
-		--primary: 0 0% 98%;
-		--primary-foreground: 0 0% 9%;
-		--secondary: 0 0% 14.9%;
-		--secondary-foreground: 0 0% 98%;
-		--accent: 0 0% 14.9%;
-		--accent-foreground: 0 0% 98%;
-		--destructive: 0 62.8% 30.6%;
-		--destructive-foreground: 0 0% 98%;
-		--ring: 0 0% 83.1%;
-		--sidebar-background: 240 5.9% 10%;
-		--sidebar-foreground: 240 4.8% 95.9%;
-		--sidebar-primary: 224.3 76.3% 48%;
-		--sidebar-primary-foreground: 0 0% 100%;
-		--sidebar-accent: 240 3.7% 15.9%;
-		--sidebar-accent-foreground: 240 4.8% 95.9%;
-		--sidebar-border: 240 3.7% 15.9%;
-		--sidebar-ring: 217.2 91.2% 59.8%;
-		--radius: 0.4rem;
+	/* Compatibility aliases for the existing copied UI components. */
+	--color-muted-foreground: var(--color-foreground-muted);
+	--color-primary-foreground: var(--color-on-primary);
+	--color-secondary-foreground: var(--color-foreground);
+	--color-destructive: var(--color-error);
+	--color-destructive-foreground: var(--color-on-primary);
+	--color-accent: var(--color-accent-tint);
+	--color-accent-foreground: var(--color-foreground);
+	--color-popover: var(--color-panel);
+	--color-popover-foreground: var(--color-foreground);
+	--color-card-foreground: var(--color-foreground);
+	--color-sidebar: hsl(240 5.9% 10%);
+	--color-sidebar-foreground: hsl(240 4.8% 95.9%);
+	--color-sidebar-primary: hsl(224.3 76.3% 48%);
+	--color-sidebar-primary-foreground: hsl(0 0% 100%);
+	--color-sidebar-accent: hsl(240 3.7% 15.9%);
+	--color-sidebar-accent-foreground: hsl(240 4.8% 95.9%);
+	--color-sidebar-border: hsl(240 3.7% 15.9%);
+	--color-sidebar-ring: hsl(217.2 91.2% 59.8%);
+	--color-success: #3dbf45;
 
-		--success: #3dbf45;
+	--animate-accordion-down: accordion-down 0.2s ease-out;
+	--animate-accordion-up: accordion-up 0.2s ease-out;
+	--animate-caret-blink: caret-blink 1.25s ease-out infinite;
+
+	@keyframes accordion-down {
+		from {
+			height: 0;
+		}
+		to {
+			height: var(--bits-accordion-content-height);
+		}
 	}
-}
 
-.text-success {
-	color: var(--success);
+	@keyframes accordion-up {
+		from {
+			height: var(--bits-accordion-content-height);
+		}
+		to {
+			height: 0;
+		}
+	}
+
+	@keyframes caret-blink {
+		0%,
+		70%,
+		100% {
+			opacity: 1;
+		}
+		20%,
+		50% {
+			opacity: 0;
+		}
+	}
 }
 
 [data-dialog-close] {
@@ -79,7 +69,7 @@
 }
 
 strong {
-	@apply font-medium text-muted-foreground;
+	@apply text-muted-foreground font-medium;
 }
 
 @layer base {
@@ -87,24 +77,57 @@ strong {
 		@apply border-border;
 	}
 	body {
-		@apply bg-background text-foreground;
+		@apply bg-background text-foreground m-0;
 	}
 }
 
-.maplibregl-ctrl {
-	@apply border bg-background;
+.orion-surface {
+	border: 1px solid var(--color-border);
+	background: color-mix(in srgb, var(--color-card) 94%, transparent);
+	box-shadow: 0 8px 24px -8px rgb(0 0 0 / 60%);
 }
 
-.maplibregl-ctrl-icon {
-	filter: brightness(4) saturate(100%) invert(0);
+.orion-reflectivity-scale {
+	background: linear-gradient(
+		90deg,
+		var(--color-success),
+		var(--color-warning),
+		var(--color-error)
+	);
 }
 
-.maplibregl-ctrl-button {
-	@apply text-white;
+.orion-user-location {
+	position: relative;
+	width: 20px;
+	height: 20px;
+	pointer-events: none;
+	border: 1px solid color-mix(in srgb, var(--color-foreground-muted) 55%, transparent);
+	border-radius: 9999px;
+	background: color-mix(in srgb, var(--color-foreground-muted) 22%, var(--color-background));
+	box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-foreground-muted) 14%, transparent);
 }
 
-.maplibregl-ctrl-scale {
-	@apply text-white;
+.orion-user-location::after {
+	content: '';
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	width: 8px;
+	height: 8px;
+	transform: translate(-50%, -50%);
+	border-radius: inherit;
+	background: var(--color-primary);
+	box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary) 20%, transparent);
+}
+
+.orion-mobile-top {
+	top: max(54px, calc(env(safe-area-inset-top) + 10px));
+}
+
+.orion-scrubber {
+	left: 12px;
+	right: 12px;
+	bottom: max(34px, calc(env(safe-area-inset-bottom) + 12px));
 }
 
 html {
@@ -112,14 +135,28 @@ html {
 }
 
 .toast {
-	@apply rounded-none !important;
+	border-radius: 0 !important;
 }
 
-* {
-	@apply cursor-default !important;
+@media (min-width: 1024px) {
+	.orion-scrubber {
+		left: 20px;
+		right: auto;
+		bottom: 24px;
+		width: 640px;
+	}
 }
 
 .marker:hover {
 	filter: brightness(60%) !important;
-	@apply duration-150 !important;
+	transition-duration: 150ms !important;
+}
+
+.radar-marker {
+	width: 20px;
+	height: 20px;
+	border: 0;
+	padding: 0;
+	background: transparent;
+	cursor: pointer;
 }

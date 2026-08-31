@@ -1,5 +1,7 @@
+import type { Map } from 'maplibre-gl';
+
 export function create_map_state() {
-	let data = $state<unknown>();
+	let data = $state<Map>();
 
 	return {
 		get data() {

@@ -1,0 +1,19 @@
+{
+	"$schema": "https://turborepo.com/schema.json",
+	"globalPassThroughEnv": ["VITE_API_URL", "UV_CACHE_DIR", "SCAN_DIR", "ORION_*"],
+	"tasks": {
+		"dev": {
+			"cache": false,
+			"persistent": true
+		},
+		"build": {
+			"dependsOn": ["^build"],
+			"outputs": ["build/**", ".svelte-kit/**"]
+		},
+		"check": {
+			"outputs": [".svelte-kit/**"]
+		},
+		"lint": {},
+		"test": {}
+	}
+}

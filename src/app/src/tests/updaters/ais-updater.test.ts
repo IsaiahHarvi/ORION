@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { loadAISData, resetAISUpdater } from '$lib/ais-updater';
 import { aisStore } from '$lib/stores/ais-store';
 import type { Mock } from 'vitest';
-import maplibregl from 'maplibre-gl';
+import * as maplibregl from 'maplibre-gl';
 
 vi.mock('$lib/icons/ship-icon.png', () => ({ default: 'ship-icon.png' }));
 vi.mock('$lib/stores/ais-store', () => ({
@@ -25,11 +25,9 @@ vi.mock('maplibre-gl', () => {
 		remove() {}
 	}
 	return {
-		default: {
-			Marker: vi
-				.fn()
-				.mockImplementation((options: { element: HTMLElement }) => new MockMarker(options))
-		}
+		Marker: vi.fn(function Marker(options: { element: HTMLElement }) {
+			return new MockMarker(options);
+		})
 	};
 });
 
@@ -81,30 +79,21 @@ describe('loadAISData', () => {
 	it('creates and adds a new marker to the map with correct data', async () => {
 		resetAISUpdater();
 		loadAISData(mockMap as maplibregl.Map);
-		await vi.runAllTicks();
+		await vi.waitFor(() => expect(maplibregl.Marker).toHaveBeenCalledOnce());
 
 		expect(globalThis.fetch).toHaveBeenCalledWith(
 			'https://api.georobotix.io/ogc/t18/api/datastreams/kuhmds0ib5gd8/observations'
 		);
-		expect(maplibregl.Marker).not.toHaveBeenCalled();
 
-		const markerConstructorSpy = vi.spyOn(maplibregl, 'Marker');
+		const markerOptions = vi.mocked(maplibregl.Marker).mock.calls[0][0];
+		const el = markerOptions?.element as HTMLImageElement;
 
-		if (markerConstructorSpy.mock.calls.length > 0) {
-			const markerOptions = markerConstructorSpy.mock.calls[0][0];
-			if (markerOptions && markerOptions.element) {
-				const el = markerOptions.element as HTMLImageElement;
+		expect(el).toBeDefined();
+		expect(el.tagName).toBe('IMG');
+		expect(el.src).toContain('ship-icon.png');
 
-				expect(el).toBeDefined();
-				expect(el.tagName).toBe('IMG');
-				expect(el.src).toContain('ship-icon.png');
-
-				el.onclick?.(new MouseEvent('click'));
-				expect(aisStore.update).toHaveBeenCalled();
-			}
-		} else {
-			expect(maplibregl.Marker).not.toHaveBeenCalled();
-		}
+		el.onclick?.(new PointerEvent('click'));
+		expect(aisStore.update).toHaveBeenCalled();
 
 		vi.advanceTimersByTime(10000);
 	});
