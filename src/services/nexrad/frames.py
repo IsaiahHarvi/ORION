@@ -31,8 +31,9 @@ from services.nexrad.settings import (
 )
 from services.nexrad.storage import atomic_json
 from services.nexrad.tiles import render_tile_pyramid
+from services.nexrad.timing import CycleTimer
 
-LOGGER = logging.getLogger("orion.radar.frames")
+LOGGER = logging.getLogger("orion.nexrad.frames")
 
 
 def produce_frame(
@@ -40,6 +41,7 @@ def produce_frame(
     analysis_time: datetime | None = None,
 ) -> str:
     """Build and publish one mosaic frame, returning its id."""
+    timer = CycleTimer()
     settings.raw_directory.mkdir(parents=True, exist_ok=True)
     frames_directory = settings.mosaic_directory / "frames"
     frames_directory.mkdir(parents=True, exist_ok=True)
@@ -52,10 +54,13 @@ def produce_frame(
     # this client, with headroom; a pool smaller than the workers using it makes
     # boto discard and reopen connections on nearly every request.
     client = create_s3_client(max_pool_connections=settings.ingest_workers + 16)
-    scans = list_station_scans(client, settings, cutoff - settings.scan_window, cutoff)
-    anchor, selected = select_synchronized_scans(
-        scans, cutoff, settings.scan_tolerance, settings.minimum_stations
-    )
+    with timer.stage("list"):
+        scans = list_station_scans(
+            client, settings, cutoff - settings.scan_window, cutoff
+        )
+        anchor, selected = select_synchronized_scans(
+            scans, cutoff, settings.scan_tolerance, settings.minimum_stations
+        )
 
     frame_time = int(anchor.timestamp())
     frame_id = f"{frame_time}-{configuration_hash(settings)}"
@@ -65,14 +70,17 @@ def produce_frame(
         LOGGER.info("Frame %s already exists", frame_id)
         return frame_id
 
-    grid, contributing = _composite_scans(client, settings, selected)
+    with timer.stage("ingest"):
+        grid, contributing = _composite_scans(client, settings, selected)
     if len(contributing) < settings.minimum_stations:
         raise RuntimeError(
             f"Only {len(contributing)} stations decoded; "
             f"need {settings.minimum_stations}"
         )
-    despeckle_grid(grid)
-    motion = estimate_frame_motion(settings, grid, frame_time)
+    with timer.stage("despeckle"):
+        despeckle_grid(grid)
+    with timer.stage("motion"):
+        motion = estimate_frame_motion(settings, grid, frame_time)
 
     sources = [scan for station, scan in selected.items() if station in contributing]
     metadata = {
@@ -89,9 +97,16 @@ def produce_frame(
         "resolution_m": settings.resolution_m,
         "algorithm_version": ALGORITHM_VERSION,
     }
-    _render_frame(settings, frames_directory, frame_id, grid, metadata)
+    with timer.stage("render"):
+        _render_frame(settings, frames_directory, frame_id, grid, metadata)
 
     publish_manifest(settings)
+    timer.log(
+        settings.interval_seconds,
+        frame=frame_id,
+        stations=len(contributing),
+        tiles=metadata["tile_count"],
+    )
     LOGGER.info(
         "Published frame %s from %s stations with %s non-empty tiles",
         frame_id,
