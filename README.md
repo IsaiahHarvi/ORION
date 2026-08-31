@@ -55,9 +55,9 @@ pnpm run dev:radar
     Open your terminal in the project directory and start the Docker containers.
 
     ```bash
-    git clone --recurse-submodules git@github.com:isaiah-harville/ORION.git
+    git clone git@github.com:isaiah-harville/ORION.git
     cd ORION
-    docker compose --profile gui up --build
+    docker compose up --build
     # Optionally, to target the developmentAPI rather than a locally hosted API export the following env var
     export VITE_API_URL=http://localhost:5171
     ```
@@ -75,15 +75,6 @@ pnpm run dev:radar
     This will load your project locally.
 
 ### Additional Information
-
--   **Stopping the Containers:**
-    To stop the running containers, press `Ctrl+C` in the terminal and then run:
-
-    ```bash
-    docker compose --profile gui down
-    ```
-
-----
 
 ## API
 Our API is available at: https://orion.harville.dev/api/docs

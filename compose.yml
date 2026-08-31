@@ -10,8 +10,6 @@ services:
       VITE_API_URL: ${VITE_API_URL:-https://orion.harville.dev/api}
     ports:
       - "5173:5173"
-    profiles:
-      - gui
 
   api:
     build:
@@ -26,7 +24,6 @@ services:
       SERVICE: api
       SCAN_DIR: /app/scans
       KERAS_BACKEND: torch
-      TORNET_ROOT: data/TorNet
       VITE_API_URL: ${VITE_API_URL:-production}
       ORION_MOSAIC_DIR: /app/scans/mosaic
     ports:
